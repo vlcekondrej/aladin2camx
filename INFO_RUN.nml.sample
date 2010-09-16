@@ -1,0 +1,21 @@
+! Sample INFO_RUN namelist:
+!
+! ALAD_GRIB_DIR 	directory with gribs from NWP model
+! CAMX_INP_DIR 		directory for CAMx-ready meteorological inputs
+! begYYYYMMDD/begHH 	beginning date/time of the first data record that will be contained in CAMx input files
+! endYYYYMMDD/endHH 	end date/time of the last data record that will be contained in CAMx input files
+! met_frequency  	frequency (in minutes) with NWP gribs are supplied; usually 60min
+! TimeZone		time delay of local time that is used for CAMx simulation relative to UTC
+!			(Central Europe winter time (CET):TimeZone=+1, summer time (CEST): TimeZone=+2)
+!			for more info see README
+!
+&info_run
+ALAD_GRIB_DIR = './ALADIN_GRIB',
+CAMX_INP_DIR  = './CAMX_INP',
+begYYYYMMDD   = 20080701,
+begHHMI       = 0000,
+endYYYYMMDD   = 20080702,
+endHHMI       = 0000,
+met_frequency = 60,
+TimeZone      = 2
+/
