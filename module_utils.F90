@@ -18,6 +18,7 @@ MODULE module_utils
             RETURN
         END IF
     END DO
+    STOP '__getFreeUnitNo: reached maximum unit number. All are used!!! Increase maxUnitNo and recompile.'
   END FUNCTION getFreeUnitNo
  
   SUBROUTINE TestStop(istat,message,ounit)
