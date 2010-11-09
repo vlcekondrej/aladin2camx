@@ -17,6 +17,7 @@ LDOPTIONS       = -L$(GRIB_API_LIB) -L$(JASPER_LIB) -L$(NCDF_LIB)
 
 GRIB_API_MOD    = /usr/local/include 
 GRIB_API_LIB    = /usr/local/lib/ -lgrib_api_f90 -lgrib_api
+#JASPER_LIB      = /usr/lib -ljasper
 JASPER_LIB      = /usr/local/lib -ljasper
 
 NCDF_MOD        = /usr/local/netcdf-4.1.1_modAtt/include
