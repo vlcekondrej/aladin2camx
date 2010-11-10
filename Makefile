@@ -9,7 +9,6 @@ MAIN_EXE    = ${MAIN_SRC:.F90=.exe}
 SOURCES_F90 = run_info.F90 \
               caldate.F90 \
               juldate.F90 \
-              emiheader.F90 \
               get_h_p_t_wv.F90 \
               get_aladin_fields.F90 \
               kvcalc_louis79.F90 \
@@ -21,7 +20,6 @@ SOURCES_F90 = run_info.F90 \
               clddiag.F90 \
               cod_chimere.F90 \
               cod_wrfcamx.F90
-#              emissionfiles.F90 \
 
 SOURCES_f90 = ${SOURCES_F90:.F90=.f90} 
 SOURCES_OBJ = ${SOURCES_F90:.F90=.o} 
