@@ -36,11 +36,6 @@ PROGRAM aladin2camx_MAIN
  datestring=begDateStr(1:4)//'-'//begDateStr(5:6)//'-'//begDateStr(7:8)//'-'//begTimeStr(1:2)//'_'// &
             endDateStr(1:4)//'-'//endDateStr(5:6)//'-'//endDateStr(7:8)//'-'//endTimeStr(1:2)
 
- ! allocate file unit numbers for binaries and NetCDF
- ALLOCATE(h_p_unit(ngridnumber),temp_unit(ngridnumber))
- ALLOCATE(wv_unit(ngridnumber),wind_unit(ngridnumber))
- ALLOCATE(cl_unit(ngridnumber), rkv_unit(ngridnumber))
- ALLOCATE(avgHGT_unit(ngridnumber))
  IF (BEIS_flag) CALL alloc_netCDFids(ngridnumber)
 
  ! open CAMx input files for every nested grid and meteorological parameter
@@ -48,42 +43,36 @@ PROGRAM aladin2camx_MAIN
      WRITE(GridNoString,'(A,I2.2)')'d', g
 
      h_p_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=h_p_unit(g),FILE=TRIM(CAMx_INP_DIR)//'camx.zp.'//GridNoString//'.'//dateString, &
-       & FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=h_p_unit(g),FILE=h_p_file(g),   FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx HEIGHT/PRESSURE FILE',logFileUnit)
 
      temp_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=temp_unit(g),FILE=TRIM(CAMx_INP_DIR)//'camx.tp.'//GridNoString//'.'//dateString, &
-       & FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=temp_unit(g),FILE=temp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx TEMPERATURE',logFileUnit)
 
      wind_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=wind_unit(g),FILE=TRIM(CAMx_INP_DIR)//'camx.uv.'//GridNoString//'.'//dateString, &
-       & FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=wind_unit(g),FILE=wind_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WIND',logFileUnit)
 
      wv_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=wv_unit(g),FILE=TRIM(CAMx_INP_DIR)//'camx.qa.'//GridNoString//'.'//dateString, &
-       & FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=wv_unit(g), FILE=wv_file(g),    FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WATER VAPOR FILE',logFileUnit)
 
      cl_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=cl_unit(g),FILE=TRIM(CAMx_INP_DIR)//'camx.cr.'//GridNoString//'.'//dateString, &
-       FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=cl_unit(g), FILE=cl_file(g),    FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx CLOUD/RAIN FILE',logFileUnit)
 
      rkv_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=rkv_unit(g),FILE=TRIM(CAMx_INP_DIR)//'camx.kv.'//GridNoString//'.'//dateString, &
-       & FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=rkv_unit(g),FILE=rkv_file(g),   FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx RKV FILE',logFileUnit)
 
-     IF (BEIS_flag)  THEN
-         CALL BEISmet_createHeader(g=g,ncfname=TRIM(CAMx_INP_DIR)//'BEISmet.'//GridNoString//'.'//dateString//'.nc')
+     IF (BEIS_flag) THEN
+         CALL BEISmet_createHeader(g=g,ncfname=beis_file(g))
          CALL BEISmet_putTime(netCDFid(g),TFLAG_varID(g))
      END IF
 
      avgHGT_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=avgHGT_unit(g),FILE=TRIM(CAMx_INP_DIR)//'camx.avgHGT.'//GridNoString//'.'//dateString)
+     OPEN(UNIT=avgHGT_unit(g),FILE=avgHGT_file(g))
 
 !tmpFile tmp_unit=getFreeUnitNo()
 !tmpFile OPEN(UNIT=tmp_unit,FILE=TRIM(CAMx_INP_DIR)//'camx_tmp.'//GridNoString//'.'//dateString, &
@@ -97,7 +86,7 @@ PROGRAM aladin2camx_MAIN
  ! loop over all aladin files and extract/calculate/write out fields
  DO d=0,nAladFiles
      ! get ALADIN fields
-     CALL get_aladin_fields(TRIM(ALAD_GRIB_DIR)//aladin_met(d)%name_f) 
+     CALL get_aladin_fields(aladin_met(d)%name_f) 
      IF ( d==0 ) CYCLE ! just read accumulated fields from one time step before start
      ! generate CAMx meteo inputs
      CALL get_h_p_t_wv(d)
@@ -124,9 +113,6 @@ PROGRAM aladin2camx_MAIN
      CLOSE(avgHGT_unit(g))
  END DO
 !tmpFile close(tmp_unit)
-
- ! DEallocate file unit numbers for binaries 
- DEALLOCATE(h_p_unit,temp_unit,wv_unit,wind_unit,cl_unit,rkv_unit,avgHGT_unit)
 
  ! deallocate NetCDF IDs and close NetCDF files
  IF (BEIS_flag) THEN

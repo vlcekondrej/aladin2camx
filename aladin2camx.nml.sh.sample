@@ -1,3 +1,69 @@
+#!/bin/csh
+#
+
+cat <<IEOF >INFO_RUN.nml
+
+&info_run
+begYYYYMMDD   = 20080701,
+begHHMI       = 0200,
+endYYYYMMDD   = 20080702,
+endHHMI       = 0200,
+met_frequency = 60,
+TimeZone      = 2
+/
+
+&info_grid
+ngridnumber    =   1,
+,
+nest_mesh(1)   =   1,
+nest_xstart(1) =   2,
+nest_xend(1)   = 308,
+nest_ystart(1) =   2,
+nest_yend(1)   = 276
+/
+
+&output_file_names
+h_p_file    = './CAMX_INP/camx.zp.d01.2008-07-01-02_2008-07-02-02_new',
+temp_file   = './CAMX_INP/camx.tp.d01.2008-07-01-02_2008-07-02-02_new',
+wind_file   = './CAMX_INP/camx.uv.d01.2008-07-01-02_2008-07-02-02_new',
+wv_file     = './CAMX_INP/camx.qa.d01.2008-07-01-02_2008-07-02-02_new',
+cl_file     = './CAMX_INP/camx.cr.d01.2008-07-01-02_2008-07-02-02_new',
+rkv_file    = './CAMX_INP/camx.kv.d01.2008-07-01-02_2008-07-02-02_new',
+avgHGT_file = './CAMX_INP/camx.avgHGT.d01.2008-07-01-02_2008-07-02-02_new',
+beis_file   = './CAMX_INP/BEISmet.d01.2008-07-01-02_2008-07-02-02.nc_new'
+/
+
+&input_file_names
+aladin_met_names( 0) = './ALADIN_GRIB/ALADINCAMX_20080630_230000.grb',
+aladin_met_names( 1) = './ALADIN_GRIB/ALADINCAMX_20080701_000000.grb',
+aladin_met_names( 2) = './ALADIN_GRIB/ALADINCAMX_20080701_010000.grb',
+aladin_met_names( 3) = './ALADIN_GRIB/ALADINCAMX_20080701_020000.grb',
+aladin_met_names( 4) = './ALADIN_GRIB/ALADINCAMX_20080701_030000.grb',
+aladin_met_names( 5) = './ALADIN_GRIB/ALADINCAMX_20080701_040000.grb',
+aladin_met_names( 6) = './ALADIN_GRIB/ALADINCAMX_20080701_050000.grb',
+aladin_met_names( 7) = './ALADIN_GRIB/ALADINCAMX_20080701_060000.grb',
+aladin_met_names( 8) = './ALADIN_GRIB/ALADINCAMX_20080701_070000.grb',
+aladin_met_names( 9) = './ALADIN_GRIB/ALADINCAMX_20080701_080000.grb',
+aladin_met_names(10) = './ALADIN_GRIB/ALADINCAMX_20080701_090000.grb',
+aladin_met_names(11) = './ALADIN_GRIB/ALADINCAMX_20080701_100000.grb',
+aladin_met_names(12) = './ALADIN_GRIB/ALADINCAMX_20080701_110000.grb',
+aladin_met_names(13) = './ALADIN_GRIB/ALADINCAMX_20080701_120000.grb',
+aladin_met_names(14) = './ALADIN_GRIB/ALADINCAMX_20080701_130000.grb',
+aladin_met_names(15) = './ALADIN_GRIB/ALADINCAMX_20080701_140000.grb',
+aladin_met_names(16) = './ALADIN_GRIB/ALADINCAMX_20080701_150000.grb',
+aladin_met_names(17) = './ALADIN_GRIB/ALADINCAMX_20080701_160000.grb',
+aladin_met_names(18) = './ALADIN_GRIB/ALADINCAMX_20080701_170000.grb',
+aladin_met_names(19) = './ALADIN_GRIB/ALADINCAMX_20080701_180000.grb',
+aladin_met_names(20) = './ALADIN_GRIB/ALADINCAMX_20080701_190000.grb',
+aladin_met_names(21) = './ALADIN_GRIB/ALADINCAMX_20080701_200000.grb',
+aladin_met_names(22) = './ALADIN_GRIB/ALADINCAMX_20080701_210000.grb',
+aladin_met_names(23) = './ALADIN_GRIB/ALADINCAMX_20080701_220000.grb',
+aladin_met_names(24) = './ALADIN_GRIB/ALADINCAMX_20080701_230000.grb',
+aladin_met_names(25) = './ALADIN_GRIB/ALADINCAMX_20080702_000000.grb'
+/
+IEOF
+
+cat <<EOF >aladin2camx.nml
 &aladin2camx_control
 
 ! == meteo files for BEIS ==
@@ -241,3 +307,5 @@ AladField_Qr%LevType = 109
 AladField_Qs%Param   = 145
 AladField_Qs%LevType = 109 
 /
+
+EOF

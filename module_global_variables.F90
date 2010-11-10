@@ -122,29 +122,36 @@ integer:: tmp_unit,irec
    NAMELIST /info_run/ ALAD_GRIB_DIR, CAMX_INP_DIR, begYYYYMMDD, begHHMI, endYYYYMMDD, endHHMI, met_frequency, TimeZone
 
    ! number of ALADIN grib files - derived from beginning/end simulation time and met_frequency
+   ! if required nAladFiles is greater than dimension of aladin_met, it is necessary to increase the dimension and rebuild the source
    INTEGER :: nAladFiles
    ! information on ALADIN grib files that should be available for the run 
    ! (accord. to begining/end date/time and input frequency given in RUN_INFO_FILE)
-   TYPE(tAVAILABLE_FILES),ALLOCATABLE :: aladin_met(:)
+   TYPE(tAVAILABLE_FILES), ALLOCATABLE, DIMENSION(:) :: aladin_met
 
  !---------------------------------------
  ! read by info_run() from INFO_GRID_FILE |
  !---------------------------------------
    ! number of grids, their definitions and meshing factors
-   INTEGER              :: ngridnumber
-   INTEGER, ALLOCATABLE :: nest_xstart(:), nest_xend(:)
-   INTEGER, ALLOCATABLE :: nest_ystart(:), nest_yend(:)
-   INTEGER, ALLOCATABLE :: nest_mesh(:)
+   INTEGER, PARAMETER                        :: ngridnumber_max=3
+   INTEGER                                   :: ngridnumber
+   INTEGER,       DIMENSION(ngridnumber_max) :: nest_xstart, nest_xend
+   INTEGER,       DIMENSION(ngridnumber_max) :: nest_ystart, nest_yend
+   INTEGER,       DIMENSION(ngridnumber_max) :: nest_mesh
+   NAMELIST /info_grid/ ngridnumber, nest_xstart, nest_xend, nest_ystart, nest_yend, nest_mesh
   
- INTEGER,       DIMENSION(:), ALLOCATABLE :: CAMx_nx, CAMx_ny
- REAL(KIND=dp), DIMENSION(:), ALLOCATABLE :: CAMx_dx, CAMx_dy
- REAL(KIND=dp), DIMENSION(:), ALLOCATABLE :: CAMx_SWCor11_x, CAMx_SWCor11_y
+   INTEGER,       DIMENSION(ngridnumber_max) :: CAMx_nx, CAMx_ny
+   REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_dx, CAMx_dy
+   REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_SWCor11_x, CAMx_SWCor11_y
 
 
- ! unit numbers for CAMx input files and master resp. nested grids; alloccated and set in aladin2camx_MAIN
- INTEGER, ALLOCATABLE :: h_p_unit(:), temp_unit(:), wind_unit(:), wv_unit(:)
- INTEGER, ALLOCATABLE :: cl_unit(:), emission_unit(:), rkv_unit(:)
- INTEGER, ALLOCATABLE :: avgHGT_unit(:)
+ ! unit numbers and file names for CAMx input files and master resp. nested grids; alloccated and set in aladin2camx_MAIN
+ INTEGER,            DIMENSION(ngridnumber_max) :: h_p_unit, temp_unit, wind_unit, wv_unit
+ INTEGER,            DIMENSION(ngridnumber_max) :: cl_unit,  rkv_unit
+ INTEGER,            DIMENSION(ngridnumber_max) :: avgHGT_unit
+ CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: h_p_file, temp_file, wind_file, wv_file
+ CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: cl_file,  rkv_file
+ CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: avgHGT_file, beis_file
+ NAMELIST /output_file_names/ h_p_file, temp_file, wind_file, wv_file, cl_file, rkv_file, avgHGT_file, beis_file
 
  ! emiheader.F90
  CHARACTER(LEN=4) :: mspec(10,4)

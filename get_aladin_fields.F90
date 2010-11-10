@@ -16,7 +16,7 @@ SUBROUTINE get_aladin_fields(gribfile)
 
 
  ! open ALADIN grib file
- WRITE(logFileUnit,*) ' ** OPENNING ALADIN GRIB FILE: '//TRIM(gribfile)//' ....'
+ WRITE(logFileUnit,*) ' ** OPENNING ALADIN GRIB FILE: "'//TRIM(gribfile)//'" ....'
  CALL grib_open_file(ifile,gribfile,'r',istat)
    CALL TestStop(istat-GRIB_SUCCESS,'STOP __get_aladin_fields: could not open ALADIN grib file.',logFileUnit)
 

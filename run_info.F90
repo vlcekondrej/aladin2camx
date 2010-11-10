@@ -7,10 +7,10 @@ SUBROUTINE run_info()
  INTEGER :: unit_INFO_RUN, unit_INFO_GRID
  INTEGER :: g, i, istat
  TYPE(tDateTime) :: beg_dt_LT, end_dt_LT, act_dt_LT, act_dt_UT ! _LT means Local Time
- CHARACTER(LEN=8) :: datestring
- CHARACTER(LEN=6) :: timestring
  INTEGER :: da,ti, ainc
  INTEGER :: unit_counter
+ CHARACTER(LEN=50), DIMENSION(0:200) :: aladin_met_names ! pomocne pole pro nasteni jmen Alad souboru z namelistu
+ NAMELIST /input_file_names/ aladin_met_names
  
  CALL null_DateTime(beg_dt_LT)
  CALL null_DateTime(end_dt_LT)
@@ -21,8 +21,11 @@ SUBROUTINE run_info()
  ! ---------------------------
  unit_INFO_RUN=getFreeUnitNo()
  OPEN(UNIT=unit_INFO_RUN,FILE='INFO_RUN.nml',STATUS='OLD',DELIM='APOSTROPHE')
- READ(unit_INFO_RUN,NML=info_run)!,IOSTAT=istat) 
+  READ(unit_INFO_RUN,NML=info_run)!,IOSTAT=istat) 
+  READ(unit_INFO_RUN,NML=info_grid)!,IOSTAT=istat) 
 !   CALL TestStop(istat,'__run_info: ERROR reading info_run namelist.')
+  READ(unit_INFO_RUN,NML=output_file_names) 
+  READ(unit_INFO_RUN,NML=input_file_names) 
  CLOSE(unit_INFO_RUN)
 
  ! adds end slash, if necessary
@@ -90,40 +93,6 @@ SUBROUTINE run_info()
  logFileUnit = getFreeUnitNo()
  OPEN(unit=logFileUnit,file=logFile)
 
- !-----------------------------
- ! read in grid specifications |
- ! ----------------------------
- unit_INFO_GRID=getFreeUnitNo()
- OPEN(unit_INFO_GRID,FILE=INFO_GRID_FILE,STATUS='OLD')
-
- ! read number of grids (mother+nested)
- READ(unit_INFO_GRID,*,IOSTAT=istat) ngridnumber
-   CALL TestStop(istat,'__run_info: ERROR reading number of CAMx grids',logFileUnit)
-
- ALLOCATE(nest_xstart(ngridnumber),nest_xend(ngridnumber), &
-          nest_ystart(ngridnumber),nest_yend(ngridnumber),nest_mesh(ngridnumber),STAT=istat)
-   CALL TestStop(istat,'__run_info: ERROR allocating "nest_mesh"/"nest_*"',logFileUnit)
-
- ! mother grid is nest(1)
- nest_mesh(1)=1
- READ(unit_INFO_GRID,*,IOSTAT=istat) nest_xstart(1),nest_xend(1)
-   CALL TestStop(istat,'__run_info: ERROR reading X bounds for mother grid',logFileUnit)
- READ(unit_INFO_GRID,*,IOSTAT=istat) nest_ystart(1),nest_yend(1)
-   CALL TestStop(istat,'__run_info: ERROR reading Y bounds for mother grid',logFileUnit)
-
- ! nested grids
- DO i=2,ngridnumber
-     READ(unit_INFO_GRID,*,IOSTAT=istat) nest_mesh(i)
-       CALL TestStop(istat,'__run_info: ERROR reading mesh for nested grid',logFileUnit)
-     READ(unit_INFO_GRID,*,IOSTAT=istat) nest_xstart(i),nest_xend(i)
-       CALL TestStop(istat,'__run_info: ERROR reading X bounds for nested grid',logFileUnit)
-     READ(unit_INFO_GRID,*,IOSTAT=istat) nest_ystart(i),nest_yend(i)
-       CALL TestStop(istat,'__run_info: ERROR reading Y bounds for nested grid',logFileUnit)
-
- END DO
-
- CLOSE(unit_INFO_GRID)
-
 
  !-------------------------------------------------------------------
  !  initialize aladin_met                                            |
@@ -139,8 +108,7 @@ SUBROUTINE run_info()
  END DO
  IF (nAladFiles==1) STOP'Need at least two time steps! Check start and end date/time of simulation!'
 
- ! Values on position with ZERO index correspond to file one time step before start time. This file is necessary for subtracting accumulated fields.
- ALLOCATE (aladin_met(0:nAladFiles))
+ allocate(aladin_met(0:nAladFiles))
 
  act_dt_LT=beg_dt_LT
  act_dt_UT=beg_dt_LT
@@ -154,14 +122,12 @@ SUBROUTINE run_info()
      aladin_met(i)%UT_YYYYJJJ  = act_dt_UT%y*1000 + julday(da) 
      aladin_met(i)%UT_HHMISS   = ti
 
-     WRITE(datestring,'(I8.8)')da
-     WRITE(timestring,'(I6.6)')ti
-     aladin_met(i)%name_f      = 'ALADINCAMX_'//datestring//'_'//timestring//'.grb'
-
      da = act_dt_LT%y*10000 + act_dt_LT%m*100 + act_dt_LT%d ! da (YYYYMMDD in local time)
      aladin_met(i)%LT_YYYYMMDD = da ! date (YYYYMMDD)
      aladin_met(i)%LT_YYJJJ = MOD(act_dt_LT%y,100)*1000 + julday(da)! date (YYJJJ)
      aladin_met(i)%LT_HHMI  = act_dt_LT%h*100 + act_dt_LT%mi ! time (HHMI)
+
+     aladin_met(i)%name_f=trim(aladin_met_names(i))
 
      CALL DateTime_plus_min(act_dt_UT, met_frequency)
      CALL DateTime_plus_min(act_dt_LT, met_frequency)
@@ -171,9 +137,6 @@ SUBROUTINE run_info()
  !---------------------------
  ! CAMx grid specifications  |
  ! --------------------------
- ALLOCATE(CAMx_dx(ngridnumber),CAMx_dy(ngridnumber))
- ALLOCATE(CAMx_nx(ngridnumber),CAMx_ny(ngridnumber))
- ALLOCATE(CAMx_SWCor11_x(ngridnumber),CAMx_SWCor11_y(ngridnumber))
  DO g=1,ngridnumber
      ! kolikrat je ALADINovsky grid hustsi, nez CAMx-ovsky; ten nejvnorenejsi CAMx-ovsky odpovida hustotou ALADIN-ovkemu 
      ainc=nest_mesh(ngridnumber)/nest_mesh(g) 
