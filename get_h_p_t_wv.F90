@@ -516,39 +516,39 @@ SUBROUTINE get_h_p_t_wv(d)
      ! write to CAMx files             *
      ! * * * * * * * * * * * * * * * * *
 
-     WRITE(temp_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, & 
+     WRITE(tp_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, & 
        &((Tsfc(i,j,1),i=1,XEND),j=1,YEND)
 
-     WRITE(wind_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ,.TRUE.
+     WRITE(uv_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ,.TRUE.
 
      ! if first write out, then writeout header information and cloud rain data
-     IF(d==1) WRITE(cl_unit(g)) cldhdr,XEND,YEND,CAMx_nLev
-     WRITE(cl_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ
+     IF(d==1) WRITE(cr_unit(g)) cldhdr,XEND,YEND,CAMx_nLev
+     WRITE(cr_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ
 
      DO k=1,CAMx_nLev
      
-         WRITE(h_p_unit(g))  aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((HGT_I(i,j,k),i=1,XEND),j=1,YEND)
-         WRITE(h_p_unit(g))  aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((P(i,j,k)    ,i=1,XEND),j=1,YEND)
+         WRITE(zp_unit(g))  aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((HGT_I(i,j,k),i=1,XEND),j=1,YEND)
+         WRITE(zp_unit(g))  aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((P(i,j,k)    ,i=1,XEND),j=1,YEND)
                
-         WRITE(temp_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((T(i,j,k)    ,i=1,XEND),j=1,YEND)
+         WRITE(tp_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((T(i,j,k)    ,i=1,XEND),j=1,YEND)
 
-         WRITE(wv_unit(g))   aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((WV(i,j,k)   ,i=1,XEND),j=1,YEND)
+         WRITE(qa_unit(g))   aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((WV(i,j,k)   ,i=1,XEND),j=1,YEND)
 
-         WRITE(rkv_unit(g))  aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((rkv(i,j,k)  ,i=1,XEND),j=1,YEND)
+         WRITE(kv_unit(g))  aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, ((rkv(i,j,k)  ,i=1,XEND),j=1,YEND)
 
-         WRITE(wind_unit(g)) ((U(i,j,k),i=1,XEND),j=1,YEND)
-         WRITE(wind_unit(g)) ((V(i,j,k),i=1,XEND),j=1,YEND)
+         WRITE(uv_unit(g)) ((U(i,j,k),i=1,XEND),j=1,YEND)
+         WRITE(uv_unit(g)) ((V(i,j,k),i=1,XEND),j=1,YEND)
 
-         WRITE(cl_unit(g))   ((CLDWTR(i,j,k),i=1,XEND),j=1,YEND)
-         WRITE(cl_unit(g))   ((RANWTR(i,j,k),i=1,XEND),j=1,YEND)
-         WRITE(cl_unit(g))   ((SNOWTR(i,j,k),i=1,XEND),j=1,YEND)
-         WRITE(cl_unit(g))   ((0            ,i=1,XEND),j=1,YEND) ! graupel are set to zero
-         WRITE(cl_unit(g))   ((COD(i,j,k)   ,i=1,XEND),j=1,YEND)
+         WRITE(cr_unit(g))   ((CLDWTR(i,j,k),i=1,XEND),j=1,YEND)
+         WRITE(cr_unit(g))   ((RANWTR(i,j,k),i=1,XEND),j=1,YEND)
+         WRITE(cr_unit(g))   ((SNOWTR(i,j,k),i=1,XEND),j=1,YEND)
+         WRITE(cr_unit(g))   ((0            ,i=1,XEND),j=1,YEND) ! graupel are set to zero
+         WRITE(cr_unit(g))   ((COD(i,j,k)   ,i=1,XEND),j=1,YEND)
 
 
      END DO   
 
-     WRITE(wind_unit(g)) ((0.,i=1,XEND),j=1,YEND) ! dummy array for wind file
+     WRITE(uv_unit(g)) ((0.,i=1,XEND),j=1,YEND) ! dummy array for wind file
 
 !tmpFile DO k=1,CAMx_nLev
 !tmpFile   write(tmp_unit,rec=irec)((rho(i,j,k),i=1,XEND),j=1,YEND)

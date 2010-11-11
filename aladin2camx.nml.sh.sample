@@ -23,12 +23,12 @@ nest_yend(1)   = 276
 /
 
 &output_file_names
-h_p_file    = './CAMX_INP/camx.zp.d01.2008-07-01-02_2008-07-02-02_new',
-temp_file   = './CAMX_INP/camx.tp.d01.2008-07-01-02_2008-07-02-02_new',
-wind_file   = './CAMX_INP/camx.uv.d01.2008-07-01-02_2008-07-02-02_new',
-wv_file     = './CAMX_INP/camx.qa.d01.2008-07-01-02_2008-07-02-02_new',
-cl_file     = './CAMX_INP/camx.cr.d01.2008-07-01-02_2008-07-02-02_new',
-rkv_file    = './CAMX_INP/camx.kv.d01.2008-07-01-02_2008-07-02-02_new',
+zp_file     = './CAMX_INP/camx.zp.d01.2008-07-01-02_2008-07-02-02_new',
+tp_file     = './CAMX_INP/camx.tp.d01.2008-07-01-02_2008-07-02-02_new',
+uv_file     = './CAMX_INP/camx.uv.d01.2008-07-01-02_2008-07-02-02_new',
+qa_file     = './CAMX_INP/camx.qa.d01.2008-07-01-02_2008-07-02-02_new',
+cr_file     = './CAMX_INP/camx.cr.d01.2008-07-01-02_2008-07-02-02_new',
+kv_file     = './CAMX_INP/camx.kv.d01.2008-07-01-02_2008-07-02-02_new',
 avgHGT_file = './CAMX_INP/camx.avgHGT.d01.2008-07-01-02_2008-07-02-02_new',
 beis_file   = './CAMX_INP/BEISmet.d01.2008-07-01-02_2008-07-02-02.nc_new'
 /

@@ -42,28 +42,28 @@ PROGRAM aladin2camx_MAIN
  DO g=1,ngridnumber
      WRITE(GridNoString,'(A,I2.2)')'d', g
 
-     h_p_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=h_p_unit(g),FILE=h_p_file(g),   FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     zp_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=zp_unit(g),FILE=zp_file(g),   FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx HEIGHT/PRESSURE FILE',logFileUnit)
 
-     temp_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=temp_unit(g),FILE=temp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     tp_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=tp_unit(g),FILE=tp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx TEMPERATURE',logFileUnit)
 
-     wind_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=wind_unit(g),FILE=wind_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     uv_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=uv_unit(g),FILE=uv_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WIND',logFileUnit)
 
-     wv_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=wv_unit(g), FILE=wv_file(g),    FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     qa_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=qa_unit(g), FILE=qa_file(g),    FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WATER VAPOR FILE',logFileUnit)
 
-     cl_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=cl_unit(g), FILE=cl_file(g),    FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     cr_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=cr_unit(g), FILE=cr_file(g),    FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx CLOUD/RAIN FILE',logFileUnit)
 
-     rkv_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=rkv_unit(g),FILE=rkv_file(g),   FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     kv_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=kv_unit(g),FILE=kv_file(g),   FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx RKV FILE',logFileUnit)
 
      IF (BEIS_flag) THEN
@@ -105,11 +105,11 @@ PROGRAM aladin2camx_MAIN
 
  ! closing all binary files at the end of preprocessor
  DO g=1,ngridnumber
-     CLOSE(h_p_unit(g))
-     CLOSE(temp_unit(g))
-     CLOSE(wind_unit(g))
-     CLOSE(wv_unit(g))
-     CLOSE(cl_unit(g))
+     CLOSE(zp_unit(g))
+     CLOSE(tp_unit(g))
+     CLOSE(uv_unit(g))
+     CLOSE(qa_unit(g))
+     CLOSE(cr_unit(g))
      CLOSE(avgHGT_unit(g))
  END DO
 !tmpFile close(tmp_unit)

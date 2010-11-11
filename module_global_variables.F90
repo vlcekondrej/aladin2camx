@@ -145,13 +145,13 @@ integer:: tmp_unit,irec
 
 
  ! unit numbers and file names for CAMx input files and master resp. nested grids; alloccated and set in aladin2camx_MAIN
- INTEGER,            DIMENSION(ngridnumber_max) :: h_p_unit, temp_unit, wind_unit, wv_unit
- INTEGER,            DIMENSION(ngridnumber_max) :: cl_unit,  rkv_unit
+ INTEGER,            DIMENSION(ngridnumber_max) :: zp_unit, tp_unit, uv_unit, qa_unit
+ INTEGER,            DIMENSION(ngridnumber_max) :: cr_unit,  kv_unit
  INTEGER,            DIMENSION(ngridnumber_max) :: avgHGT_unit
- CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: h_p_file, temp_file, wind_file, wv_file
- CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: cl_file,  rkv_file
+ CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: zp_file, tp_file, uv_file, qa_file
+ CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: cr_file,  kv_file
  CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: avgHGT_file, beis_file
- NAMELIST /output_file_names/ h_p_file, temp_file, wind_file, wv_file, cl_file, rkv_file, avgHGT_file, beis_file
+ NAMELIST /output_file_names/ zp_file, tp_file, uv_file, qa_file, cr_file, kv_file, avgHGT_file, beis_file
 
  ! emiheader.F90
  CHARACTER(LEN=4) :: mspec(10,4)
