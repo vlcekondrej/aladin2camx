@@ -9,7 +9,7 @@ SUBROUTINE run_info()
  TYPE(tDateTime) :: beg_dt_LT, end_dt_LT, act_dt_LT, act_dt_UT ! _LT means Local Time
  INTEGER :: da,ti, ainc
  INTEGER :: unit_counter
- CHARACTER(LEN=50), DIMENSION(0:200) :: aladin_met_names ! pomocne pole pro nasteni jmen Alad souboru z namelistu
+ CHARACTER(LEN=200), DIMENSION(0:200) :: aladin_met_names ! pomocne pole pro nasteni jmen Alad souboru z namelistu
  NAMELIST /input_file_names/ aladin_met_names
  
  CALL null_DateTime(beg_dt_LT)

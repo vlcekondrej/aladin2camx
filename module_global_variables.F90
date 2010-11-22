@@ -22,12 +22,12 @@ integer:: tmp_unit,irec
 
      ! to be written in BEIS met NetCDF file (YYYYJJJ, HHMISS) and in the name of METEO GRIBS (YYYYMMDD, HHMISS):
      INTEGER           :: UT_YYYYMMDD, UT_YYYYJJJ, UT_HHMISS ! UTC dates (YYYYMMDD/YYYYJJJ) and time (HHMISS) correspoding to meteo grib file
-     CHARACTER(LEN=50) :: name_f       ! name of the file
+     CHARACTER(LEN=200) :: name_f       ! name of the file
  END TYPE tAVAILABLE_FILES
 
 
  ! == control file ==
- CHARACTER(LEN=60) :: logfile
+ CHARACTER(LEN=200) :: logfile
  INTEGER :: logFileUnit, PID
 
  !--------------------------------
@@ -108,7 +108,7 @@ integer:: tmp_unit,irec
        TimeZone
 
 
- CHARACTER(LEN=50) :: INFO_GRID_FILE='INFO_GRID' ! ,INFO_RUN_FILE='INFO_RUN'
+ CHARACTER(LEN=200) :: INFO_GRID_FILE='INFO_GRID' ! ,INFO_RUN_FILE='INFO_RUN'
  !---------------------------------------
  ! read by info_run() from INFO_RUN.nml  |
  !---------------------------------------
