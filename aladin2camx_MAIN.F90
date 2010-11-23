@@ -14,10 +14,7 @@ PROGRAM aladin2camx_MAIN
  READ(unit_nml,NML=aladin2camx_control)
  CLOSE(unit_nml)
 
- ! from INFO_RUN  gets - Aladin and CAMx directories
- !                     - start date and end date
- ! from INFO_GRID gets - total number of grids (mother & nested)
- !                     - position of grids relative to ALADIN grid                      
+ ! run_info will read information on run
  CALL run_info()
 
  IF (BEIS_flag) CALL alloc_netCDFids(ngridnumber)
