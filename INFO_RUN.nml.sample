@@ -1,21 +1,58 @@
-! Sample INFO_RUN namelist:
-!
-! ALAD_GRIB_DIR 	directory with gribs from NWP model
-! CAMX_INP_DIR 		directory for CAMx-ready meteorological inputs
-! begYYYYMMDD/begHH 	beginning date/time of the first data record that will be contained in CAMx input files
-! endYYYYMMDD/endHH 	end date/time of the last data record that will be contained in CAMx input files
-! met_frequency  	frequency (in minutes) with NWP gribs are supplied; usually 60min
-! TimeZone		time delay of local time that is used for CAMx simulation relative to UTC
-!			(Central Europe winter time (CET):TimeZone=+1, summer time (CEST): TimeZone=+2)
-!			for more info see README
-!
 &info_run
-ALAD_GRIB_DIR = './ALADIN_GRIB',
-CAMX_INP_DIR  = './CAMX_INP',
-begYYYYMMDD   = 20080701,
-begHHMI       = 0000,
-endYYYYMMDD   = 20080702,
-endHHMI       = 0000,
-met_frequency = 60,
-TimeZone      = 2
+begYYYYMMDD   = 20080701
+begHHMI       = 0000
+endYYYYMMDD   = 20080702
+endHHMI       = 0000
+met_frequency = 60
+TimeZone      = 0
+/
+
+&info_grid
+ngridnumber    =   1
+
+nest_mesh(1)   =   1
+nest_xstart(1) =   2
+nest_xend(1)   = 308
+nest_ystart(1) =   2
+nest_yend(1)   = 276
+/
+
+&output_file_names
+zp_file     = 'camx.zp.d01.080701'
+tp_file     = 'camx.tp.d01.080701'
+uv_file     = 'camx.uv.d01.080701'
+qa_file     = 'camx.qa.d01.080701'
+cr_file     = 'camx.cr.d01.080701'
+kv_file     = 'camx.kv.d01.080701'
+avgHGT_file = 'camx.avgHGT.d01.080701'
+beis_file   = 'BEISmet.d01.d01.080701'
+/
+
+&input_file_names
+aladin_met_names( 0) = '/usr/local/met/aladin/ALADINCAMX_20080630_230000.grb'
+aladin_met_names( 1) = '/usr/local/met/aladin/ALADINCAMX_20080701_000000.grb'
+aladin_met_names( 2) = '/usr/local/met/aladin/ALADINCAMX_20080701_010000.grb'
+aladin_met_names( 3) = '/usr/local/met/aladin/ALADINCAMX_20080701_020000.grb'
+aladin_met_names( 4) = '/usr/local/met/aladin/ALADINCAMX_20080701_030000.grb'
+aladin_met_names( 5) = '/usr/local/met/aladin/ALADINCAMX_20080701_040000.grb'
+aladin_met_names( 6) = '/usr/local/met/aladin/ALADINCAMX_20080701_050000.grb'
+aladin_met_names( 7) = '/usr/local/met/aladin/ALADINCAMX_20080701_060000.grb'
+aladin_met_names( 8) = '/usr/local/met/aladin/ALADINCAMX_20080701_070000.grb'
+aladin_met_names( 9) = '/usr/local/met/aladin/ALADINCAMX_20080701_080000.grb'
+aladin_met_names(10) = '/usr/local/met/aladin/ALADINCAMX_20080701_090000.grb'
+aladin_met_names(11) = '/usr/local/met/aladin/ALADINCAMX_20080701_100000.grb'
+aladin_met_names(12) = '/usr/local/met/aladin/ALADINCAMX_20080701_110000.grb'
+aladin_met_names(13) = '/usr/local/met/aladin/ALADINCAMX_20080701_120000.grb'
+aladin_met_names(14) = '/usr/local/met/aladin/ALADINCAMX_20080701_130000.grb'
+aladin_met_names(15) = '/usr/local/met/aladin/ALADINCAMX_20080701_140000.grb'
+aladin_met_names(16) = '/usr/local/met/aladin/ALADINCAMX_20080701_150000.grb'
+aladin_met_names(17) = '/usr/local/met/aladin/ALADINCAMX_20080701_160000.grb'
+aladin_met_names(18) = '/usr/local/met/aladin/ALADINCAMX_20080701_170000.grb'
+aladin_met_names(19) = '/usr/local/met/aladin/ALADINCAMX_20080701_180000.grb'
+aladin_met_names(20) = '/usr/local/met/aladin/ALADINCAMX_20080701_190000.grb'
+aladin_met_names(21) = '/usr/local/met/aladin/ALADINCAMX_20080701_200000.grb'
+aladin_met_names(22) = '/usr/local/met/aladin/ALADINCAMX_20080701_210000.grb'
+aladin_met_names(23) = '/usr/local/met/aladin/ALADINCAMX_20080701_220000.grb'
+aladin_met_names(24) = '/usr/local/met/aladin/ALADINCAMX_20080701_230000.grb'
+aladin_met_names(25) = '/usr/local/met/aladin/ALADINCAMX_20080702_000000.grb'
 /
