@@ -8,11 +8,6 @@ PROGRAM aladin2camx_MAIN
  INTEGER :: g ! grid index; g=1 for driving grid, >1 for nested
  INTEGER :: aladin_unit, istat, d, unit_nml, k
 
- CHARACTER(LEN= 8) :: begDateStr, endDateStr
- CHARACTER(LEN= 4) :: begTimeStr, endTimeStr
- CHARACTER(LEN=27) :: datestring ! part of the name of CAMx input files - e.g. "20041204.010000_20041205.000000"
- CHARACTER(LEN= 3) :: gridNoString ! characrer for grid number
-
  ! read aladin2camx namelist
  unit_nml=1
  OPEN(UNIT=unit_nml,FILE='aladin2camx.nml',STATUS='OLD',DELIM='APOSTROPHE')
@@ -24,17 +19,6 @@ PROGRAM aladin2camx_MAIN
  ! from INFO_GRID gets - total number of grids (mother & nested)
  !                     - position of grids relative to ALADIN grid                      
  CALL run_info()
-
- 
- ! create filenames for the input parameters:
- ! camx.zp.dxx.YYYY-MM-DD-HH_YYYY-MM-DD-HH !!! Dates and hour are in local time !!! 
- ! eg.  camx.zp.dxx.2004-02-24-01_2004-02-25-00
- WRITE(begDateStr,'(I8.8)') aladin_met(1)%LT_YYYYMMDD
- WRITE(begTimeStr,'(I4.4)') INT(aladin_met(1)%LT_HHMI)
- WRITE(endDateStr,'(I8.8)') aladin_met(nAladFiles)%LT_YYYYMMDD
- WRITE(endTimeStr,'(I4.4)') INT(aladin_met(nAladFiles)%LT_HHMI)
- datestring=begDateStr(1:4)//'-'//begDateStr(5:6)//'-'//begDateStr(7:8)//'-'//begTimeStr(1:2)//'_'// &
-            endDateStr(1:4)//'-'//endDateStr(5:6)//'-'//endDateStr(7:8)//'-'//endTimeStr(1:2)
 
  IF (BEIS_flag) CALL alloc_netCDFids(ngridnumber)
 
