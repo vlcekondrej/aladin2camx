@@ -97,14 +97,23 @@ CONTAINS
  LOGICAL PURE FUNCTION LEAP_YEAR(YEAR)
    IMPLICIT NONE
    INTEGER, INTENT(IN  ):: YEAR
+   ! Date         Author
+   ! ----------   -----------
+   ! 2008-08      O. Vlcek      original code
+   ! 2011-01-06   O. Vlcek      oprava chyby - roky delitelne 400 se nebraly jako trestupne
+
    ! LEAP_YEAR returns .TRUE., if YEAR is a leap year accordingly to Gregorian calendar:
    !   1) Rok je prestupny, pokud je delitelny cislem 4 (1996, 2004)
    !   2) Vyjimka c.1 : Rok neni prestupny, pokud je delitelny cislem 100 (1900, 2100)
    !   3) Vyjimka c.2 z Vyjimky c.1: Rok je prestupny, pokud je delitelny cislem 400 (2000, 2400)
-   LEAP_YEAR = .TRUE.
-   IF (MOD(YEAR,4).NE.0) THEN
-       LEAP_YEAR = .FALSE.
-   ELSE IF (MOD(YEAR,100).EQ.0) THEN
+
+   IF (MOD(year,400) == 0) THEN
+     LEAP_YEAR = .TRUE.
+   ELSE IF (MOD(year,100) == 0) THEN
+     LEAP_YEAR = .FALSE.
+   ELSE IF(MOD(YEAR,4) == 0) THEN
+     LEAP_YEAR = .TRUE.
+   ELSE
        LEAP_YEAR = .FALSE.
    END IF
  END FUNCTION  LEAP_YEAR
