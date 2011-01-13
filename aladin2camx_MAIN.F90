@@ -21,7 +21,6 @@ PROGRAM aladin2camx_MAIN
 
  ! open CAMx input files for every nested grid and meteorological parameter
  DO g=1,ngridnumber
-     WRITE(GridNoString,'(A,I2.2)')'d', g
 
      zp_unit(g)=getFreeUnitNo()
      OPEN(UNIT=zp_unit(g),FILE=zp_file(g),   FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
@@ -113,9 +112,6 @@ PROGRAM aladin2camx_MAIN
  WRITE(logFileUnit,*) '*      NO ERRORS OCCURED      *'
  WRITE(logFileUnit,*) '*                             *'
  WRITE(logFileUnit,*) '*******************************'
- WRITE(logFileUnit,*)
- WRITE(logFileUnit,*) 'ALADIN MET FIELDS ARE READY FOR CAMX RUN IN DIRECTORY: '
- WRITE(logFileUnit,*) '    ',TRIM(CAMx_INP_DIR)
  WRITE(logFileUnit,*)
 
  CLOSE(logFileUnit)

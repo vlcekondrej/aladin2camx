@@ -423,7 +423,7 @@ SUBROUTINE get_h_p_t_wv(d)
      ! * * * * * * * * * * * * * * * * *
      WRITE(logFileUnit,*)
      WRITE(logFileUnit,"('LOCAL date YYYYMMDD= ',I8.8,'  time HHMI= ',F5.0)")aladin_met(d)%LT_YYYYMMDD,  aladin_met(d)%LT_HHMI 
-     WRITE(logFileUnit,"('LOCAL date YYJJJ=',I8.8,'  time= ',F5.0)")aladin_met(d)%LT_YYJJJ 
+     WRITE(logFileUnit,"('LOCAL date YYJJJ   = ',I5.5)")aladin_met(d)%LT_YYJJJ 
      WRITE(logFileUnit,"(29X,' lev       min      grid              max      grid  profile ',I3,';',I3)") vpx,vpy
      WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'Solar radiation          [W/m2 ] ', &
        0,minval(SolRad(:,:,1)),minloc(SolRad(:,:,1)),maxval(SolRad(:,:,1)),maxloc(SolRad(:,:,1)),SolRad(vpx,vpy,1)
