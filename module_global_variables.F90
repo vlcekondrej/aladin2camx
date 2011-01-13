@@ -131,17 +131,28 @@ integer:: tmp_unit,irec
  !---------------------------------------
  ! read by info_run() from INFO_GRID_FILE |
  !---------------------------------------
-   ! number of grids, their definitions and meshing factors
-   INTEGER, PARAMETER                        :: ngridnumber_max=3
-   INTEGER                                   :: ngridnumber
-   INTEGER,       DIMENSION(ngridnumber_max) :: nest_xstart, nest_xend
-   INTEGER,       DIMENSION(ngridnumber_max) :: nest_ystart, nest_yend
-   INTEGER,       DIMENSION(ngridnumber_max) :: nest_mesh
-   NAMELIST /info_grid/ ngridnumber, nest_xstart, nest_xend, nest_ystart, nest_yend, nest_mesh
-  
-   INTEGER,       DIMENSION(ngridnumber_max) :: CAMx_nx, CAMx_ny
-   REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_dx, CAMx_dy
-   REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_SWCor11_x, CAMx_SWCor11_y
+   ! maximum number of grids
+   INTEGER, PARAMETER :: ngridnumber_max=3
+   ! number of grids - master plus all nested grids
+   INTEGER            :: ngridnumber  
+   ! CAMx MASTER grid parameters relative to (NWP) ALADIN grid. 
+   ! * CAMx_master2alad expresses the ratio of the CAMx master grid horiz.res. relative to NWP(ALADIN) horiz.res.
+   INTEGER            :: CAMx_master2alad, CAMx_master_xbeg, CAMx_master_xend, CAMx_master_ybeg, CAMx_master_yend
+   ! Nested grids parameters in accordance with CAMx namelist: 
+   ! * indexes and meshing factors are taken relative to CAMx MASTER grid; 
+   ! * buffer cells are not included. They will be added authomatically.
+   INTEGER, DIMENSION(ngridnumber_max) :: CAMx_nest_xbeg, CAMx_nest_ybeg, CAMx_nest_xend, CAMx_nest_yend 
+   INTEGER, DIMENSION(ngridnumber_max) :: CAMx_nest_mesh 
+   NAMELIST /info_grid/ ngridnumber, &
+     CAMx_master2alad, CAMx_master_xbeg, CAMx_master_xend, CAMx_master_ybeg, CAMx_master_yend, &
+     CAMx_nest_mesh,   CAMx_nest_xbeg,   CAMx_nest_ybeg,   CAMx_nest_xend,   CAMx_nest_yend
+
+ ! grid parameters relative to NWP(ALADIN) grid (index 1 corresponds to CAMx master):
+ INTEGER,       DIMENSION(ngridnumber_max) :: grid_xbeg, grid_xend, grid_ybeg, grid_yend, grid2alad
+
+ INTEGER,       DIMENSION(ngridnumber_max) :: CAMx_nx, CAMx_ny
+ REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_dx, CAMx_dy
+ REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_SWCor11_x, CAMx_SWCor11_y
 
 
  ! unit numbers and file names for CAMx input files and master resp. nested grids; alloccated and set in aladin2camx_MAIN

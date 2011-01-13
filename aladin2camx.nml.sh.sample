@@ -4,33 +4,50 @@
 cat <<IEOF >INFO_RUN.nml
 
 &info_run
-begYYYYMMDD   = 20080701,
-begHHMI       = 0200,
-endYYYYMMDD   = 20080702,
-endHHMI       = 0200,
-met_frequency = 60,
+begYYYYMMDD   = 20080701
+begHHMI       = 0200
+endYYYYMMDD   = 20080702
+endHHMI       = 0200
+met_frequency = 60
 TimeZone      = 2
 /
 
 &info_grid
-ngridnumber    =   1,
-,
-nest_mesh(1)   =   1,
-nest_xstart(1) =   2,
-nest_xend(1)   = 308,
-nest_ystart(1) =   2,
-nest_yend(1)   = 276
+ngridnumber =   2
+
+! relative to NWP(ALADIN) grid
+CAMx_master2alad =   6
+CAMx_master_xbeg =   3
+CAMx_master_xend = 303
+CAMx_master_ybeg =   5
+CAMx_master_yend = 275
+
+! relative to MASTER grid - follows CAMx namelist
+CAMx_nest_mesh(1) =   2
+CAMx_nest_xbeg(1) =  10
+CAMx_nest_xend(1) =  40
+CAMx_nest_ybeg(1) =  15
+CAMx_nest_yend(1) =  35
 /
 
 &output_file_names
-zp_file     = './CAMX_INP/camx.zp.d01.2008-07-01-02_2008-07-02-02_new',
-tp_file     = './CAMX_INP/camx.tp.d01.2008-07-01-02_2008-07-02-02_new',
-uv_file     = './CAMX_INP/camx.uv.d01.2008-07-01-02_2008-07-02-02_new',
-qa_file     = './CAMX_INP/camx.qa.d01.2008-07-01-02_2008-07-02-02_new',
-cr_file     = './CAMX_INP/camx.cr.d01.2008-07-01-02_2008-07-02-02_new',
-kv_file     = './CAMX_INP/camx.kv.d01.2008-07-01-02_2008-07-02-02_new',
-avgHGT_file = './CAMX_INP/camx.avgHGT.d01.2008-07-01-02_2008-07-02-02_new',
-beis_file   = './CAMX_INP/BEISmet.d01.2008-07-01-02_2008-07-02-02.nc_new'
+zp_file(1)     = './CAMX_INP/camx.zp.d01.2008-07-01-00_2008-07-00-00'
+tp_file(1)     = './CAMX_INP/camx.tp.d01.2008-07-01-00_2008-07-00-00'
+uv_file(1)     = './CAMX_INP/camx.uv.d01.2008-07-01-00_2008-07-00-00'
+qa_file(1)     = './CAMX_INP/camx.qa.d01.2008-07-01-00_2008-07-00-00'
+cr_file(1)     = './CAMX_INP/camx.cr.d01.2008-07-01-00_2008-07-00-00'
+kv_file(1)     = './CAMX_INP/camx.kv.d01.2008-07-01-00_2008-07-00-00'
+avgHGT_file(1) = './CAMX_INP/camx.avgHGT.d01.2008-07-01-00_2008-07-00-00'
+beis_file(1)   = './CAMX_INP/BEISmet.d01.2008-07-01-00_2008-07-00-00.nc'
+
+zp_file(2)     = './CAMX_INP/camx.zp.d02.2008-07-01-00_2008-07-00-00'
+tp_file(2)     = './CAMX_INP/camx.tp.d02.2008-07-01-00_2008-07-00-00'
+uv_file(2)     = './CAMX_INP/camx.uv.d02.2008-07-01-00_2008-07-00-00'
+qa_file(2)     = './CAMX_INP/camx.qa.d02.2008-07-01-00_2008-07-00-00'
+cr_file(2)     = './CAMX_INP/camx.cr.d02.2008-07-01-00_2008-07-00-00'
+kv_file(2)     = './CAMX_INP/camx.kv.d02.2008-07-01-00_2008-07-00-00'
+avgHGT_file(2) = './CAMX_INP/camx.avgHGT.d02.2008-07-01-00_2008-07-00-00'
+beis_file(2)   = './CAMX_INP/BEISmet.d02.2008-07-01-00_2008-07-00-00.nc'
 /
 
 &input_file_names

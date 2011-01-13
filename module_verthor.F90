@@ -3,50 +3,82 @@ IMPLICIT NONE
 
 CONTAINS
 
-  SUBROUTINE verthor2d(FIELD,NX_INT_FIELD,NY_INT_FIELD,G,INT_FIELD)
+  SUBROUTINE verthor2d(FIELD,NX_INT_FIELD,NY_INT_FIELD,G,INT_FIELD,NRCELL,METHOD)
+   ! originating from verthor.F90 contained in ZAMG preprocesor
+ 
+   ! Description:
+   !   Performs horizontal interpolation 
+   !   
+   !
+   ! Method:
+   !   
+   !
+   ! Current code maintainer: Ondrej Vlcek (CHMI)
+   !
+   ! History:
+   ! Version   Date Y-M-D   Comment
+   ! -------   ----------   -------
+   ! 0         2010-11-24   ... Ondrej Vlcek
+
    USE module_standard_types
    USE module_global_variables
    IMPLICIT NONE
   
-   INTEGER,      INTENT(IN   ) :: NX_INT_FIELD, NY_INT_FIELD, G ! dimensions of output field; grid number
-   REAL(KIND=sp),INTENT(IN   ) :: FIELD(Alad_nx,Alad_ny,1)
-   REAL(KIND=sp),INTENT(  OUT) :: INT_FIELD(NX_INT_FIELD,NY_INT_FIELD,1)
+   INTEGER,      INTENT(IN   )           :: NX_INT_FIELD, NY_INT_FIELD, G ! dimensions of output field; grid number
+   REAL(KIND=sp),INTENT(IN   )           :: FIELD(Alad_nx,Alad_ny,1)
+   REAL(KIND=sp),INTENT(  OUT)           :: INT_FIELD(NX_INT_FIELD,NY_INT_FIELD,1)
+   INTEGER,      INTENT(IN   ), OPTIONAL :: NRCELL
+   INTEGER,      INTENT(IN   ), OPTIONAL :: METHOD
   
-   INTEGER :: x,y,xi,yi,xs,xe,ys,ye,ainc,ni
+   INTEGER       :: x,y,xi,yi,xs,xe,ys,ye,ainc,ni,ncell,meth
    REAL(KIND=sp) :: suma
   
-  
-   ys=nest_ystart(g)
-   ye=nest_yend(g)
-   xs=nest_xstart(g)
-   xe=nest_xend(g)
-   ainc=nest_mesh(ngridnumber)/nest_mesh(g) ! kolik ALADIN-ovskych bunek obsahuje CAMx-ovska
-  
-   ! now horizontal fields are interpolated
-   IF(g==ngridnumber) THEN
-       ! Grid s nejjemnejsim rozlisenim, odpovidajicim rozliseni nodelu ALADIN. 
-       ! Provede se jednoduche precislovani.
-       INT_FIELD(1:xe-xs+1, 1:ye-ys+1, 1) = FIELD(xs:xe, ys:ye, 1)
-  
+   IF (PRESENT(NRCELL)) THEN
+       ncell = NRCELL
    ELSE
-       DO y=ys,ye,ainc
-           DO x=xs,xe,ainc
-               ni=int(ainc-.1)/2 
-               ! pro ainc=2    ... jen bod ve stredu
-               !          3, 4 ... prumeruji nejblizsich 9 bodu
-               !          5, 6 ... prumeruji nejblizsich 25 bodu atd.
-               suma=0.
-               DO xi=x-ni, x+ni
-                   DO yi=y-ni, y+ni
-                       suma=suma+FIELD(xi,yi,1)
-                   END DO
-               END DO
-               INT_FIELD((x-xs)/ainc+1,(y-ys)/ainc+1,1) = suma / ainc**2 
-           END DO 
-       END DO
-  
+       ncell = 0 
    END IF
-  
+
+   IF (PRESENT(METHOD)) THEN
+       meth = METHOD
+   ELSE
+       meth = 0
+   END IF
+
+   ys   = grid_ybeg(g)
+   ye   = grid_yend(g)
+   xs   = grid_xbeg(g)
+   xe   = grid_xend(g)
+   ainc = grid2alad(g) ! number of ALADIN cells included in one CAMx cell
+
+   ! now horizontal fields are interpolated
+   DO y = ys, ye, ainc
+     DO x = xs, xe, ainc
+
+       suma = 0.
+       DO xi = x-ncell, x+ncell
+         DO yi = y-ncell, y+ncell
+
+           SELECT CASE (meth)
+             CASE(0)
+               suma = suma + FIELD(xi,yi,1)
+             CASE DEFAULT
+               WRITE(logFileUnit,*) '__verthor2d: Unknown interpolation method'
+               WRITE(logFileUnit,*) '           : Dummy variable METHOD = ',METHOD
+               STOP
+           END SELECT
+
+         END DO
+       END DO
+
+       SELECT CASE (meth)
+         CASE(0)
+           INT_FIELD( (x-xs)/ainc+1, (y-ys)/ainc+1, 1 ) = suma / (2*ncell+1)**2
+       END SELECT
+
+       END DO 
+   END DO
+ 
    RETURN
   END SUBROUTINE verthor2d
   

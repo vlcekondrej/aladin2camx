@@ -12,6 +12,8 @@ SUBROUTINE run_info()
  CHARACTER(LEN=200), DIMENSION(0:200) :: aladin_met_names ! pomocne pole pro nasteni jmen Alad souboru z namelistu
  NAMELIST /input_file_names/ aladin_met_names
  
+ CHARACTER(LEN=50) :: text_temp ! temporary text variable
+
  CALL null_DateTime(beg_dt_LT)
  CALL null_DateTime(end_dt_LT)
 
@@ -21,9 +23,8 @@ SUBROUTINE run_info()
  ! ---------------------------
  unit_INFO_RUN=getFreeUnitNo()
  OPEN(UNIT=unit_INFO_RUN,FILE='INFO_RUN.nml',STATUS='OLD',DELIM='APOSTROPHE')
-  READ(unit_INFO_RUN,NML=info_run)!,IOSTAT=istat) 
-  READ(unit_INFO_RUN,NML=info_grid)!,IOSTAT=istat) 
-!   CALL TestStop(istat,'__run_info: ERROR reading info_run namelist.')
+  READ(unit_INFO_RUN,NML=info_run) 
+  READ(unit_INFO_RUN,NML=info_grid) 
   READ(unit_INFO_RUN,NML=output_file_names) 
   READ(unit_INFO_RUN,NML=input_file_names) 
  CLOSE(unit_INFO_RUN)
@@ -33,48 +34,54 @@ SUBROUTINE run_info()
  ! adds end slash, if necessary
  CALL if_not_add_char(CAMX_INP_DIR,'/')
 
- beg_dt_LT%y=begYYYYMMDD/10000
- beg_dt_LT%m=MOD(begYYYYMMDD,10000)/100
- beg_dt_LT%d=MOD(begYYYYMMDD,100)
- beg_dt_LT%h=begHHMI/100
- beg_dt_LT%mi=MOD(begHHMI,100)
+ beg_dt_LT%y  = begYYYYMMDD / 10000
+ beg_dt_LT%m  = MOD(begYYYYMMDD,10000) / 100
+ beg_dt_LT%d  = MOD(begYYYYMMDD,100)
+ beg_dt_LT%h  = begHHMI / 100
+ beg_dt_LT%mi = MOD(begHHMI,100)
 
- end_dt_LT%y=endYYYYMMDD/10000
- end_dt_LT%m=MOD(endYYYYMMDD,10000)/100
- end_dt_LT%d=MOD(endYYYYMMDD,100)
- end_dt_LT%h=endHHMI/100
- end_dt_LT%mi=MOD(endHHMI,100)
+ end_dt_LT%y  = endYYYYMMDD / 10000
+ end_dt_LT%m  = MOD(endYYYYMMDD,10000) / 100
+ end_dt_LT%d  = MOD(endYYYYMMDD,100)
+ end_dt_LT%h  = endHHMI / 100
+ end_dt_LT%mi = MOD(endHHMI,100)
 
-!OLD unit_INFO_RUN=getFreeUnitNo()
-!OLD OPEN(UNIT=unit_INFO_RUN,FILE=INFO_RUN_FILE,STATUS='OLD',IOSTAT=istat)
-!OLD   call TestStop(istat,'STOP __run_info: ERROR opening '//INFO_RUN_FILE)
-!OLD
-!OLD ! read directory with ALADIN files
-!OLD READ(unit_INFO_RUN,'(a)',IOSTAT=istat) ALAD_GRIB_DIR
-!OLD   CALL TestStop(istat,'__run_info: ERROR reading path for ALADIN gribs from '//INFO_RUN_FILE)
-!OLD   ! adds end slash, if necessary
-!OLD   CALL if_not_add_char(ALAD_GRIB_DIR,'/')
-!OLD
-!OLD ! read directory for CAMx input files
-!OLD READ(unit_INFO_RUN,'(a)',IOSTAT=istat) CAMx_INP_DIR
-!OLD   CALL TestStop(istat,'__run_info: ERROR reading path for CAMx input from '//INFO_RUN_FILE)
-!OLD   ! adds end slash, if necessary
-!OLD   CALL if_not_add_char(CAMX_INP_DIR,'/')
-!OLD
-!OLD ! read start date and time of simulation
-!OLD READ(unit_INFO_RUN,'(I4,2I2,X,2I2,F2.0)',IOSTAT=istat) beg_dt_LT%y,beg_dt_LT%m,beg_dt_LT%d,beg_dt_LT%h,beg_dt_LT%mi,beg_dt_LT%s
-!OLD   CALL TestStop(istat,'__run_info: ERROR reading beginning date and time of simulation')
-!OLD
-!OLD ! read end date and time of simulation
-!OLD READ(unit_INFO_RUN,'(I4,2I2,X,2I2,F2.0)',IOSTAT=istat) end_dt_LT%y,end_dt_LT%m,end_dt_LT%d,end_dt_LT%h,end_dt_LT%mi,end_dt_LT%s
-!OLD   CALL TestStop(istat,'__run_info: ERROR reading beginning date and time of simulation')
-!OLD
-!OLD ! read frequency of meteorological inputs
-!OLD READ(unit_INFO_RUN,'(I8,X,I4)',IOSTAT=istat) met_frequency
-!OLD
-!OLD CLOSE(unit_INFO_RUN)
+ ! grid parameters relative to NWP(ALADIN) grid
+ grid2alad(1) = CAMx_master2alad
+ grid_xbeg(1) = CAMx_master_xbeg
+ grid_xend(1) = CAMx_master_xend
+ grid_ybeg(1) = CAMx_master_ybeg
+ grid_yend(1) = CAMx_master_yend
 
- 
+ ! nested grids including buffer cells ( +- grid2alad(g) )
+ ! grid_x/ybeg, grid_x/yend are relative to ALADIN grid, so is CAMx_master_x/ybeg, CAMx_master_x/yend
+ ! CAMx_nest_x/ybeg, CAMx_nest_x/yend are relative to CAMx master grid
+ ! *!*!* i-th nested CAMx grid corresponds to grid i+1 *!*!*
+ DO g = 2, ngridnumber
+   grid2alad(g) = CAMx_master2alad / CAMx_nest_mesh(g-1)   
+   grid_xbeg(g) = CAMx_master_xbeg + (CAMx_nest_xbeg(g-1)-1)*grid2alad(1) - grid2alad(g)
+   grid_xend(g) = CAMx_master_xbeg + (CAMx_nest_xend(g-1)-1)*grid2alad(1) + grid2alad(g)
+   grid_ybeg(g) = CAMx_master_ybeg + (CAMx_nest_ybeg(g-1)-1)*grid2alad(1) - grid2alad(g)
+   grid_yend(g) = CAMx_master_ybeg + (CAMx_nest_yend(g-1)-1)*grid2alad(1) + grid2alad(g)
+ END DO
+
+ DO g = 1, ngridnumber
+   ! elemental checking (finer resolution then has ALADIN grid is not allowed; CAMx grid must be a subset of ALADIN grid )
+   write(text_temp,'(a,I2,a)')'Nested grid ',g,':'
+   IF (g==1) text_temp='Master grid:'  
+
+   ! Check if grid is a subset of ALADIN grid
+   IF (MOD(grid_xend(g)-grid_xbeg(g),grid2alad(g)) /= 0 ) THEN
+     write(*,*)trim(temp_text),'X: does not match ALADIN grid'
+     STOP
+   END IF
+   IF (MOD(grid_yend(g)-grid_ybeg(g),grid2alad(g)) /= 0 ) THEN
+     write(*,*)trim(temp_text),'Y: does not match ALADIN grid'
+     STOP
+   END IF
+
+ END DO
+
  !-----------------------------
  ! open logFile               |
  ! ----------------------------
@@ -138,78 +145,66 @@ SUBROUTINE run_info()
  ! CAMx grid specifications  |
  ! --------------------------
  DO g=1,ngridnumber
-     ! kolikrat je ALADINovsky grid hustsi, nez CAMx-ovsky; ten nejvnorenejsi CAMx-ovsky odpovida hustotou ALADIN-ovkemu 
-     ainc=nest_mesh(ngridnumber)/nest_mesh(g) 
+     CAMx_dx(g)=Alad_dx*grid2alad(g)
+     CAMx_dy(g)=Alad_dy*grid2alad(g)
 
-     CAMx_dx(g)=Alad_dx*ainc
-     CAMx_dy(g)=Alad_dy*ainc
+     CAMx_nx(g)=(grid_xend(g)-grid_xbeg(g))/grid2alad(g) + 1
+     CAMx_ny(g)=(grid_yend(g)-grid_ybeg(g))/grid2alad(g) + 1
 
-     CAMx_nx(g)=(nest_xend(g)-nest_xstart(g))/ainc + 1
-     CAMx_ny(g)=(nest_yend(g)-nest_ystart(g))/ainc + 1
-
-     CAMx_SWCor11_x(g)= Alad_Centr11_X + (nest_xstart(g)-1.5D0)*Alad_dx
-     CAMx_SWCor11_y(g)= Alad_Centr11_Y + (nest_ystart(g)-1.5D0)*Alad_dy
+     ! reflects what is in CAMx meteo files - includes buffer cells
+     CAMx_SWCor11_x(g)= Alad_Centr11_X + (grid_xbeg(g)-1.5D0)*Alad_dx
+     CAMx_SWCor11_y(g)= Alad_Centr11_Y + (grid_ybeg(g)-1.5D0)*Alad_dy
  END DO
 
  !-----------------------------
  ! write information to logFile|
  ! ----------------------------
- WRITE(logFileUnit,"(a,I4,'-',I2.2,'-',I2.2,X,I2.2,':',I2.2,':',F2.0)") &
-   ' ** Beginning of Simulation in local time: ',beg_dt_LT%y,beg_dt_LT%m,beg_dt_LT%d,beg_dt_LT%h,beg_dt_LT%mi,beg_dt_LT%s
- WRITE(logFileUnit,"(a,I4,'-',I2.2,'-',I2.2,X,I2.2,':',I2.2,':',F2.0)") &
-   ' ** End of Simulation in local time     : ', end_dt_LT%y,end_dt_LT%m,end_dt_LT%d,end_dt_LT%h,end_dt_LT%mi,end_dt_LT%s
- WRITE(logFileUnit,"(a,I5)")' ** Time step in minutes   : ', met_frequency
- WRITE(logFileUnit,*)
- WRITE(logFileUnit,'(a,I1)')' Number of CAMx grids: ',ngridnumber
+ WRITE(logFileUnit,"( a,I4,'-',I2.2,'-',I2.2,X,I2.2,':',I2.2,':',F2.0)") &
+   '** Beginning of Simulation in local time: ',beg_dt_LT%y,beg_dt_LT%m,beg_dt_LT%d,beg_dt_LT%h,beg_dt_LT%mi,beg_dt_LT%s
+ WRITE(logFileUnit,"( a,I4,'-',I2.2,'-',I2.2,X,I2.2,':',I2.2,':',F2.0)") &
+   '** End of Simulation in local time      : ', end_dt_LT%y,end_dt_LT%m,end_dt_LT%d,end_dt_LT%h,end_dt_LT%mi,end_dt_LT%s
+ WRITE(logFileUnit,"( a,I2)") &
+   '** Time Zone                            : ', TimeZone
+ WRITE(logFileUnit,"( a,I5)") &
+   '** Time step in minutes                 : ', met_frequency
+ WRITE(logFileUnit,"(/a,I2)")' Number of CAMx grids: ',ngridnumber
  DO g=1,ngridnumber
-     IF (g==1) THEN
-         WRITE(logFileUnit,"('   mother grid: ')")
-     ELSE
-         WRITE(logFileUnit,"('   grid number: ',I1)")g
-     END IF
-     WRITE(logFileUnit,"('      meshing factor relative to mother grid = ', I4)")nest_mesh(g)
-     WRITE(logFileUnit,"('      ALADIN grid subsection:')")
-     WRITE(logFileUnit,"('                        Xmin = ',I4)")nest_xstart(g)
-     WRITE(logFileUnit,"('                        Xmax = ',I4)")nest_xend(g)
-     WRITE(logFileUnit,"('                        Ymin = ',I4)")nest_ystart(g)
-     WRITE(logFileUnit,"('                        Ymax = ',I4)")nest_yend(g)
-     WRITE(logFileUnit,*)
-     WRITE(logFileUnit,"('      nx = ',I3)")CAMx_nx(g)
-     WRITE(logFileUnit,"('      ny = ',I3)")CAMx_ny(g)
-     WRITE(logFileUnit,"('      dx = ',F8.1)")CAMx_dx(g)
-     WRITE(logFileUnit,"('      dy = ',F8.1)")CAMx_dy(g)
+     text_temp='nested'; IF (g==1) text_temp='Master'
+     WRITE(logFileUnit,"(/'grid ',I2,a)")g,'  ( '//trim(text_temp)//' )'
+     WRITE(logFileUnit,"( '   Resolution of CAMx grid relative to ALADIN = ', I4)")grid2alad(g)
+     WRITE(logFileUnit,"(/'   CAMx grid indexes in ALADIN grid (for CAMx nested grids including buffer cells):')")
+     WRITE(logFileUnit,"( '     ALAD_Xmin = ',I4)")grid_xbeg(g)
+     WRITE(logFileUnit,"( '     ALAD_Xmax = ',I4)")grid_xend(g)
+     WRITE(logFileUnit,"( '     ALAD_Ymin = ',I4)")grid_ybeg(g)
+     WRITE(logFileUnit,"( '     ALAD_Ymax = ',I4)")grid_yend(g)
+     WRITE(logFileUnit,"(/'     CAMx_nx = ',I3  )")CAMx_nx(g)
+     WRITE(logFileUnit,"( '     CAMx_ny = ',I3  )")CAMx_ny(g)
+     WRITE(logFileUnit,"(/'     CAMx_dx = ',F8.1)")CAMx_dx(g)
+     WRITE(logFileUnit,"( '     CAMx_dy = ',F8.1)")CAMx_dy(g)
  END DO
 
  WRITE(logFileUnit,*)
- WRITE(logFileUnit,"('CAMx levels definition (last level is suplemental to define ',I2,'th level upper interface)')")CAMx_nLev
+ WRITE(logFileUnit,"(/'CAMx levels definition (last level is suplemental to define ',I2,'th level upper interface)')")CAMx_nLev
  DO i = 1, CAMx_nLev+1
      WRITE(logFileUnit,"('    CAMx level(',I2,') = ',I2,' - ',I2)")i,CAMx_levDef( i,1),CAMx_levDef( i,2)
  END DO
 
- WRITE(logFileUnit,*)
- WRITE(logFileUnit,"('SMOOTHING  = ',L1)"    )SMOOTHER_SWITCH
- WRITE(logFileUnit,"('smoothing method = ',I1)")SMOOTHER_METHOD
+ WRITE(logFileUnit,"(/'SMOOTHING        = ',L1)"    )SMOOTHER_SWITCH
+ WRITE(logFileUnit,"( 'smoothing method = ',I1)")SMOOTHER_METHOD
 
- WRITE(logFileUnit,*)
- WRITE(logFileUnit,"('KV method  = ',a)"    )kv_method
- WRITE(logFileUnit,"('KV minimum = ',F10.5)")kvmin
+ WRITE(logFileUnit,"(/'KV method  = ',a)"    )kv_method
+ WRITE(logFileUnit,"( 'KV minimum = ',F10.5)")kvmin
 
- WRITE(logFileUnit,*)
- WRITE(logFileUnit,"('COD method = ',a)")cod_method
+ WRITE(logFileUnit,"(/'COD method = ',a)")cod_method
  IF (TRIM(cod_method).eq.'chimere') THEN
      WRITE(logFileUnit,"('  Low clouds    = ',a)")odMetL
      WRITE(logFileUnit,"('  Medium clouds = ',a)")odMetM
      WRITE(logFileUnit,"('  High clouds   = ',a)")odMetH
- ELSE
-     WRITE(logFileUnit,*)
-     WRITE(logFileUnit,*)
-     WRITE(logFileUnit,*)
  END IF
 
- WRITE(logFileUnit,*)
- WRITE(logFileUnit,"('PROFILE is printed for point:')")
- WRITE(logFileUnit,"('    nx = ',I3)")vpx
- WRITE(logFileUnit,"('    ny = ',I3)")vpy
+ WRITE(logFileUnit,"(/'PROFILE is printed for point:')")
+ WRITE(logFileUnit,"( '    nx = ',I3)")vpx
+ WRITE(logFileUnit,"( '    ny = ',I3)")vpy
 
 END SUBROUTINE run_info
 
