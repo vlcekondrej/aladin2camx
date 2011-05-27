@@ -162,7 +162,7 @@ integer:: tmp_unit,irec
  CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: zp_file, tp_file, uv_file, qa_file
  CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: cr_file,  kv_file
  CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: avgHGT_file, beis_file
- NAMELIST /output_file_names/ zp_file, tp_file, uv_file, qa_file, cr_file, kv_file, avgHGT_file, beis_file
+ NAMELIST /info_output_files/ zp_file, tp_file, uv_file, qa_file, cr_file, kv_file, avgHGT_file, beis_file
 
  ! emiheader.F90
  CHARACTER(LEN=4) :: mspec(10,4)

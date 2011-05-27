@@ -30,7 +30,7 @@ CAMx_nest_ybeg(1) =  15
 CAMx_nest_yend(1) =  35
 /
 
-&output_file_names
+&info_output_lifes
 zp_file(1)     = './CAMX_INP/camx.zp.d01.2008-07-01-00_2008-07-00-00'
 tp_file(1)     = './CAMX_INP/camx.tp.d01.2008-07-01-00_2008-07-00-00'
 uv_file(1)     = './CAMX_INP/camx.uv.d01.2008-07-01-00_2008-07-00-00'

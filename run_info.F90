@@ -25,7 +25,7 @@ SUBROUTINE run_info()
  OPEN(UNIT=unit_INFO_RUN,FILE='INFO_RUN.nml',STATUS='OLD',DELIM='APOSTROPHE')
   READ(unit_INFO_RUN,NML=info_run) 
   READ(unit_INFO_RUN,NML=info_grid) 
-  READ(unit_INFO_RUN,NML=output_file_names) 
+  READ(unit_INFO_RUN,NML=info_output_files) 
   READ(unit_INFO_RUN,NML=input_file_names) 
  CLOSE(unit_INFO_RUN)
 
