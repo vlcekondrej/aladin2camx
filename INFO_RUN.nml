@@ -1,0 +1,59 @@
+&clock_control
+begYYYYMMDD   = 20130211
+begHHMI       = 1200
+endYYYYMMDD   = 20130212
+endHHMI       = 0000
+met_frequency = 60
+TimeZone      = 0 ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce simulace
+/
+
+&output_file_names
+zp_file(1)     = 'camx.zp.d01.130211'
+tp_file(1)     = 'camx.tp.d01.130211'
+uv_file(1)     = 'camx.uv.d01.130211'
+qa_file(1)     = 'camx.qa.d01.130211'
+cr_file(1)     = 'camx.cr.d01.130211'
+kv_file(1)     = 'camx.kv.d01.130211'
+avgHGT_file(1) = 'camx.avgHGT.d01.130211'
+beis_file(1)   = 'BEISmet.d01.d01.130211'
+
+zp_file(2)     = 'camx.zp.d02.130211'
+tp_file(2)     = 'camx.tp.d02.130211'
+uv_file(2)     = 'camx.uv.d02.130211'
+qa_file(2)     = 'camx.qa.d02.130211'
+cr_file(2)     = 'camx.cr.d02.130211'
+kv_file(2)     = 'camx.kv.d02.130211'
+avgHGT_file(2) = 'camx.avgHGT.d02.130211'
+beis_file(2)   = 'BEISmet.d02.d01.130211'
+/
+
+&input_file_names
+aladin_met_names( 0) = 'ALADIN_GRIB/ALAD4camx_2013021112_00.grb'
+aladin_met_names( 1) = 'ALADIN_GRIB/ALAD4camx_2013021112_01.grb'
+aladin_met_names( 2) = 'ALADIN_GRIB/ALAD4camx_2013021112_02.grb'
+aladin_met_names( 3) = 'ALADIN_GRIB/ALAD4camx_2013021112_03.grb
+aladin_met_names( 4) = 'ALADIN_GRIB/ALAD4camx_2013021112_04.grb'
+aladin_met_names( 5) = 'ALADIN_GRIB/ALAD4camx_2013021112_05.grb'
+aladin_met_names( 6) = 'ALADIN_GRIB/ALAD4camx_2013021112_06.grb'
+aladin_met_names( 7) = 'ALADIN_GRIB/ALAD4camx_2013021112_07.grb'
+aladin_met_names( 8) = 'ALADIN_GRIB/ALAD4camx_2013021112_08.grb'
+aladin_met_names( 9) = 'ALADIN_GRIB/ALAD4camx_2013021112_09.grb'
+aladin_met_names(10) = 'ALADIN_GRIB/ALAD4camx_2013021112_10.grb'
+aladin_met_names(11) = 'ALADIN_GRIB/ALAD4camx_2013021112_11.grb'
+aladin_met_names(12) = 'ALADIN_GRIB/ALAD4camx_2013021112_12.grb'
+aladin_met_names(13) = 'ALADIN_GRIB/ALAD4camx_2013021112_13.grb'
+aladin_met_names(14) = 'ALADIN_GRIB/ALAD4camx_2013021112_14.grb'
+aladin_met_names(15) = 'ALADIN_GRIB/ALAD4camx_2013021112_15.grb'
+aladin_met_names(16) = 'ALADIN_GRIB/ALAD4camx_2013021112_16.grb'
+aladin_met_names(17) = 'ALADIN_GRIB/ALAD4camx_2013021112_17.grb'
+aladin_met_names(18) = 'ALADIN_GRIB/ALAD4camx_2013021112_18.grb'
+aladin_met_names(19) = 'ALADIN_GRIB/ALAD4camx_2013021112_19.grb'
+aladin_met_names(20) = 'ALADIN_GRIB/ALAD4camx_2013021112_20.grb'
+aladin_met_names(21) = 'ALADIN_GRIB/ALAD4camx_2013021112_21.grb'
+aladin_met_names(22) = 'ALADIN_GRIB/ALAD4camx_2013021112_22.grb'
+aladin_met_names(23) = 'ALADIN_GRIB/ALAD4camx_2013021112_23.grb'
+aladin_met_names(24) = 'ALADIN_GRIB/ALAD4camx_2013021112_24.grb'
+aladin_met_names(25) = 'ALADIN_GRIB/ALAD4camx_2013021112_25.grb'
+/
+
+

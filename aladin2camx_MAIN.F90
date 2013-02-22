@@ -8,12 +8,6 @@ PROGRAM aladin2camx_MAIN
  INTEGER :: g ! grid index; g=1 for driving grid, >1 for nested
  INTEGER :: aladin_unit, istat, d, unit_nml, k
 
- ! read aladin2camx namelist
- unit_nml=1
- OPEN(UNIT=unit_nml,FILE='aladin2camx.nml',STATUS='OLD',DELIM='APOSTROPHE')
- READ(unit_nml,NML=aladin2camx_control)
- CLOSE(unit_nml)
-
  ! run_info will read information on run
  CALL run_info()
 
@@ -51,6 +45,7 @@ PROGRAM aladin2camx_MAIN
          CALL BEISmet_putTime(netCDFid(g),TFLAG_varID(g))
      END IF
 
+     ! soubor s prumernymi vyskami hladin CAMxu
      avgHGT_unit(g)=getFreeUnitNo()
      OPEN(UNIT=avgHGT_unit(g),FILE=avgHGT_file(g))
 

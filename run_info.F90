@@ -1,16 +1,14 @@
 SUBROUTINE run_info()
  USE module_global_variables
  USE module_datetime
- USE INTER_FACES, ONLY: juldate, julday
+ USE INTER_FACES, ONLY: julday
  IMPLICIT NONE
 
- INTEGER :: unit_INFO_RUN, unit_INFO_GRID
+ INTEGER :: iunit
  INTEGER :: g, i, istat
  TYPE(tDateTime) :: beg_dt_LT, end_dt_LT, act_dt_LT, act_dt_UT ! _LT means Local Time
  INTEGER :: da,ti, ainc
  INTEGER :: unit_counter
- CHARACTER(LEN=200), DIMENSION(0:200) :: aladin_met_names ! pomocne pole pro nasteni jmen Alad souboru z namelistu
- NAMELIST /input_file_names/ aladin_met_names
  
  CHARACTER(LEN=50) :: text_temp ! temporary text variable
 
@@ -21,18 +19,27 @@ SUBROUTINE run_info()
  !----------------------------
  ! read in path and date/time |
  ! ---------------------------
- unit_INFO_RUN=getFreeUnitNo()
- OPEN(UNIT=unit_INFO_RUN,FILE='INFO_RUN.nml',STATUS='OLD',DELIM='APOSTROPHE')
-  READ(unit_INFO_RUN,NML=info_run) 
-  READ(unit_INFO_RUN,NML=info_grid) 
-  READ(unit_INFO_RUN,NML=info_output_files) 
-  READ(unit_INFO_RUN,NML=input_file_names) 
- CLOSE(unit_INFO_RUN)
+ iunit=getFreeUnitNo()
+ OPEN(UNIT=iunit,FILE='INFO_RUN.nml',STATUS='OLD',DELIM='APOSTROPHE')
+  READ(iunit,NML=clock_control) 
+  READ(iunit,NML=input_files) 
+  READ(iunit,NML=output_files) 
+ CLOSE(iunit)
 
- ! adds end slash, if necessary
- CALL if_not_add_char(ALAD_GRIB_DIR,'/')
- ! adds end slash, if necessary
- CALL if_not_add_char(CAMX_INP_DIR,'/')
+ OPEN(UNIT=iunit,FILE='INFO_ALADIN_GRIBS.nml',STATUS='OLD',DELIM='APOSTROPHE')
+  READ(iunit,NML=aladin_gribs_info) 
+ CLOSE(iunit)
+ Alad_nVal = Alad_nX*Alad_nY
+
+ OPEN(UNIT=iunit,FILE='INFO_CAMx_GRID.nml',STATUS='OLD',DELIM='APOSTROPHE')
+  READ(iunit,NML=camx_grid_info) 
+ CLOSE(iunit)
+
+ OPEN(UNIT=iunit,FILE='aladin2camx_control.nml',STATUS='OLD',DELIM='APOSTROPHE')
+  READ(iunit,NML=aladin2camx_control) 
+ CLOSE(iunit)
+
+
 
  beg_dt_LT%y  = begYYYYMMDD / 10000
  beg_dt_LT%m  = MOD(begYYYYMMDD,10000) / 100
@@ -46,37 +53,17 @@ SUBROUTINE run_info()
  end_dt_LT%h  = endHHMI / 100
  end_dt_LT%mi = MOD(endHHMI,100)
 
- ! grid parameters relative to NWP(ALADIN) grid
- grid2alad(1) = CAMx_master2alad
- grid_xbeg(1) = CAMx_master_xbeg
- grid_xend(1) = CAMx_master_xend
- grid_ybeg(1) = CAMx_master_ybeg
- grid_yend(1) = CAMx_master_yend
-
- ! nested grids including buffer cells ( +- grid2alad(g) )
- ! grid_x/ybeg, grid_x/yend are relative to ALADIN grid, so is CAMx_master_x/ybeg, CAMx_master_x/yend
- ! CAMx_nest_x/ybeg, CAMx_nest_x/yend are relative to CAMx master grid
- ! *!*!* i-th nested CAMx grid corresponds to grid i+1 *!*!*
- DO g = 2, ngridnumber
-   grid2alad(g) = CAMx_master2alad / CAMx_nest_mesh(g-1)   
-   grid_xbeg(g) = CAMx_master_xbeg + (CAMx_nest_xbeg(g-1)-1)*grid2alad(1) - grid2alad(g)
-   grid_xend(g) = CAMx_master_xbeg + (CAMx_nest_xend(g-1)-1)*grid2alad(1) + grid2alad(g)
-   grid_ybeg(g) = CAMx_master_ybeg + (CAMx_nest_ybeg(g-1)-1)*grid2alad(1) - grid2alad(g)
-   grid_yend(g) = CAMx_master_ybeg + (CAMx_nest_yend(g-1)-1)*grid2alad(1) + grid2alad(g)
- END DO
-
  DO g = 1, ngridnumber
-   ! elemental checking (finer resolution then has ALADIN grid is not allowed; CAMx grid must be a subset of ALADIN grid )
-   write(text_temp,'(a,I2,a)')'Nested grid ',g,':'
-   IF (g==1) text_temp='Master grid:'  
+   ! elemental check (CAMx grid must interlap with ALADIN grid )
+   write(text_temp,'(a,I2,a)')'Grid ',g,','
 
    ! Check if grid is a subset of ALADIN grid
-   IF (MOD(grid_xend(g)-grid_xbeg(g),grid2alad(g)) /= 0 ) THEN
-     write(*,*)trim(temp_text),'X: does not match ALADIN grid'
+   IF (MOD(CAMx_grid_xend(g)-CAMx_grid_xbeg(g)+1,CAMx_grid_step(g)) /= 0 ) THEN
+     write(*,*)trim(text_temp),' osa X: pocet bodu neni celociselnym nasobkem kroku'
      STOP
    END IF
-   IF (MOD(grid_yend(g)-grid_ybeg(g),grid2alad(g)) /= 0 ) THEN
-     write(*,*)trim(temp_text),'Y: does not match ALADIN grid'
+   IF (MOD(CAMx_grid_yend(g)-CAMx_grid_ybeg(g)+1,CAMx_grid_step(g)) /= 0 ) THEN
+     write(*,*)trim(text_temp),' osa Y: pocet bodu neni celociselnym nasobkem kroku'
      STOP
    END IF
 
@@ -145,15 +132,15 @@ SUBROUTINE run_info()
  ! CAMx grid specifications  |
  ! --------------------------
  DO g=1,ngridnumber
-     CAMx_dx(g)=Alad_dx*grid2alad(g)
-     CAMx_dy(g)=Alad_dy*grid2alad(g)
+     CAMx_dx(g)=Alad_dx*CAMx_grid_step(g)
+     CAMx_dy(g)=Alad_dy*CAMx_grid_step(g)
 
-     CAMx_nx(g)=(grid_xend(g)-grid_xbeg(g))/grid2alad(g) + 1
-     CAMx_ny(g)=(grid_yend(g)-grid_ybeg(g))/grid2alad(g) + 1
+     CAMx_nx(g)=(CAMx_grid_xend(g)-CAMx_grid_xbeg(g)+1)/CAMx_grid_step(g)
+     CAMx_ny(g)=(CAMx_grid_yend(g)-CAMx_grid_ybeg(g)+1)/CAMx_grid_step(g)
 
      ! reflects what is in CAMx meteo files - includes buffer cells
-     CAMx_SWCor11_x(g)= Alad_Centr11_X + (grid_xbeg(g)-1.5D0)*Alad_dx
-     CAMx_SWCor11_y(g)= Alad_Centr11_Y + (grid_ybeg(g)-1.5D0)*Alad_dy
+     CAMx_SWCor11_x(g)= Alad_Centr11_X + (CAMx_grid_xbeg(g)-1.5D0)*Alad_dx
+     CAMx_SWCor11_y(g)= Alad_Centr11_Y + (CAMx_grid_ybeg(g)-1.5D0)*Alad_dy
  END DO
 
  !-----------------------------
@@ -171,12 +158,12 @@ SUBROUTINE run_info()
  DO g=1,ngridnumber
      text_temp='nested'; IF (g==1) text_temp='Master'
      WRITE(logFileUnit,"(/'grid ',I2,a)")g,'  ( '//trim(text_temp)//' )'
-     WRITE(logFileUnit,"( '   Resolution of CAMx grid relative to ALADIN = ', I4)")grid2alad(g)
+     WRITE(logFileUnit,"( '   Resolution of CAMx grid relative to ALADIN = ', I4)")CAMx_grid_step(g)
      WRITE(logFileUnit,"(/'   CAMx grid indexes in ALADIN grid (for CAMx nested grids including buffer cells):')")
-     WRITE(logFileUnit,"( '     ALAD_Xmin = ',I4)")grid_xbeg(g)
-     WRITE(logFileUnit,"( '     ALAD_Xmax = ',I4)")grid_xend(g)
-     WRITE(logFileUnit,"( '     ALAD_Ymin = ',I4)")grid_ybeg(g)
-     WRITE(logFileUnit,"( '     ALAD_Ymax = ',I4)")grid_yend(g)
+     WRITE(logFileUnit,"( '     ALAD_Xmin = ',I4)")CAMx_grid_xbeg(g)
+     WRITE(logFileUnit,"( '     ALAD_Xmax = ',I4)")CAMx_grid_xend(g)
+     WRITE(logFileUnit,"( '     ALAD_Ymin = ',I4)")CAMx_grid_ybeg(g)
+     WRITE(logFileUnit,"( '     ALAD_Ymax = ',I4)")CAMx_grid_yend(g)
      WRITE(logFileUnit,"(/'     CAMx_nx = ',I3  )")CAMx_nx(g)
      WRITE(logFileUnit,"( '     CAMx_ny = ',I3  )")CAMx_ny(g)
      WRITE(logFileUnit,"(/'     CAMx_dx = ',F8.1)")CAMx_dx(g)
@@ -202,9 +189,9 @@ SUBROUTINE run_info()
      WRITE(logFileUnit,"('  High clouds   = ',a)")odMetH
  END IF
 
- WRITE(logFileUnit,"(/'PROFILE is printed for point:')")
- WRITE(logFileUnit,"( '    nx = ',I3)")vpx
- WRITE(logFileUnit,"( '    ny = ',I3)")vpy
+!!!vp WRITE(logFileUnit,"(/'PROFILE is printed for point:')")
+!!!vp WRITE(logFileUnit,"( '    nx = ',I3)")vpx
+!!!vp WRITE(logFileUnit,"( '    ny = ',I3)")vpy
 
 END SUBROUTINE run_info
 

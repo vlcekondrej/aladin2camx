@@ -4,7 +4,9 @@ MODULE module_global_variables
 ! USE module_utils
 
  IMPLICIT NONE
-integer:: tmp_unit,irec
+
+ integer:: tmp_unit,irec
+
  TYPE tAladFieldID
      INTEGER :: Param, LevType, Lev, minLev, maxLev
      INTEGER :: read(100) ! volim cislo s erzervou presahujici pocet hladin v ALADINu 
@@ -25,50 +27,23 @@ integer:: tmp_unit,irec
      CHARACTER(LEN=200) :: name_f       ! name of the file
  END TYPE tAVAILABLE_FILES
 
+ ! maximum number of grids
+ INTEGER, PARAMETER :: ngridnumber_max=3
 
- ! == control file ==
  CHARACTER(LEN=200) :: logfile
  INTEGER :: logFileUnit, PID
 
- !--------------------------------
- ! initialized in aladin2camx.nml |
- !--------------------------------
+ !---------------------------------------------------!
+ !                                                   !
+ ! RUN OPTIONS CONTROL                               ! 
+ !                                                   !
+ !   read by info_run() from aladin2camx_control.nml !
+ !---------------------------------------------------!
+
    ! == biogenic emission related flag ==
    LOGICAL :: BEIS_flag ! if .TRUE. NetDCF files for BEIS will be created
 
-   ! == CAMx vertical grid structure ==
-   INTEGER :: Alad_maxLev ! number of ALADIN levels to be read
-   INTEGER :: CAMx_nLev   ! number of CAMx levels to which ALAD_maxLev are reduced
-   INTEGER :: CAMx_LevDef(60,2) ! i-th CAMx level includes CAMx_levDef(i,1), ..., CAMx_levDef(i,2) ALADIN levels
-
    INTEGER :: vpx, vpy ! grid for which print vertical profile
-
-   ! == ALADIN grid ==
-   INTEGER       :: Alad_nVal, Alad_nX, Alad_nY, Alad_nLev 
-   REAL(KIND=dp) :: Alad_dx, Alad_dy, Alad_Centr11_X, Alad_Centr11_Y
-
-   ! == ALADIN GRIBs ==
-   INTEGER :: Alad_iScanNeg, Alad_jScanPos, Alad_jConsec, Alad_aRowScan
-   LOGICAL :: ConfAladCAMxLevIndexing
-   REAL    :: Alad_missingVal
-   INTEGER :: Alad_mlLevID, Alad_sfcLevID 
-
-   ! == ALADIN PROJECTION ==
-   INTEGER       :: Alad_PROJ        ! MODELS3 grid definitions
-   REAL          :: Alad_EarthRadius    ! Earth radius
-   REAL(KIND=dp) :: Alad_PROJ_ALPHA, Alad_PROJ_BETA, Alad_PROJ_GAMMA, Alad_X_CENT, Alad_Y_CENT
-
-   ! ==  ALADIN FIELDS to be read ==
-   ! their specification in ALADIN GRIB files
-   TYPE(tAladFieldID) :: AladField_Tsfc, AladField_T, &
-                         AladField_GEOsfc, AladField_GEO, &
-                         AladField_Psfc, AladField_P, &
-                         AladField_uWind, AladField_vWind, &
-                         AladField_TKE, AladField_Rh, &
-                         AladField_Q, AladField_Qsfc, &
-                         AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, &
-                         AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad
-
 
    ! === SMOOTHER SWITCH ==
    LOGICAL :: SMOOTHER_SWITCH
@@ -88,81 +63,129 @@ integer:: tmp_unit,irec
    ! == critical values of Aladin data
    REAL :: Tsfc_cmin, Qsfc_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
            T_cmin, geo_cmin, p_cmin, wind_cmax, TKE_cmin, Q_cmin, Rh_cmin, Qs_cmin, Ql_cmin, Qr_cmin, Qi_cmin
-
+  
    NAMELIST /aladin2camx_control/  &
        BEIS_flag, &
-       Alad_maxLev, CAMx_nLev, CAMx_LevDef, &
        vpx, vpy, &
-       Alad_nVal, Alad_nX, Alad_nY, Alad_nLev, Alad_dx, Alad_dy, Alad_Centr11_X, Alad_Centr11_Y, &
-       Alad_PROJ, Alad_EarthRadius, Alad_PROJ_ALPHA, Alad_PROJ_BETA, Alad_PROJ_GAMMA, Alad_X_CENT, Alad_Y_CENT, &
-       Alad_iScanNeg, Alad_jScanPos, Alad_jConsec, Alad_aRowScan, &
-       ConfAladCAMxLevIndexing, Alad_missingVal, Alad_mlLevID, Alad_sfcLevID, &
-       AladField_Tsfc, AladField_T, AladField_GEOsfc, AladField_GEO, AladField_Psfc, &
-       AladField_P, AladField_uWind, AladField_vWind, AladField_TKE, AladField_Rh, AladField_Q, AladField_Qsfc, &
-       AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad, &
-       SMOOTHER_SWITCH, SMOOTHER_METHOD, & 
+       SMOOTHER_SWITCH, SMOOTHER_METHOD, &
        kv_method, kvmin, &
        cod_method, odMetL, odMetM, odMetH, &
        checkFlag, Tsfc_cmin, Qsfc_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
-       T_cmin, geo_cmin, p_cmin, wind_cmax, TKE_cmin, Q_cmin, Rh_cmin, Qs_cmin, Ql_cmin, Qr_cmin, Qi_cmin, &
-       TimeZone
+       T_cmin, geo_cmin, p_cmin, wind_cmax, TKE_cmin, Q_cmin, Rh_cmin, Qs_cmin, Ql_cmin, Qr_cmin, Qi_cmin
 
 
- CHARACTER(LEN=200) :: INFO_GRID_FILE='INFO_GRID' ! ,INFO_RUN_FILE='INFO_RUN'
- !---------------------------------------
- ! read by info_run() from INFO_RUN.nml  |
- !---------------------------------------
-   CHARACTER(LEN=200) :: ALAD_GRIB_DIR, CAMX_INP_DIR
+ !-------------------------------------------------!
+ !                                                 !
+ ! PARAMETERS OF ALADIN GRIBS                      !
+ !                                                 !
+ !   read by info_run() from INFO_ALADIN_GRIBS.nml !
+ !-------------------------------------------------!
+   
+   ! == ALADIN PROJECTION ==
+   INTEGER       :: Alad_PROJ        ! MODELS3 grid definitions
+   REAL          :: Alad_EarthRadius ! Earth radius
+   REAL(KIND=dp) :: Alad_PROJ_ALPHA, Alad_PROJ_BETA, Alad_PROJ_GAMMA, Alad_X_CENT, Alad_Y_CENT
+
+   ! == ALADIN grid ==
+   INTEGER       :: Alad_nX, Alad_nY, Alad_nLev 
+   REAL(KIND=dp) :: Alad_dx, Alad_dy, Alad_Centr11_X, Alad_Centr11_Y
+
+   ! == ALADIN GRIBs ==
+   INTEGER :: Alad_iScanNeg, Alad_jScanPos, Alad_jConsec, Alad_aRowScan
+   LOGICAL :: AladLevNumberedFromBottom
+   REAL    :: Alad_missingVal
+   INTEGER :: Alad_mlLevID, Alad_sfcLevID 
+
+   ! ==  ALADIN FIELDS to be read (their specification in ALADIN GRIB files) ==
+   TYPE(tAladFieldID) :: AladField_Tsfc, AladField_T, &
+                         AladField_GEOsfc, AladField_GEO, &
+                         AladField_Psfc, AladField_P, &
+                         AladField_uWind, AladField_vWind, &
+                         AladField_TKE, AladField_Rh, &
+                         AladField_Q, AladField_Qsfc, &
+                         AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, &
+                         AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad
+
+   NAMELIST /aladin_gribs_info/  &
+       Alad_nX, Alad_nY, Alad_nLev, Alad_dx, Alad_dy, Alad_Centr11_X, Alad_Centr11_Y, &
+       Alad_PROJ, Alad_EarthRadius, Alad_PROJ_ALPHA, Alad_PROJ_BETA, Alad_PROJ_GAMMA, Alad_X_CENT, Alad_Y_CENT, &
+       Alad_iScanNeg, Alad_jScanPos, Alad_jConsec, Alad_aRowScan, &
+       AladLevNumberedFromBottom, Alad_missingVal, Alad_mlLevID, Alad_sfcLevID, &
+       AladField_Tsfc, AladField_T, AladField_GEOsfc, AladField_GEO, AladField_Psfc, &
+       AladField_P, AladField_uWind, AladField_vWind, AladField_TKE, AladField_Rh, AladField_Q, AladField_Qsfc, &
+       AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad
+
+ INTEGER :: Alad_nVal ! dopocte se jako Alad_nX*Alad_nY 
+
+
+ !-----------------------------------------!
+ !                                         !
+ ! CLOCK CONTROL AND I/O FILE NAMES        !
+ !                                         !
+ !   read by info_run() from INFO_RUN.nml  !
+ !-----------------------------------------!
    ! first and last time layer in CAMx input files
    INTEGER :: begYYYYMMDD, begHHMI, endYYYYMMDD, endHHMI
    ! input frequency of meteorological files in minutes
    INTEGER :: met_frequency
-   ! time zune used for CAMx simulation. CET: TimeZone=1
+   ! time zone used for CAMx simulation. CET: TimeZone=1
    INTEGER :: TimeZone
-   NAMELIST /info_run/ ALAD_GRIB_DIR, CAMX_INP_DIR, begYYYYMMDD, begHHMI, endYYYYMMDD, endHHMI, met_frequency, TimeZone
+   NAMELIST /clock_control/ begYYYYMMDD, begHHMI, endYYYYMMDD, endHHMI, met_frequency, TimeZone
 
-   ! number of ALADIN grib files - derived from beginning/end simulation time and met_frequency
-   ! if required nAladFiles is greater than dimension of aladin_met, it is necessary to increase the dimension and rebuild the source
-   INTEGER :: nAladFiles
-   ! information on ALADIN grib files that should be available for the run 
-   ! (accord. to begining/end date/time and input frequency given in RUN_INFO_FILE)
-   TYPE(tAVAILABLE_FILES), ALLOCATABLE, DIMENSION(:) :: aladin_met
+   CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: zp_file, tp_file, uv_file, qa_file
+   CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: cr_file,  kv_file
+   CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: avgHGT_file, beis_file
+   NAMELIST /output_files/ zp_file, tp_file, uv_file, qa_file, cr_file, kv_file, avgHGT_file, beis_file
 
- !---------------------------------------
- ! read by info_run() from INFO_GRID_FILE |
- !---------------------------------------
-   ! maximum number of grids
-   INTEGER, PARAMETER :: ngridnumber_max=3
-   ! number of grids - master plus all nested grids
-   INTEGER            :: ngridnumber  
-   ! CAMx MASTER grid parameters relative to (NWP) ALADIN grid. 
-   ! * CAMx_master2alad expresses the ratio of the CAMx master grid horiz.res. relative to NWP(ALADIN) horiz.res.
-   INTEGER            :: CAMx_master2alad, CAMx_master_xbeg, CAMx_master_xend, CAMx_master_ybeg, CAMx_master_yend
-   ! Nested grids parameters in accordance with CAMx namelist: 
-   ! * indexes and meshing factors are taken relative to CAMx MASTER grid; 
-   ! * buffer cells are not included. They will be added authomatically.
-   INTEGER, DIMENSION(ngridnumber_max) :: CAMx_nest_xbeg, CAMx_nest_ybeg, CAMx_nest_xend, CAMx_nest_yend 
-   INTEGER, DIMENSION(ngridnumber_max) :: CAMx_nest_mesh 
-   NAMELIST /info_grid/ ngridnumber, &
-     CAMx_master2alad, CAMx_master_xbeg, CAMx_master_xend, CAMx_master_ybeg, CAMx_master_yend, &
-     CAMx_nest_mesh,   CAMx_nest_xbeg,   CAMx_nest_ybeg,   CAMx_nest_xend,   CAMx_nest_yend
+   CHARACTER(LEN=200), DIMENSION(0:200) :: aladin_met_names ! pomocne pole pro nasteni jmen Alad souboru z namelistu
+   NAMELIST /input_files/ aladin_met_names
 
- ! grid parameters relative to NWP(ALADIN) grid (index 1 corresponds to CAMx master):
- INTEGER,       DIMENSION(ngridnumber_max) :: grid_xbeg, grid_xend, grid_ybeg, grid_yend, grid2alad
-
- INTEGER,       DIMENSION(ngridnumber_max) :: CAMx_nx, CAMx_ny
- REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_dx, CAMx_dy
- REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_SWCor11_x, CAMx_SWCor11_y
-
+ ! number of ALADIN grib files - derived from beginning/end simulation time and met_frequency
+ ! if required nAladFiles is greater than dimension of aladin_met, it is necessary to increase the dimension and rebuild the source
+ INTEGER :: nAladFiles
+ ! information on ALADIN grib files that should be available for the run 
+ ! (accord. to begining/end date/time and input frequency given in RUN_INFO_FILE)
+ TYPE(tAVAILABLE_FILES), ALLOCATABLE, DIMENSION(:) :: aladin_met
 
  ! unit numbers and file names for CAMx input files and master resp. nested grids; alloccated and set in aladin2camx_MAIN
  INTEGER,            DIMENSION(ngridnumber_max) :: zp_unit, tp_unit, uv_unit, qa_unit
  INTEGER,            DIMENSION(ngridnumber_max) :: cr_unit,  kv_unit
  INTEGER,            DIMENSION(ngridnumber_max) :: avgHGT_unit
- CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: zp_file, tp_file, uv_file, qa_file
- CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: cr_file,  kv_file
- CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: avgHGT_file, beis_file
- NAMELIST /info_output_files/ zp_file, tp_file, uv_file, qa_file, cr_file, kv_file, avgHGT_file, beis_file
+
+
+ !----------------------------------------------!
+ !                                              !
+ ! CAMx GRID INFO                               !
+ !                                              !
+ !----------------------------------------------!
+ INTEGER,       DIMENSION(ngridnumber_max) :: CAMx_nx, CAMx_ny
+ REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_dx, CAMx_dy
+ REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_SWCor11_x, CAMx_SWCor11_y
+
+ !----------------------------------------------!
+ !   read by info_run() from INFO_CAMx_GRID.nml !
+ !----------------------------------------------!
+   ! number of grids - master plus all nested grids
+   INTEGER :: ngridnumber  
+   ! CAMx grid parameters relative to (NWP) ALADIN grid.
+   ! For nested grids must include buffer cells !!! 
+   ! CAMx_grid_step ... sets the resolution or cell size of the CAMx grid relative to NWP (ALADIN) grid.
+   INTEGER, DIMENSION(ngridnumber_max) :: CAMx_grid_xbeg, CAMx_grid_xend, &
+                                          CAMx_grid_ybeg, CAMx_grid_yend, &
+                                          CAMx_grid_step
+
+   ! == CAMx vertical grid structure ==
+   INTEGER :: Alad_maxLev ! number of ALADIN levels (counted from bottom) to be used for calculating CAMx levels
+   INTEGER :: CAMx_nLev   ! number of CAMx levels to which ALAD_maxLev are reduced
+   INTEGER :: CAMx_LevDef(60,2) ! i-th CAMx level includes CAMx_levDef(i,1), ..., CAMx_levDef(i,2) ALADIN levels
+
+   NAMELIST /camx_grid_info/  &
+     CAMx_grid_xbeg, CAMx_grid_ybeg, CAMx_grid_xend, CAMx_grid_yend, CAMx_grid_step, &
+     Alad_maxLev, CAMx_nLev, CAMx_LevDef
+
+
+
+
 
  ! emiheader.F90
  CHARACTER(LEN=4) :: mspec(10,4)
