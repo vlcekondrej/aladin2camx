@@ -3,15 +3,13 @@ IMPLICIT NONE
 
 CONTAINS
 
-  SUBROUTINE verthor2d(FIELD,NX_INT_FIELD,NY_INT_FIELD,G,INT_FIELD,NRCELL,METHOD)
+  SUBROUTINE verthor2d(FIELD,XS,XE,YS,YE,STEP,INT_FIELD) 
    ! originating from verthor.F90 contained in ZAMG preprocesor
  
    ! Description:
    !   Performs horizontal interpolation 
    !   
-   !
    ! Method:
-   !   
    !
    ! Current code maintainer: Ondrej Vlcek (CHMI)
    !
@@ -19,78 +17,47 @@ CONTAINS
    ! Version   Date Y-M-D   Comment
    ! -------   ----------   -------
    ! 0         2010-11-24   ... Ondrej Vlcek
+   ! 1         2013-02-15   
 
    USE module_standard_types
    USE module_global_variables
    IMPLICIT NONE
   
-   INTEGER,      INTENT(IN   )           :: NX_INT_FIELD, NY_INT_FIELD, G ! dimensions of output field; grid number
+   INTEGER,      INTENT(IN   )           :: XS,XE,YS,YE,STEP ! first and last indexes of CAMx grid relatice to ALADIN and its step
    REAL(KIND=sp),INTENT(IN   )           :: FIELD(Alad_nx,Alad_ny,1)
-   REAL(KIND=sp),INTENT(  OUT)           :: INT_FIELD(NX_INT_FIELD,NY_INT_FIELD,1)
-   INTEGER,      INTENT(IN   ), OPTIONAL :: NRCELL
-   INTEGER,      INTENT(IN   ), OPTIONAL :: METHOD
+   REAL(KIND=sp),INTENT(  OUT)           :: INT_FIELD((xe-xs+1)/step, (ye-ys+1)/step, 1)
   
-   INTEGER       :: x,y,xi,yi,xs,xe,ys,ye,ainc,ni,ncell,meth
+   INTEGER       :: x,y
    REAL(KIND=sp) :: suma
   
-   IF (PRESENT(NRCELL)) THEN
-       ncell = NRCELL
-   ELSE
-       ncell = 0 
+   IF ( step == 1 ) THEN
+     ! SIMPLY WINDOW DATA
+     INT_FIELD( :, :, 1 ) = FIELD(xs:xe, ys:ye, 1 )
+     RETURN
    END IF
 
-   IF (PRESENT(METHOD)) THEN
-       meth = METHOD
-   ELSE
-       meth = 0
-   END IF
+   ! now horizontal fields are averaged
+   DO y = ys, ye, step
+     DO x = xs, xe, step
 
-   ys   = grid_ybeg(g)
-   ye   = grid_yend(g)
-   xs   = grid_xbeg(g)
-   xe   = grid_xend(g)
-   ainc = grid2alad(g) ! number of ALADIN cells included in one CAMx cell
+       suma = sum(FIELD(x:x+step-1,y:step-1,1))
+       INT_FIELD( (x-xs)/step+1, (y-ys)/step+1, 1 ) = suma / step**2
 
-   ! now horizontal fields are interpolated
-   DO y = ys, ye, ainc
-     DO x = xs, xe, ainc
-
-       suma = 0.
-       DO xi = x-ncell, x+ncell
-         DO yi = y-ncell, y+ncell
-
-           SELECT CASE (meth)
-             CASE(0)
-               suma = suma + FIELD(xi,yi,1)
-             CASE DEFAULT
-               WRITE(logFileUnit,*) '__verthor2d: Unknown interpolation method'
-               WRITE(logFileUnit,*) '           : Dummy variable METHOD = ',METHOD
-               STOP
-           END SELECT
-
-         END DO
-       END DO
-
-       SELECT CASE (meth)
-         CASE(0)
-           INT_FIELD( (x-xs)/ainc+1, (y-ys)/ainc+1, 1 ) = suma / (2*ncell+1)**2
-       END SELECT
-
-       END DO 
+     END DO 
    END DO
  
    RETURN
   END SUBROUTINE verthor2d
   
   
-  SUBROUTINE verthor3d(FIELD,NX_INT_FIELD,NY_INT_FIELD,G,INT_FIELD)
+  SUBROUTINE verthor3d(FIELD,XS,XE,YS,YE,STEP,INT_FIELD)
    USE module_standard_types
    USE module_global_variables
    IMPLICIT NONE
   
-   INTEGER,      INTENT(IN   ) :: NX_INT_FIELD,NY_INT_FIELD,G ! dimensions of output field; grid number
+   INTEGER,      INTENT(IN   ) :: XS,XE,YS,YE,STEP ! first and last indexes of CAMx grid relatice to ALADIN and its step
    REAL(KIND=sp),INTENT(IN   ) :: FIELD(Alad_nX,Alad_nY,Alad_maxLev)
-   REAL(KIND=sp),INTENT(  OUT) :: INT_FIELD(NX_INT_FIELD,NY_INT_FIELD,CAMx_nLev+1)
+   REAL(KIND=sp),INTENT(  OUT) :: INT_FIELD((xe-xs+1)/step, (ye-ys+1)/step,CAMx_nLev+1)
   
    REAL(KIND=sp) :: INT_FIELD_HELP(Alad_nX,Alad_nY,CAMx_nLev+1)
    INTEGER       :: k,n
@@ -104,7 +71,7 @@ CONTAINS
    END DO
    
    DO k=1, CAMx_nLev+1
-       CALL verthor2d(INT_FIELD_HELP(:,:,k),NX_INT_FIELD,NY_INT_FIELD,G,INT_FIELD(:,:,k))
+       CALL verthor2d(INT_FIELD_HELP(:,:,k),XS,XE,YS,YE,STEP,INT_FIELD(:,:,k))
    END DO
   
    RETURN
