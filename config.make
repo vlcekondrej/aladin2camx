@@ -20,8 +20,8 @@ GRIB_API_LIB    = /usr/local/lib/ -lgrib_api_f90 -lgrib_api
 #JASPER_LIB      = /usr/lib -ljasper
 JASPER_LIB      = /usr/local/lib -ljasper
 
-NCDF_MOD        = /usr/local/netcdf-4.1.1_modAtt/include
-NCDF_LIB        = /usr/local/netcdf-4.1.1_modAtt/lib -lnetcdf
+NCDF_MOD        = /home/vlcek/install/netcdf-4.1.1_modAtt/include
+NCDF_LIB        = /home/vlcek/install/netcdf-4.1.1_modAtt/lib -lnetcdf
 #NCDF_MOD        = /usr/local/netcdf/include
 #NCDF_LIB        = /usr/local/netcdf/lib -lnetcdf
 
