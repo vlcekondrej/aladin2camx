@@ -34,7 +34,7 @@ SUBROUTINE get_aladin_fields(gribfile)
      ! pokud * se nejedna o prizemni pole a
      !       * cislovani hladin ALADIN-u je opacne nez CAMx-u,
      ! pak je treba obratit poradi hladin.
-     IF (AladField%levType==Alad_mlLevID .AND. .NOT.ConfAladCAMxLevIndexing)&
+     IF (AladField%levType==Alad_mlLevID .AND. .NOT.AladLevNumberedFromBottom)&
        AladField%Lev = Alad_nLev - AladField%Lev + 1
 
      ! == 2D ==

@@ -7,19 +7,9 @@ MAIN_OBJ    = ${MAIN_SRC:.F90=.o}
 MAIN_EXE    = ${MAIN_SRC:.F90=.exe}
 
 SOURCES_F90 = run_info.F90 \
-              caldate.F90 \
               juldate.F90 \
               get_h_p_t_wv.F90 \
-              get_aladin_fields.F90 \
-              kvcalc_louis79.F90 \
-              kvcalc_ob70.F90 \
-              kvcalc_cmaq.F90 \
-              kvcalc_tke.F90 \
-              kvcalc_acm2.F90 \
-              micromet.F90 \
-              clddiag.F90 \
-              cod_chimere.F90 \
-              cod_wrfcamx.F90
+              get_aladin_fields.F90 
 
 SOURCES_f90 = ${SOURCES_F90:.F90=.f90} 
 SOURCES_OBJ = ${SOURCES_F90:.F90=.o} 
@@ -33,6 +23,8 @@ MODULES_F90 = module_standard_types.F90 \
               module_meteo_functions.F90 \
               module_verthor.F90 \
               module_beismet.F90 \
+              module_cloud_opt_depth.F90 \
+              module_vertical_diffusivity.F90 \
               INTER_FACES.F90
 MODULES_f90 = ${MODULES_F90:.F90=.f90} 
 MODULES_OBJ = ${MODULES_F90:.F90=.o} 
