@@ -1,12 +1,29 @@
- SUBROUTINE COD_chimere(nk,  hiCol, cwtrCol, rwtrCol, swtrCol, RhoCol, rhCol, codCol)
+MODULE module_cloud_opt_depth
+
+ !--------------------------------------------------------------------------------
+ !
+ ! functions for calculation cloud optical depth
+ ! ---------------------------------------------
+ !
+ !
+ !
+ !
+ !--------------------------------------------------------------------------------
+
+
+ IMPLICIT NONE
+
+ CONTAINS
+
+
+
+ SUBROUTINE COD_chimere(nk,  hiCol, cwtrCol, rwtrCol, swtrCol, RhoCol, rhCol, MethLow, MethMed, MethHigh, codCol)
  !-----------------------------------------------------------------------------------------
  !
  ! Calculates Cloud Optical Depth using Chimere algorithm -
  ! - see module diagmet_science in Chimere 2008c code
  !
  !-----------------------------------------------------------------------------------------
-   USE module_global_variables
-   USE module_physical_constants
    IMPLICIT NONE
    INTEGER,                INTENT(IN   ) :: nk ! number of levels
    REAL   , DIMENSION(nk), INTENT(IN   ) :: hiCol, & ! layer upper interface height in      [m AGL]
@@ -14,7 +31,8 @@
                                          &  rwtrCol, & !     -- || --     rain water        [kg/kg]
                                          &  swtrCol, & !     -- || --     snow water        [kg/kg]
                                          &  RhoCol, &  !     -- || --     air density       [kg/m3]
-                                         &  rhCol !          -- || --     relative humidity [Pa/Pa]
+                                         &  rhCol      !     -- || --     relative humidity [Pa/Pa]
+   CHARACTER(LEN=2)      , INTENT(IN   ) :: MethLow, MethMed, MethHigh ! method to be used for low, medium, and high clouds. Can be 'rh' or 'li'
    REAL   , DIMENSION(nk), INTENT(  OUT) :: codCol ! Cloud optical depth (dimensionless) integrated from top to bottom
 
    REAL, PARAMETER :: RHcritL = 0.85 ! Critical relative humidity level for formation of low    clouds 
@@ -54,9 +72,9 @@
    
        IF (alt(k)<=topL) THEN
            ! ==  in LOW cloud layer
-           IF (odmetL=='rh') THEN
+           IF (MethLow=='rh') THEN
                odsum = odsum + cloL * MAX(0.,RH-RHcritL)/(1.-RHcritL) * thickness        
-           ELSE IF (odmetL=='li') THEN
+           ELSE IF (MethLow=='li') THEN
                odsum = odsum + ((cwtr+rwtr)*odclw + swtr*odcic) * rho * thickness
            ELSE 
                STOP 'Unknown optical depth option'
@@ -64,17 +82,17 @@
 
        ELSE IF (alt(k)>topL .AND. alt(k-1)<topL) THEN 
            ! == devided between LOW and MEDIUM cloud layer
-           IF (odmetL=='rh') THEN
+           IF (MethLow=='rh') THEN
                odsum = odsum + cloL * MAX(0.,RH-RHcritL)/(1.-RHcritL) * (topL-alt(k-1))        
-           ELSE IF (odmetL=='li') THEN
+           ELSE IF (MethLow=='li') THEN
                odsum = odsum + ((cwtr+rwtr)*odclw + swtr*odcic) * rho * (topL-alt(k-1))
            ELSE 
                STOP 'Unknown optical depth option!'
            END IF
 
-           IF (odmetM=='rh') THEN
+           IF (MethMed=='rh') THEN
                odsum = odsum + cloM * MAX(0.,RH-RHcritM)/(1.-RHcritM) * (alt(k)-topL)        
-           ELSE IF (odmetM=='li') THEN
+           ELSE IF (MethMed=='li') THEN
                odsum = odsum + ((cwtr+rwtr)*odclw + swtr*odcic) * rho * (alt(k)-topL)
            ELSE 
                STOP 'Unknown optical depth option!'
@@ -82,9 +100,9 @@
 
        ELSE IF (alt(k)<=topM) THEN 
            ! == in MEDIUN cloud layer
-           IF (odmetM=='rh') THEN
+           IF (MethMed=='rh') THEN
                odsum = odsum + cloM * MAX(0.,RH-RHcritM)/(1.-RHcritM) * thickness        
-           ELSE IF (odmetM=='li') THEN
+           ELSE IF (MethMed=='li') THEN
                odsum = odsum + ((cwtr+rwtr)*odclw + swtr*odcic) * rho * thickness
            ELSE 
                STOP 'Unknown optical depth option!'
@@ -92,17 +110,17 @@
 
        ELSE IF (alt(k)>topM .AND. alt(k-1)<topM) THEN 
            ! == devided between MEDIUM and HIGH cloud layer
-           IF (odmetM=='rh') THEN
+           IF (MethMed=='rh') THEN
                odsum = odsum + cloM * MAX(0.,RH-RHcritM)/(1.-RHcritM) * (topM-alt(k-1))
-           ELSE IF (odmetM=='li') THEN
+           ELSE IF (MethMed=='li') THEN
                odsum = odsum + ((cwtr+rwtr)*odclw + swtr*odcic) * rho * (topM-alt(k-1))
            ELSE 
                STOP 'Unknown optical depth option!'
            END IF
 
-           IF (odmetH=='rh') THEN
+           IF (MethHigh=='rh') THEN
                odsum = odsum + cloH * MAX(0.,RH-RHcritH)/(1.-RHcritH) * (alt(k)-topM)
-           ELSE IF (odmetH=='li') THEN
+           ELSE IF (MethHigh=='li') THEN
                odsum = odsum + ((cwtr+rwtr)*odclw + swtr*odcic) * rho * (alt(k)-topM)
            ELSE 
                STOP 'Unknown optical depth option!'
@@ -110,9 +128,9 @@
 
        ELSE
            ! == in HIGH cloud layer
-           IF (odmetH=='rh') THEN
+           IF (MethHigh=='rh') THEN
                odsum = odsum + cloH * MAX(0.,RH-RHcritH)/(1.-RHcritH) * thickness        
-           ELSE IF (odmetH=='li') THEN
+           ELSE IF (MethHigh=='li') THEN
                odsum = odsum + ((cwtr+rwtr)*odclw + swtr*odcic) * rho * thickness
            ELSE 
                STOP 'Unknown optical depth option!'
@@ -125,3 +143,50 @@
 
 
  END SUBROUTINE COD_chimere
+
+
+
+
+
+
+
+
+ SUBROUTINE COD_wrfcamx(nk,  hiCol, rhoCol, qlCol, qiCol, qrCol, qsCol, qgCol, codCol)
+ !-----------------------------------------------------------------------------------------
+ !
+ ! Calculates Cloud Optical Depth using algorithm from WRF-CAMx preprocessor v2.1
+ !
+ !-----------------------------------------------------------------------------------------
+   IMPLICIT NONE
+   INTEGER,                INTENT(IN   ) :: nk ! number of levels
+   REAL   , DIMENSION(nk), INTENT(IN   ) :: hiCol, &  ! layer upper interface height in            [m AGL]
+                                         &  RhoCol, & ! local profile of air density               [kg/m3]
+                                         &  qlCol, &  !      -- || --    atmospheric liquid water  [kg/kg]
+                                         &  qiCol, &  !             -- || --         solid water   [kg/kg]
+                                         &  qrCol, &  !             -- || --         rain          [kg/kg]
+                                         &  qsCol, &  !             -- || --         snow          [kg/kg]
+                                         &  qgCol     !             -- || --         graupel       [kg/kg]
+   REAL   , DIMENSION(nk), INTENT(  OUT) :: codCol ! Cloud optical depth integrated from top to bottom
+
+   REAL :: codSum, dz
+   REAL, DIMENSION(nk) :: cc,pp
+   INTEGER :: k
+
+   ! convert to g/m3
+   cc = (qlCol + qiCol)*rhoCol*1000
+   pp = (qrCol + qsCol + qgCol)*rhoCol*1000
+
+   codSum = 0.
+   do k = nk,1,-1
+     dz = hiCol(k)
+     if (k > 1) dz = dz - hiCol(k-1)
+     if (cc(k) > 1E-5) codSum = codSum + 3.*cc(k)*dz*.05
+     if (pp(k) > 1E-5) codSum = codSum + 3.*pp(k)*dz*.001
+     codCol(k) = codSum
+   enddo
+
+ END SUBROUTINE COD_wrfcamx
+
+
+
+END MODULE module_cloud_opt_depth
