@@ -1,0 +1,46 @@
+&clock_control
+begYYYYMMDD   = 20130606
+begHHMI       = 1200
+endYYYYMMDD   = 20130606
+endHHMI       = 1800
+met_frequency = 60
+TimeZone      = 0 ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce simulace
+/
+
+&output_files
+zp_file(1)     = 'camx.zp.d01.130606-12_130606-18'
+tp_file(1)     = 'camx.tp.d01.130606-12_130606-18'
+uv_file(1)     = 'camx.uv.d01.130606-12_130606-18'
+qa_file(1)     = 'camx.qa.d01.130606-12_130606-18'
+cr_file(1)     = 'camx.cr.d01.130606-12_130606-18'
+kv_file(1)     = 'camx.kv.d01.130606-12_130606-18'
+avgHGT_file(1) = 'camx.avgHGT.d01.130606-12_130606-18'
+beis_file(1)   = 'BEISmet.d01.130606-12_130606-18'
+
+zp_file(2)     = 'camx.zp.d02.130606-12_130606-18'
+tp_file(2)     = 'camx.tp.d02.130606-12_130606-18'
+uv_file(2)     = 'camx.uv.d02.130606-12_130606-18'
+qa_file(2)     = 'camx.qa.d02.130606-12_130606-18'
+cr_file(2)     = 'camx.cr.d02.130606-12_130606-18'
+kv_file(2)     = 'camx.kv.d02.130606-12_130606-18'
+avgHGT_file(2) = 'camx.avgHGT.d02.130606-12_130606-18'
+beis_file(2)   = 'BEISmet.d02.130606-12_130606-18'
+/
+
+&input_files
+aladin_met_names( 0) = 'ALADIN_GRIB/ALAD4camx_20130606_11.grb'
+aladin_met_names( 1) = 'ALADIN_GRIB/ALAD4camx_20130606_12.grb'
+aladin_met_names( 2) = 'ALADIN_GRIB/ALAD4camx_20130606_13.grb'
+aladin_met_names( 3) = 'ALADIN_GRIB/ALAD4camx_20130606_14.grb'
+aladin_met_names( 4) = 'ALADIN_GRIB/ALAD4camx_20130606_15.grb'
+aladin_met_names( 5) = 'ALADIN_GRIB/ALAD4camx_20130606_16.grb'
+aladin_met_names( 6) = 'ALADIN_GRIB/ALAD4camx_20130606_17.grb'
+aladin_met_names( 7) = 'ALADIN_GRIB/ALAD4camx_20130606_18.grb'
+aladin_met_names( 8) = 'ALADIN_GRIB/ALAD4camx_20130606_19.grb'
+aladin_met_names( 9) = 'ALADIN_GRIB/ALAD4camx_20130606_20.grb'
+aladin_met_names(10) = 'ALADIN_GRIB/ALAD4camx_20130606_21.grb'
+aladin_met_names(11) = 'ALADIN_GRIB/ALAD4camx_20130606_22.grb'
+aladin_met_names(12) = 'ALADIN_GRIB/ALAD4camx_20130606_23.grb'
+/
+
+

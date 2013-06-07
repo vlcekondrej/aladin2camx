@@ -40,7 +40,7 @@ CONTAINS
    DO y = ys, ye, step
      DO x = xs, xe, step
 
-       suma = sum(FIELD(x:x+step-1,y:step-1,1))
+       suma = sum(FIELD(x:x+step-1,y:y+step-1,1))
        INT_FIELD( (x-xs)/step+1, (y-ys)/step+1, 1 ) = suma / step**2
 
      END DO 

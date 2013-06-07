@@ -1,50 +1,49 @@
 &aladin_gribs_info
-!------------------------------------------------------------------------
-!                                                                        |
-! == information about ALADIN PROJECTION ==                              |
-!                                                                        |
-! used to create meteo NetCDF for BEIS                                   |
-! Grid parameters see http://www.baronams.com/products/ioapi/GRIDS.html  |
-!                                                                        |
-!------------------------------------------------------------------------
-Alad_PROJ        = 2             ! MODELS3 grid definitions: 1=latlong, 2=lambert 3=mercator 4=stereographic 5=UTM, 6=polar
-Alad_EarthRadius = 6371229       ! Earth radius in meteres used in ALADIN model
-Alad_PROJ_ALPHA  = 46.24470064D0 ! latitude of 1st standard parallel
-Alad_PROJ_BETA   = 46.24470064D0 ! latitude of 2nd standard parallel (=> 1st stand. par.)
-Alad_PROJ_GAMMA  = 17.D0         ! central meridian (The line of longitude that defines the center and often the x-origin of a projected coordinate system.)
-Alad_X_CENT      = 17.D0         ! longitude of the center (0,0) of the Cartesian coordinate system
-Alad_Y_CENT      = 46.24470064D0 ! latitude of the center (0,0) of the Cartesian coordinate system
+ !------------------------------------------------------------------------
+ !                                                                        |
+ ! == information about ALADIN PROJECTION ==                              |
+ !                                                                        |
+ ! used to create meteo NetCDF for BEIS                                   |
+ ! Grid parameters see http://www.baronams.com/products/ioapi/GRIDS.html  |
+ !                                                                        |
+ !------------------------------------------------------------------------
+ Alad_PROJ        = 2             ! MODELS3 grid definitions: 1=latlong, 2=lambert 3=mercator 4=stereographic 5=UTM, 6=polar
+ Alad_EarthRadius = 6371229       ! Earth radius in meteres used in ALADIN model
+ Alad_PROJ_ALPHA  = 46.24470064D0 ! latitude of 1st standard parallel
+ Alad_PROJ_BETA   = 46.24470064D0 ! latitude of 2nd standard parallel (=> 1st stand. par.)
+ Alad_PROJ_GAMMA  = 17.D0         ! central meridian (The line of longitude that defines the center and often the x-origin of a projected coordinate system.)
+ Alad_X_CENT      = 17.D0         ! longitude of the center (0,0) of the Cartesian coordinate system
+ Alad_Y_CENT      = 46.24470064D0 ! latitude of the center (0,0) of the Cartesian coordinate system
 
 
-!----------------------------------------------
-!     == information about ALADIN grid ==      |
-!----------------------------------------------
+ !----------------------------------------------
+ !     == information about ALADIN grid ==      |
+ !----------------------------------------------
+ Alad_nX   = 513      ! number of points along longitude (west to east)
+ Alad_nY   = 405      ! number of points along latitude (south to north)
+ Alad_nLev = 87       ! total number of ALADIN levels (not all the levels need to be contained in GRIB file)
+ Alad_dx   = 4710.621094D0   ! longitude step in meters
+ Alad_dy   = 4710.621094D0   ! latitude step in meters
+ Alad_Centr11_X = -1347237.632884D0 ! coordinate of the SW grid point in meters (deg for lat-lon proj)
+ Alad_Centr11_Y =  -697171.921912D0 ! coordinate of the SW grid point in meters (deg for lat-lon proj)
 
-Alad_nX   = 513      ! number of points along longitude (west to east)
-Alad_nY   = 405      ! number of points along latitude (south to north)
-Alad_nLev = 87       ! total number of ALADIN levels (not all the levels need to be contained in GRIB file)
-Alad_dx   = 4710.621094D0   ! longitude step in meters
-Alad_dy   = 4710.621094D0   ! latitude step in meters
-Alad_Centr11_X = -1347237.632884D0 ! coordinate of the SW grid point in meters (deg for lat-lon proj)
-Alad_Centr11_Y =  -697171.921912D0 ! coordinate of the SW grid point in meters (deg for lat-lon proj)
 
+ !--------------------------------------
+ ! == information about ALADIN GRIBs == |
+ !--------------------------------------
 
-!--------------------------------------
-! == information about ALADIN GRIBs == |
-!--------------------------------------
-
-AladLevNumberedFromBottom = .FALSE. ! zda se hladiny v ALADINu cisluji od spodni (.TRUE.) nebo od horni (.FALSE.)
-
-! For meaning check http://tigge.ecmwf.int/grid.html
-Alad_iScanNeg = 0
-Alad_jScanPos = 1
-Alad_jConsec  = 0
-Alad_aRowScan = 0
-
-Alad_missingVal = 9999
-
-Alad_mlLevID  = 109
-Alad_sfcLevID = 105
+ AladLevNumberedFromBottom = .FALSE. ! zda se hladiny v ALADINu cisluji od spodni (.TRUE.) nebo od horni (.FALSE.)
+ 
+ ! For meaning check http://tigge.ecmwf.int/grid.html
+ Alad_iScanNeg = 0
+ Alad_jScanPos = 1
+ Alad_jConsec  = 0
+ Alad_aRowScan = 0
+ 
+ Alad_missingVal = 9999
+ 
+ Alad_mlLevID  = 109
+ Alad_sfcLevID = 105
 
 
 !----------------------------------------------

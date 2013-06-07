@@ -21,8 +21,8 @@ SUBROUTINE run_info()
  ! ---------------------------
  iunit=getFreeUnitNo()
  OPEN(UNIT=iunit,FILE='INFO_RUN.nml',STATUS='OLD',DELIM='APOSTROPHE')
-  READ(iunit,NML=clock_control) 
-  READ(iunit,NML=input_files) 
+  READ(iunit,NML=clock_control); REWIND(iunit)
+  READ(iunit,NML=input_files)  ; REWIND(iunit)
   READ(iunit,NML=output_files) 
  CLOSE(iunit)
 

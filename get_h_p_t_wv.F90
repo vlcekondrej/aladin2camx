@@ -18,7 +18,7 @@ SUBROUTINE get_h_p_t_wv(d)
  INTEGER, INTENT(IN   ) :: d ! d ... poradi alad GRIBu v poli aladin_met
 
 
- INTEGER :: i,j,k,g,istat, ii
+ INTEGER :: i,j,k,g,istat, ii, vpx, vpy
 
  REAL(KIND=sp) :: Alad_hgt  (Alad_nx,Alad_ny,Alad_maxLev)   ! AGL height in grid centres
  ! nebo namisto definovani Alad_UArakC prepsat pole Alad_uWind ??????????????
@@ -206,6 +206,9 @@ SUBROUTINE get_h_p_t_wv(d)
  grid: DO g=1,ngridnumber
      WRITE(LogFileUnit,'(a,I2)')'   ... Processing grid No ',g
 
+     vpx = vp_x(g)
+     vpy = vp_y(g)
+
      NX   = CAMx_nx(g)
      NY   = CAMx_ny(g)
      Xbeg = CAMx_grid_xbeg(g)
@@ -240,12 +243,15 @@ SUBROUTINE get_h_p_t_wv(d)
      ALLOCATE(sfcROUGH (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array sfcROUGH allocation error')
      ALLOCATE(SolRad   (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SolRad allocation error')
 
-     ! interpolate 2D fields (horizontaly)  
-     CALL verthor2d(Alad_Tsfc    ,xbeg,xend,ybeg,yend,step,Tsfc)
-     CALL verthor2d(Alad_Psfc    ,xbeg,xend,ybeg,yend,step,Psfc)
-     CALL verthor2d(Alad_PBL     ,xbeg,xend,ybeg,yend,step,PBL)
-     CALL verthor2d(Alad_sfcROUGH,xbeg,xend,ybeg,yend,step,sfcROUGH)
-     CALL verthor2d(Alad_SolRad  ,xbeg,xend,ybeg,yend,step,SolRad)
+     CALL verthor2d(FIELD=Alad_Tsfc    ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Tsfc)
+     CALL verthor2d(FIELD=Alad_Psfc    ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Psfc)
+     CALL verthor2d(FIELD=Alad_PBL     ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=PBL)
+     CALL verthor2d(FIELD=Alad_sfcROUGH,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=sfcROUGH)
+     CALL verthor2d(FIELD=Alad_SolRad  ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=SolRad)
+!     CALL verthor2d(Alad_Psfc    ,xbeg,xend,ybeg,yend,step,Psfc)
+!     CALL verthor2d(Alad_PBL     ,xbeg,xend,ybeg,yend,step,PBL)
+!     CALL verthor2d(Alad_sfcROUGH,xbeg,xend,ybeg,yend,step,sfcROUGH)
+!     CALL verthor2d(Alad_SolRad  ,xbeg,xend,ybeg,yend,step,SolRad)
 
      ! write BEIS meteo fields
      IF ( BEIS_flag ) THEN
@@ -284,10 +290,8 @@ SUBROUTINE get_h_p_t_wv(d)
      DO j=1,nY-1
          V_AraC(:,j,:) = (V_cent(:,j,:)+V_cent(:,j+1,:)) * 0.5
      END DO
-!????????????????????????????
-!????????????????????????????
-     V_AraC(:,Alad_ny,:)=0.0 ! CAMx tyto hodnoty nepouzije, ale, aby tam nebyly hausnumera,...
-     U_AraC(Alad_nx,:,:)=0.0 !                            -- || --
+     V_AraC(:,ny,:)=0.0 ! CAMx tyto hodnoty nepouzije, ale, aby tam nebyly hausnumera,...
+     U_AraC(nx,:,:)=0.0 !                            -- || --
 
 
      ! ** AVERAGE mid-layer height
@@ -433,30 +437,30 @@ SUBROUTINE get_h_p_t_wv(d)
      WRITE(logFileUnit,"('LOCAL date YYYYMMDD= ',I8.8,'  time HHMI= ',F5.0)")aladin_met(d)%LT_YYYYMMDD,  aladin_met(d)%LT_HHMI 
      WRITE(logFileUnit,"('LOCAL date YYJJJ   = ',I5.5)")aladin_met(d)%LT_YYJJJ 
      WRITE(logFileUnit,"(29X,' lev       min      grid              max      grid  profile ',I3,';',I3)") vpx,vpy
-     WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'Solar radiation          [W/m2 ] ', &
+     WRITE(logFileUnit,    '(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'Solar radiation        [W/m2 ] ', &
        0,minval(SolRad(:,:,1)),minloc(SolRad(:,:,1)),maxval(SolRad(:,:,1)),maxloc(SolRad(:,:,1)),SolRad(vpx,vpy,1)
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'height               [m AGL] ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'height                 [m AGL] ', &
               k,minval(HGT_I(:,:,k)),minloc(HGT_I(:,:,k)),maxval(HGT_I(:,:,k)),maxloc(HGT_I(:,:,k)),HGT_I(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'pressure             [mb]    ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'pressure                  [mb] ', &
               k,minval(P(:,:,k)),minloc(P(:,:,k)),maxval(P(:,:,k)),maxloc(P(:,:,k)),P(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'u Wind               [m/s]   ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'u Wind                   [m/s] ', &
               k,minval(U_AraC(:,:,k)),minloc(U_AraC(:,:,k)),maxval(U_AraC(:,:,k)),maxloc(U_AraC(:,:,k)),U_AraC(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'v Wind               [m/s]   ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'v Wind                   [m/s] ', &
               k,minval(V_AraC(:,:,k)),minloc(V_AraC(:,:,k)),maxval(V_AraC(:,:,k)),maxloc(V_AraC(:,:,k)),V_AraC(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'sfc temperature  [K]     ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'sfc temperature            [K] ', &
               0,minval(Tsfc(:,:,1)),minloc(Tsfc(:,:,1)),maxval(Tsfc(:,:,1)),maxloc(Tsfc(:,:,1)),tsfc(vpx,vpy,1)
      DO k=1, CAMx_nLev
          WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",2F17.2)')'temp [K] + PotVirtTemp profile ', &
@@ -464,32 +468,32 @@ SUBROUTINE get_h_p_t_wv(d)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'water vapor          [ppm]   ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'water vapor              [ppm] ', &
               k,minval(WV(:,:,k)),minloc(WV(:,:,k)),maxval(WV(:,:,k)),maxloc(WV(:,:,k)),WV(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'cloud water          [g/m3]  ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'cloud water             [g/m3] ', &
               k,minval(CLDWTR(:,:,k)),minloc(CLDWTR(:,:,k)),maxval(CLDWTR(:,:,k)),maxloc(CLDWTR(:,:,k)),CLDWTR(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'rain water           [g/m3]  ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'rain water              [g/m3] ', &
               k,minval(RANWTR(:,:,k)),minloc(RANWTR(:,:,k)),maxval(RANWTR(:,:,k)),maxloc(RANWTR(:,:,k)),RANWTR(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'snow water           [g/m3]  ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'snow water              [g/m3] ', &
               k,minval(SNOWTR(:,:,k)),minloc(SNOWTR(:,:,k)),maxval(SNOWTR(:,:,k)),maxloc(SNOWTR(:,:,k)),SNOWTR(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'cloud optical depth  [-]     ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'cloud optical depth        [-] ', &
               k,minval(COD(:,:,k)),minloc(COD(:,:,k)),maxval(COD(:,:,k)),maxloc(COD(:,:,k)),COD(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'vertical siffusivity [m2/s]  ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'vertical siffusivity    [m2/s] ', &
               k,minval(RKV(:,:,k)),minloc(RKV(:,:,k)),maxval(RKV(:,:,k)),maxloc(RKV(:,:,k)),RKV(vpx,vpy,k)
      END DO
 

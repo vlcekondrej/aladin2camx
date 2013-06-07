@@ -2,8 +2,8 @@
 
 ngridnumber =   1
 
-! relative to grid in NWP GRIBS     |
-! 1,1 is lower left (SW) grid point |
+! relative to grid in NWP GRIBS
+! 1,1 is lower left (SW) grid point
 
 CAMx_grid_xbeg(1)  =   2
 CAMx_grid_ybeg(1)  =   2
@@ -17,7 +17,7 @@ CAMx_grid_step(1) =    1
 ! == CAMx vertical grid structure == |
 ! .. the same for all grids          |
 !------------------------------------
-Alad_maxLev     = 34 ! number of ALADIN levels to be read
+Alad_maxLev     = 34 ! number of ALADIN levels (counted from bottom) to be used for calculating CAMx levels
 CAMx_nLev       = 16 ! number of CAMx levels 
 
 ! In order to be able to define layer interfaces, we need one more CAMx level => CAMx_nLev+1

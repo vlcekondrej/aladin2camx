@@ -43,7 +43,9 @@ MODULE module_global_variables
    ! == biogenic emission related flag ==
    LOGICAL :: BEIS_flag ! if .TRUE. NetDCF files for BEIS will be created
 
-   INTEGER :: vpx, vpy ! grid for which print vertical profile
+   ! nearest gridpoint to the reference point for each grid (relative position in each grid)
+   INTEGER, DIMENSION(ngridnumber_max) :: vp_x, vp_y
+   !INTEGER :: vp_lon, vp_lat ! grid for which print vertical profile - jeste nutno doprogramovat
 
    ! === SMOOTHER SWITCH ==
    LOGICAL :: SMOOTHER_SWITCH
@@ -66,7 +68,7 @@ MODULE module_global_variables
   
    NAMELIST /aladin2camx_control/  &
        BEIS_flag, &
-       vpx, vpy, &
+       vp_x, vp_y, &
        SMOOTHER_SWITCH, SMOOTHER_METHOD, &
        kv_method, kvmin, &
        cod_method, odMetL, odMetM, odMetH, &
@@ -107,8 +109,8 @@ MODULE module_global_variables
                          AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad
 
    NAMELIST /aladin_gribs_info/  &
-       Alad_nX, Alad_nY, Alad_nLev, Alad_dx, Alad_dy, Alad_Centr11_X, Alad_Centr11_Y, &
        Alad_PROJ, Alad_EarthRadius, Alad_PROJ_ALPHA, Alad_PROJ_BETA, Alad_PROJ_GAMMA, Alad_X_CENT, Alad_Y_CENT, &
+       Alad_nX, Alad_nY, Alad_nLev, Alad_dx, Alad_dy, Alad_Centr11_X, Alad_Centr11_Y, &
        Alad_iScanNeg, Alad_jScanPos, Alad_jConsec, Alad_aRowScan, &
        AladLevNumberedFromBottom, Alad_missingVal, Alad_mlLevID, Alad_sfcLevID, &
        AladField_Tsfc, AladField_T, AladField_GEOsfc, AladField_GEO, AladField_Psfc, &
@@ -177,9 +179,10 @@ MODULE module_global_variables
    ! == CAMx vertical grid structure ==
    INTEGER :: Alad_maxLev ! number of ALADIN levels (counted from bottom) to be used for calculating CAMx levels
    INTEGER :: CAMx_nLev   ! number of CAMx levels to which ALAD_maxLev are reduced
-   INTEGER :: CAMx_LevDef(60,2) ! i-th CAMx level includes CAMx_levDef(i,1), ..., CAMx_levDef(i,2) ALADIN levels
+   INTEGER :: CAMx_LevDef(70,2) ! i-th CAMx level includes CAMx_levDef(i,1), ..., CAMx_levDef(i,2) ALADIN levels
 
    NAMELIST /camx_grid_info/  &
+     ngridnumber, &
      CAMx_grid_xbeg, CAMx_grid_ybeg, CAMx_grid_xend, CAMx_grid_yend, CAMx_grid_step, &
      Alad_maxLev, CAMx_nLev, CAMx_LevDef
 
