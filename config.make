@@ -13,17 +13,20 @@ FCFLAGS         =  -O2 -g -fbounds-check -fconvert=big-endian -ffixed-line-lengt
 FPP             = cpp
 FPPFLAGS        = -P -traditional -C -I. -I$(INCL_DIR)
 
-LDOPTIONS       = -L$(GRIB_API_LIB) -L$(JASPER_LIB) -L$(NCDF_LIB)
-
 GRIB_API_MOD    = /usr/local/include 
 GRIB_API_LIB    = /usr/local/lib/ -lgrib_api_f90 -lgrib_api
 #JASPER_LIB      = /usr/lib -ljasper
 JASPER_LIB      = /usr/local/lib -ljasper
 
-NCDF_MOD        = /home/vlcek/install/netcdf-4.1.1_modAtt/include
-NCDF_LIB        = /home/vlcek/install/netcdf-4.1.1_modAtt/lib -lnetcdf
+NCDF_MOD        = /home/met/install/netcdf/netcdf-4.1.1_modAtt/include #ophelia
+NCDF_LIB        = /home/met/install/netcdf/netcdf-4.1.1_modAtt/lib/libnetcdf.a #ophelia
+#NCDF_MOD        = /home/vlcek/install/netcdf-4.1.1_modAtt/include #vlcek
+#NCDF_LIB        = /home/vlcek/install/netcdf-4.1.1_modAtt/lib -lnetcdf  #vlcek
 #NCDF_MOD        = /usr/local/netcdf/include
 #NCDF_LIB        = /usr/local/netcdf/lib -lnetcdf
+
+#LDOPTIONS       = -L$(GRIB_API_LIB) -L$(JASPER_LIB) -L$(NCDF_LIB) #vlcek
+LDOPTIONS       = -L$(GRIB_API_LIB) -L$(JASPER_LIB) $(NCDF_LIB) #ophelia
 
 .SUFFIXES: .exe .o .mod .F90 .f90 .ifc
 
