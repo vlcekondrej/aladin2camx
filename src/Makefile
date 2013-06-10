@@ -58,10 +58,12 @@ INTER_FACES.F90: ${INTER_FACES}
 
 .PHONY: install
 install:
-	cp aladin2camx.nml.sample ../aladin2camx.nml
-	cp RUN.sh.sample ../RUN.sh
-	cp INFO_GRID.sample ../INFO_GRID
-	cp INFO_RUN.nml.sample ../INFO_RUN.nml
+	echo "check examples/  for namelist and run examples"
+	cp aladin2camx_MAIN.exe ../
+	#cp aladin2camx.nml.sample ../aladin2camx.nml
+	#cp RUN.sh.sample ../RUN.sh
+	#cp INFO_GRID.sample ../INFO_GRID
+	#cp INFO_RUN.nml.sample ../INFO_RUN.nml
 	if ! [ -e ../.aladin2camx.counter ]; then echo 00001 > ../.aladin2camx.counter; fi
 
 .PHONY: interfaces 
