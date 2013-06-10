@@ -1,0 +1,21 @@
+#git ignore file
+
+#object files
+*.o
+
+#modules
+*.mod
+
+#files in ./include
+include/*.ifc
+
+#executables
+*.exe
+
+#the interface file
+INTER_FACES.F90
+
+#this file
+#.gitignore
+
+#
