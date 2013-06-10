@@ -2,3 +2,7 @@
 
 #the exe
 *.exe
+
+#counter
+
+*aladin2camx.counter
