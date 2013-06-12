@@ -1,0 +1,41 @@
+! This namelist was generated using:
+!   2013-06-06 13 5 2 /home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB /home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP /home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/INFO_RUN.nml
+
+&clock_control
+begYYYYMMDD   = 20130606
+begHHMI       = 1300 ! MI (minutes) hard coded in RUN.sh 
+endYYYYMMDD   = 20130606 !
+endHHMI       = 1800 ! MI (minutes) hard coded in RUN.sh 
+met_frequency = 60 ! this is hard coded in RUN.sh
+TimeZone      = 0 ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce simulace
+/
+
+&output_files
+zp_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.zp.d01.130606-13_130606-18'
+tp_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.tp.d01.130606-13_130606-18'
+uv_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.uv.d01.130606-13_130606-18'
+qa_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.qa.d01.130606-13_130606-18'
+cr_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.cr.d01.130606-13_130606-18'
+kv_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.kv.d01.130606-13_130606-18'
+avgHGT_file(1) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.avgHGT.d01.130606-13_130606-18'
+beis_file(1)   = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/BEISmet.d01.130606-13_130606-18'
+
+zp_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.zp.d02.130606-13_130606-18'
+tp_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.tp.d02.130606-13_130606-18'
+uv_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.uv.d02.130606-13_130606-18'
+qa_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.qa.d02.130606-13_130606-18'
+cr_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.cr.d02.130606-13_130606-18'
+kv_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.kv.d02.130606-13_130606-18'
+avgHGT_file(2) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.avgHGT.d02.130606-13_130606-18'
+beis_file(2)   = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/BEISmet.d02.130606-13_130606-18'
+
+/
+&input_files
+aladin_met_names(0) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130606_12.grb'
+aladin_met_names(1) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130606_13.grb'
+aladin_met_names(2) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130606_14.grb'
+aladin_met_names(3) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130606_15.grb'
+aladin_met_names(4) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130606_16.grb'
+aladin_met_names(5) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130606_17.grb'
+aladin_met_names(6) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130606_18.grb'
+/
