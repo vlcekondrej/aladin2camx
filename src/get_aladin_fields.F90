@@ -59,17 +59,16 @@ SUBROUTINE get_aladin_fields(gribfile, fnumber)
          AladField_sfcROUGH%read(1)=1
      ELSE IF (AladField == AladField_AccSolRad) THEN
          IF ( fnumber == 0 ) THEN
-            !startStep can be 0 or 1 and we assume previous accSR is 0.
-            IF (startStep > 1) CALL TestStop(1,"STOP - cannot assume that previous step's accSR is 0.",logFileUnit)
-            Alad_AccSolRad = 0. 
+            ! just want the AccSolRad
+            CALL read_aladin_data(igrib,Alad_AccSolRad,1,        'accumulated solar radiation',MesgNo)
          ELSE
            !ensure startStep is not 0
            IF (startStep == 0) CALL TestStop(1,"STOP - cannot get SolRad: startStep is 0.",logFileUnit)
+           Alad_SolRad = Alad_AccSolRad ! Alad_SolRad now contains accumulated radiation from the previous step
+           CALL read_aladin_data(igrib,Alad_AccSolRad,1,        'accumulated solar radiation',MesgNo)
+           Alad_SolRad = (Alad_AccSolRad - Alad_SolRad)/(met_frequency*60.) ! division by length of time interval in seconds - conversion of J/m2 to W/m2
+           AladField_AccSolRad%read(1)=1
          END IF 
-         Alad_SolRad = Alad_AccSolRad ! Alad_SolRad now contains accumulated radiation from the previous step
-         CALL read_aladin_data(igrib,Alad_AccSolRad,1,        'accumulated solar radiation',MesgNo)
-         Alad_SolRad = (Alad_AccSolRad - Alad_SolRad)/(met_frequency*60.) ! division by length of time interval in seconds - conversion of J/m2 to W/m2
-         AladField_AccSolRad%read(1)=1
 
      ! == 3D ==
      ELSE IF (AladField == AladField_T) THEN
