@@ -61,7 +61,7 @@ PROGRAM aladin2camx_MAIN
  ! loop over all aladin files and extract/calculate/write out fields
  DO d=0,nAladFiles
      ! get ALADIN fields
-     CALL get_aladin_fields(aladin_met(d)%name_f, d) 
+     CALL get_aladin_fields(aladin_met(d)%name_f) 
      IF ( d .gt. 0 ) THEN 
          ! generate CAMx meteo inputs
          CALL get_h_p_t_wv(d)

@@ -1,4 +1,4 @@
-SUBROUTINE get_aladin_fields(gribfile, fnumber)
+SUBROUTINE get_aladin_fields(gribfile)
 
  USE module_global_variables
  USE module_standard_types
@@ -8,7 +8,6 @@ SUBROUTINE get_aladin_fields(gribfile, fnumber)
 
  ! name of the aladin grib file
  CHARACTER(LEN=*), INTENT(IN) :: gribfile
- INTEGER                      :: fnumber
 
  INTEGER            :: i, startStep ! index; integration step of the NWP model. When startStep=0, then accumulated fields are zero.
  INTEGER            :: istat, ifile, igrib, MesgNo ! error status; grib ID; grib message number 
@@ -58,17 +57,11 @@ SUBROUTINE get_aladin_fields(gribfile, fnumber)
          CALL read_aladin_data(igrib,Alad_sfcROUGH,1,         'surface roughness',MesgNo)
          AladField_sfcROUGH%read(1)=1
      ELSE IF (AladField == AladField_AccSolRad) THEN
-         IF ( fnumber == 0 ) THEN
-            ! just want the AccSolRad
-            CALL read_aladin_data(igrib,Alad_AccSolRad,1,        'accumulated solar radiation',MesgNo)
-         ELSE
-           !ensure startStep is not 0
-           IF (startStep == 0) CALL TestStop(1,"STOP - cannot get SolRad: startStep is 0.",logFileUnit)
-           IF (startStep == 1) Alad_AccSolRad = 0. ! replace previous sol rad with 0.
-           Alad_SolRad = Alad_AccSolRad ! Alad_SolRad now contains accumulated radiation from the previous step
-           CALL read_aladin_data(igrib,Alad_AccSolRad,1,        'accumulated solar radiation',MesgNo)
-           Alad_SolRad = (Alad_AccSolRad - Alad_SolRad)/(met_frequency*60.) ! division by length of time interval in seconds - conversion of J/m2 to W/m2
-         END IF 
+         IF ( startStep == 0 ) CALL TestStop(1,'STOP - cannot retrieve accumulated field from ZERO integration step',logFileUnit)
+         IF ( startStep == 1 ) Alad_AccSolRad=0.
+         Alad_SolRad = Alad_AccSolRad ! Alad_SolRad now contains accumulated radiation from the previous step
+         CALL read_aladin_data(igrib,Alad_AccSolRad,1,        'accumulated solar radiation',MesgNo)
+         Alad_SolRad = (Alad_AccSolRad - Alad_SolRad)/(met_frequency*60.) ! division by length of time interval in seconds - conversion of J/m2 to W/m2
          AladField_AccSolRad%read(1)=1
 
      ! == 3D ==
