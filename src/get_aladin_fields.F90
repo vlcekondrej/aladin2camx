@@ -64,6 +64,7 @@ SUBROUTINE get_aladin_fields(gribfile, fnumber)
          ELSE
            !ensure startStep is not 0
            IF (startStep == 0) CALL TestStop(1,"STOP - cannot get SolRad: startStep is 0.",logFileUnit)
+           IF (startStep == 1) Alad_AccSolRad = 0. ! replace previous sol rad with 0.
            Alad_SolRad = Alad_AccSolRad ! Alad_SolRad now contains accumulated radiation from the previous step
            CALL read_aladin_data(igrib,Alad_AccSolRad,1,        'accumulated solar radiation',MesgNo)
            Alad_SolRad = (Alad_AccSolRad - Alad_SolRad)/(met_frequency*60.) ! division by length of time interval in seconds - conversion of J/m2 to W/m2
