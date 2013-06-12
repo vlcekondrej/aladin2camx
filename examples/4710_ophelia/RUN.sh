@@ -8,7 +8,7 @@ curdir="/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia"
 # Input parameters
 SD=`date --utc --date yesterday +%Y-%m-%d` #"2013-06-06"
 #SD="2013-06-06" # start date
-SH=13 # start hour, must point to a startStep=1 file. We automatically use startStep=0 for file 0.
+SH=12 # start hour, must point to a startStep=1 file. We automatically use startStep=0 for file 0.
 NH=6 # number of hours of data in outputs
 NG=2 # number of grid domains
 GRIBDIR="${curdir}/TMPGRIB"  # where the gribs will be found
@@ -26,20 +26,10 @@ echo "$NML written."
 
 # Ensure the gribs are in position
 rm -f ${GRIBDIR}/*
-i=0
-hrint=`date -u -d "$SD +$[$SH+$i-1]hours" +%-H`
-aladrun=`printf "%02d" $[($hrint)/6*6]`            #aladin run id (00, 06, 12 or 18)
-while [ $i -le $[$NH] ] ; do
-  hrint=`date -u -d "$SD +$[$SH+$i-1]hours" +%-H`
-  hr=`printf "%02d" $hrint`
-  step=`printf "%02d" $[$hrint - $aladrun]`        #timestep starting from that run id
-  echo ${aladrun}_${step}
-  rawgribdir="/mnt/storage1/aq/data/aladin/operativa/current"
-  rawstamp=`date -u -d "$SD +$[$SH+$i-1]hours" +%Y%m%d`
-  rawgrib="${rawgribdir}/ALAD4camx_${rawstamp}${aladrun}_${step}.grb"
-  ln -s ${rawgrib} ${GRIBDIR}/ALAD4camx_${rawstamp}_${hr}.grb
-  i=$[$i + 1]
-done
+link_gribs="${curdir}/LINK_GRIBS.sh"
+rawgribdir="/mnt/storage1/aq/data/aladin/operativa/current"
+$link_gribs $rawgribdir $GRIBDIR $SD $SH $NH
+ 
 
 # Ensure the other namelists are in position
 nmldir=`dirname "$NML"`
