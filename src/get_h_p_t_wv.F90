@@ -493,7 +493,7 @@ SUBROUTINE get_h_p_t_wv(d)
      END DO
      WRITE(logFileUnit,*)
      DO k=1, CAMx_nLev
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'vertical siffusivity    [m2/s] ', &
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'vertical diffusivity    [m2/s] ', &
               k,minval(RKV(:,:,k)),minloc(RKV(:,:,k)),maxval(RKV(:,:,k)),maxloc(RKV(:,:,k)),RKV(vpx,vpy,k)
      END DO
 
