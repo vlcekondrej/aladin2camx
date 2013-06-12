@@ -15,7 +15,7 @@ if [ ! -d $CAMXDIR ] ; then mkdir $CAMXDIR ; fi
 
 
 # Write the info_run namelist
-write_info="${curdir}/write_info_run.sh"
+write_info="${curdir}/WRITE_INFO_RUN.sh"
 $write_info $SD $SH $NH $NG $GRIBDIR $CAMXDIR $NML
 echo "$NML written."
 

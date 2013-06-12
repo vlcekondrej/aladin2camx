@@ -1,42 +1,42 @@
 ! This namelist was generated using:
-!   2013-06-10 1 7 2 /home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB /home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP /home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/INFO_RUN.nml
+!   2013-06-11 1 7 2 /home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB /home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP /home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/INFO_RUN.nml
 
 &clock_control
-begYYYYMMDD   = 20130610
+begYYYYMMDD   = 20130611
 begHHMI       = 0100 ! MI (minutes) hard coded in RUN.sh 
-endYYYYMMDD   = 20130610 !
+endYYYYMMDD   = 20130611 !
 endHHMI       = 0800 ! MI (minutes) hard coded in RUN.sh 
 met_frequency = 60 ! this is hard coded in RUN.sh
 TimeZone      = 0 ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce simulace
 /
 
 &output_files
-zp_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.zp.d01.130610-01_130610-08'
-tp_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.tp.d01.130610-01_130610-08'
-uv_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.uv.d01.130610-01_130610-08'
-qa_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.qa.d01.130610-01_130610-08'
-cr_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.cr.d01.130610-01_130610-08'
-kv_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.kv.d01.130610-01_130610-08'
-avgHGT_file(1) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.avgHGT.d01.130610-01_130610-08'
-beis_file(1)   = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/BEISmet.d01.130610-01_130610-08'
+zp_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.zp.d01.130611-01_130611-08'
+tp_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.tp.d01.130611-01_130611-08'
+uv_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.uv.d01.130611-01_130611-08'
+qa_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.qa.d01.130611-01_130611-08'
+cr_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.cr.d01.130611-01_130611-08'
+kv_file(1)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.kv.d01.130611-01_130611-08'
+avgHGT_file(1) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.avgHGT.d01.130611-01_130611-08'
+beis_file(1)   = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/BEISmet.d01.130611-01_130611-08'
 
-zp_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.zp.d02.130610-01_130610-08'
-tp_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.tp.d02.130610-01_130610-08'
-uv_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.uv.d02.130610-01_130610-08'
-qa_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.qa.d02.130610-01_130610-08'
-cr_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.cr.d02.130610-01_130610-08'
-kv_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.kv.d02.130610-01_130610-08'
-avgHGT_file(2) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.avgHGT.d02.130610-01_130610-08'
-beis_file(2)   = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/BEISmet.d02.130610-01_130610-08'
+zp_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.zp.d02.130611-01_130611-08'
+tp_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.tp.d02.130611-01_130611-08'
+uv_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.uv.d02.130611-01_130611-08'
+qa_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.qa.d02.130611-01_130611-08'
+cr_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.cr.d02.130611-01_130611-08'
+kv_file(2)     = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.kv.d02.130611-01_130611-08'
+avgHGT_file(2) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/camx.avgHGT.d02.130611-01_130611-08'
+beis_file(2)   = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/CAMXINP/BEISmet.d02.130611-01_130611-08'
 
 /
 &input_files
-aladin_met_names(0) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130610_00.grb'
-aladin_met_names(1) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130610_01.grb'
-aladin_met_names(2) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130610_02.grb'
-aladin_met_names(3) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130610_03.grb'
-aladin_met_names(4) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130610_04.grb'
-aladin_met_names(5) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130610_05.grb'
-aladin_met_names(6) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130610_06.grb'
-aladin_met_names(7) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130610_07.grb'
+aladin_met_names(0) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130611_00.grb'
+aladin_met_names(1) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130611_01.grb'
+aladin_met_names(2) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130611_02.grb'
+aladin_met_names(3) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130611_03.grb'
+aladin_met_names(4) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130611_04.grb'
+aladin_met_names(5) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130611_05.grb'
+aladin_met_names(6) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130611_06.grb'
+aladin_met_names(7) = '/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia/TMPGRIB/ALAD4camx_20130611_07.grb'
 /
