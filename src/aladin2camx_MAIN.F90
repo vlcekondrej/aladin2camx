@@ -62,9 +62,10 @@ PROGRAM aladin2camx_MAIN
  DO d=0,nAladFiles
      ! get ALADIN fields
      CALL get_aladin_fields(aladin_met(d)%name_f) 
-     IF ( d==0 ) CYCLE ! just read accumulated fields from one time step before start
-     ! generate CAMx meteo inputs
-     CALL get_h_p_t_wv(d)
+     IF ( d .gt. 0 ) THEN 
+         ! generate CAMx meteo inputs
+         CALL get_h_p_t_wv(d)
+     ENDIF
  END DO
 
  ! write average layer heights in km for computation of camx photolysis rates (tuv.in.sh)
