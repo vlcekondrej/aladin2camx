@@ -1,4 +1,4 @@
-SUBROUTINE get_aladin_fields(gribfile)
+SUBROUTINE get_aladin_fields(gribfile, fnumber)
 
  USE module_global_variables
  USE module_standard_types
@@ -8,6 +8,7 @@ SUBROUTINE get_aladin_fields(gribfile)
 
  ! name of the aladin grib file
  CHARACTER(LEN=*), INTENT(IN) :: gribfile
+ INTEGER                      :: fnumber
 
  INTEGER            :: i, startStep ! index; integration step of the NWP model. When startStep=0, then accumulated fields are zero.
  INTEGER            :: istat, ifile, igrib, MesgNo ! error status; grib ID; grib message number 
@@ -57,8 +58,14 @@ SUBROUTINE get_aladin_fields(gribfile)
          CALL read_aladin_data(igrib,Alad_sfcROUGH,1,         'surface roughness',MesgNo)
          AladField_sfcROUGH%read(1)=1
      ELSE IF (AladField == AladField_AccSolRad) THEN
-         IF ( startStep == 0 ) CALL TestStop(1,'STOP - cannot retrieve accumulated field from ZERO integration step',logFileUnit)
-         IF ( startStep == 1 ) Alad_AccSolRad=0.
+         IF ( fnumber == 0 ) THEN
+            !startStep can be 0 or 1 and we assume previous accSR is 0.
+            IF (startStep > 1) CALL TestStop(1,"STOP - cannot assume that previous step's accSR is 0.",logFileUnit)
+            Alad_AccSolRad = 0. 
+         ELSE
+           !ensure startStep is not 0
+           IF (startStep == 0) CALL TestStop(1,"STOP - cannot get SolRad: startStep is 0.",logFileUnit)
+         END IF 
          Alad_SolRad = Alad_AccSolRad ! Alad_SolRad now contains accumulated radiation from the previous step
          CALL read_aladin_data(igrib,Alad_AccSolRad,1,        'accumulated solar radiation',MesgNo)
          Alad_SolRad = (Alad_AccSolRad - Alad_SolRad)/(met_frequency*60.) ! division by length of time interval in seconds - conversion of J/m2 to W/m2
