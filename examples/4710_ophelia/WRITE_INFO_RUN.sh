@@ -104,7 +104,7 @@ echo "/" >> ${RUN_NML}
 # part 3
 echo "&input_files" >> ${RUN_NML}
 t=0
-while [ $t -le $NH ] ; do
+while [ $t -le $[$NH+1] ] ; do
 dt=`date --utc --date "$SD +$[$SH + $t -1]hour" +%Y%m%d_%H`
 grb="${gribdir}/ALAD4camx_${dt}.grb"
 cat >> "${RUN_NML}" <<EOF

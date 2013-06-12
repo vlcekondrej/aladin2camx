@@ -5,7 +5,7 @@ curdir="/home/linton/work/aladin2camx/aladin2camx/examples/4710_ophelia"
 
 SD=`date --utc --date yesterday +%Y-%m-%d` #"2013-06-06"
 SH=1
-NH=7
+NH=6
 NG=2
 GRIBDIR="${curdir}/TMPGRIB"
 CAMXDIR="${curdir}/CAMXINP"
@@ -23,7 +23,7 @@ echo "$NML written."
 # Ensure the gribs are in position
 rm -f ${GRIBDIR}/*
 i=0
-while [ $i -le $NH ] ; do
+while [ $i -le $[$NH+1] ] ; do
   rawstamp=`date -u -d "$SD +$[$SH+$i-1]hours" +%Y%m%d`  #the date of the data
   hr=`date -u -d "$SD +$[$SH+$i-1]hours" +%H`            #the hour of the data
   hrint=`date -u -d "$SD +$[$SH+$i-1]hours" +%-H`
