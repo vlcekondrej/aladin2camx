@@ -1,0 +1,244 @@
+
+&info_grid
+ngridnumber =   2
+
+relative to NWP grid
+--------------------
+CAMx_master2alad =   3
+CAMx_master_xbeg =   2
+CAMx_master_xend = 308
+CAMx_master_ybeg =   2
+CAMx_master_yend = 276
+
+relative to MASTER grid
+-----------------------
+CAMx_nest_mesh(1) =   3
+CAMx_nest_xbeg(1) =  50
+CAMx_nest_xend(1) = 250
+CAMx_nest_ybeg(1) =  50
+CAMx_nest_yend(1) = 220
+/
+
+   |
+   |
+   v
+all relative to NWP grid:
+-------------------------
+integer, dimension(ngridnumber)
+grid_xbeg
+grid_xend
+grid_ybeg
+grid_yend
+grid_mesh
+
+** PROBLEMY **
+PROB01
+  chyba pri dealokaci P
+  ---------------------
+  pravdepodobne je na vine pouzita verze gfortranu. gfortran-4.2.3 a gfortran-4.3 OK
+
+PROB02
+  grib_api-1.8.0 prelozene pomoci gfortranu a gcc v.4.1 resp. 4.3 hlasi nasledujici chybu:
+  ----------------------------------------------------------------------------------------
+  GRIB_API ERROR   :  Invalid size 394 found for section_2, assuming 396
+  GRIB_API ERROR   :  Creating (_if0x81f43e0)values of data_g1simple_packing at offset 443-12454448 over message boundary (171632)
+  GRIB_API ERROR   :  Invalid size 394 found for section_2, assuming 396
+  GRIB_API ERROR   :  Invalid size 171632 found for GRIB, assuming 12454448
+
+  hlasi ji pro puvodni verzi ALADINovskych testovacich souboru, takze je chyba asi na strane grib_api
+
+  kombinace grib_api-1.7.0 a gfortranu (gcc) verze 4.3 je OK
+
+
+
+Land use file
+-------------
+pomerne zastoupeni 11 CAMx-ovskych land use kategorii
+* neni hotovo
+
+Height and pressure file 
+------------------------
+P OK
+H (AGL) pocitaji z Barometricke formule (z prizemniho tlaku a virtualni teploty (tu z normali teploty a smesovaciho pomeru 
+                                         (a ten z merne vlhkosti)))
+        ??? nebylo by lepsi pocitat rozdil geopotencialu?
+  jinak OK 
+
+Wind file
+---------
+OK
+
+Temperature file 
+----------------
+T, Tsfc OK
+
+Water vapor file
+----------------
+WV ... pocita se ze smesovaciho pomeru a ten z merne vlhkosti
+OK
+
+
+Cloud rain file
+---------------
+
+Vertical diffusivity file
+-------------------------
+Louis by mel nejak fungovat; pokud je ale theta1 a theta2 virtualni teplota odvozena z potencialni, pak by qq nemel byt smesovaci pomer, ale merna vlhkost (viz Bedbar 5.75)
+opravena chyba ve vypoctu KV podle O'Briena (dz ma predstavovat vzdalenost stredu vrstev)
+POINTERY
+========
+??? vedlo by ke zrychleni, pokud by argumenty funkci byly pointery ???
+   - doplnil jsem atribut pointer dummy argumentum modulu smoothing_handler.
+
+
+vstupni data
+============
+  | aladin2camx pripravi vstupni data z ALADIN-u pro CAMx
+
+
+ALADIN-ovske griby
+==================
+  | - predpokladam nazev ALADINCAMX_YYYYMMHH_HHMI.grb, pricemz:
+  |   HH patri <0;23> a MI patri <0;59>
+  | - Pro jiny nazev je treba zmenit run_info.F90
+  |
+  | vynatek z namelistu CAMx-u
+  | --------------------------
+  | Start_Date_Hour  = 2002,06,14,0000,   ! (YYYY,MM,DD,HHmm)
+  | End_Date_Hour    = 2002,06,14,2400,   ! (YYYY,MM,DD,HHmm)
+  | Met_Input_Frequency = 60.,            ! minutes
+  |
+  | ??? nebylo by lepsi, aby v adresari s aladinovskymi griby byl soubor se seznamem dostup gribui,
+  | ktery by obsahoval jmeno, z ktereho data a casu pochazeji?
+
+
+SRAZKY
+======
+  | vzdy pro JEDEN casovy krok CAMxu (v alad gribech mohou byt kumulovany az pro 6 hodin)
+
+
+TLAKove hladiny
+===============
+  | ??? pouzivaji se koef A,B pro vypocet tlaku v hladinach pro usetreni casu pri nacitani a pro usutreni mista pri archivaci?
+
+
+MESHING factor
+==============
+  | ZAMG preproc: nejvnorenejsi grid je vzdy s nejmensim krokem (tj krokem mod. ALADIM). Jeho MESHING faktor vypovida,
+  |               koliktar je nustsi, nezli ridici grid, jehoz rozliseni takto zpetne definuje.
+  |               !! neumoznuje to ale generovat data pro jediny grid s hor. rozlisenim jinym, nez ma ALADIN !!
+  | v get_h_p_t_wv.F90 se napriklad uvazuje pouze ridici grid a JEDEN vnoreny
+  |
+  |                                                                 | grid number | meshing          |  (rel. to ALADIN)    
+  |                                                                 |             | (rel. to mother) |
+  |                                                                 |-------------|------------------|------------------------------------------
+  |              *                                               *  | 1 (mother)  |  1               |  mesh(ngrids)/mesh(1) = 24/1 = 24
+  |                                                                 |             |                  |
+  |              *           *           *           *           *  | 2           |  4               |  mesh(ngrids)/mesh(2) = 24/4 =  6
+  |                                                                 |             |                  |
+  |              *   *   *   *   *   *   *   *   *   *   *   *   *  | 3           | 12               |  ...
+  |                                                                 |             |                  |
+  | ALADIN grid  * * * * * * * * * * * * * * * * * * * * * * * * *  | 4           | 24               |  mesh(ngrids)/mesh(ngrids) = 24/24 = 1
+
+CASOVY POSUN
+============
+  | casovy posun - UTM+1h je napevno zadan v run_info
+
+
+SMOOTHING_HANDLER.F90
+=====================
+  | real    (kind=wp), dimension(2), parameter :: xnu = (/ 0.50_wp , -0.52_wp /)
+  | -0.52 ... isn't it mistake???
+
+??? - metoda zhlazovani je taky zadavana natvrdo v get_h_p_t_wv.F90
+
+otestovat, jestli se nacitta spravne
+
+prehazet hladiny - ALADIN jde od jejvyzsi j nejnizsi, CAMx obracene
+
+CHYBEJICI HODNOTY
+nahrazovani chybejicich hodnot nulami???
+nebo u teploty prumernou hodnotou???
+
+TLAK v HLADINACH
+================
+bere se primo v ALADINovskych gribu. 
+Pokud by se pocital z parametru definujicich etha hladiny, 
+mohlo by se na datech pro jeden den (25 vystupu) usetrit cca 150MB.
+
+ ! calculate 3d pressure on interfaces (PRESS_I) and grid centers (PRESS)
+ DO k=1,Alad_maxLev
+     DO y=1,Alad_nY
+         DO x=1,Alad_nX
+             PRESS(x,y,k) = ((A(k)+A(k+1))*0.5 + (B(k)+B(k+1))*0.5*Alad_Psfc(x,y,1)) / 100.
+             PRESS_I(x,y,k) = (A(k+1) + B(k+1)*Alad_Psfc(x,y,1)) / 100.
+         END DO
+     END DO
+ END DO
+
+VYSKA ORZHRANI VRSTVY nad POVRCHEM
+==================================
+?? neni lepsi interpolovat primo z ALADINa, nez pocitat z barometricke formule?
+
+
+SMESOVACI POMER
+===============
+??? Je vztah spravne ???
+ ! mix.ratio (smesovaci pomer)==hm(voda)/hm(such.vz.)=Q/(1-Q) ???; Q...mer. vlhkost
+                 MR(x,y,k)=Q(x,y,k)/(1-Q(x,y,k)/1000.)
+
+TEPLOTA ROSNEHO BODU
+====================
+??? nebylo by lepsi brat teplotu rosneho bodu taky primo z ALADINA ??? 
+ - zatim ji na vystupu nemam
+
+
+
+Vzorce pouzite v module_meteo_functions
+=======================================
+
+
+
+
+
+
+
+   !   ECMWF GRIB - Grid definitions - http://tigge.ecmwf.int/grid.html
+   !   =================================================================
+   !   A ... first point, Z ... last point
+   !   
+   !   jPointsAreConsecutive = 0
+   !   alternateRowScanning  = 0 (GRIB 2) - if 1, even rows are reverse
+   !   
+   !                       jScansPositively
+   !   iScansNegatively     0             1  
+   !   
+   !          0          |A---->       ^----Z>
+   !                     |----->       |----->
+   !                     |----->       |----->
+   !                     v----Z>       |A---->
+   !   
+   !          1          <----A|       <Z----^
+   !                     <-----|       <-----|
+   !                     <-----|       <-----|
+   !                     <Z----v       <----A|
+   !   
+   !   
+   !   jPointsAreConsecutive = 1
+   !   alternateRowScanning  = 0 (GRIB 2) - if 1, even columns are reverse
+   !   
+   !                       jScansPositively
+   !   iScansNegatively     0            1   
+   !   
+   !         0           ------>       ^^^^^^
+   !                     A|||||        |||||Z
+   !                     ||||||        ||||||
+   !                     |||||Z        A|||||
+   !                     vvvvvv        ----->
+   !   
+   !         1           <-----        ^^^^^^
+   !                     |||||A        Z|||||
+   !                     ||||||        ||||||
+   !                     Z|||||        |||||A
+   !                     vvvvvv        <-----
+

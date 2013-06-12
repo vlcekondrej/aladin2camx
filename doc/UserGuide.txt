@@ -1,0 +1,6 @@
+* A User Guide: 
+  this describes in detail all inputs into the package. 
+  This includes both subroutine arguments to the package and any switches or 'tuneable' variables within the package. 
+  Where appropriate default values; sensible value ranges; etc should be given. Any files or namelists read should be described in detail.
+
+

@@ -1,0 +1,7 @@
+????
+  20 -  ( 4)  - SW corner                    : ELON1  :  2.203556789995607
+  21 -  ( 5)  - SW corner                    : ELAT1  :  34.00268658001939
+  22 -  ( 6)  - NE corner                    : ELON2  :  39.03705481999040
+  23 -  ( 7)  - NE corner                    : ELAT2  :  55.62440229278213
+idpovida uzlovym bodum????
+

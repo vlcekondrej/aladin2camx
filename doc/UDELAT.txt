@@ -1,0 +1,5 @@
+aladin2camx.nml
+	odstranit Alad_maxLev  ! number of ALADIN levels to be read
+	... staci CAMx_nLev  a Alad_maxLev pak odpovida CAMx_levDef(CAMx_nLev+1,2)
+
+	odstranit Alad_nVal, nebot je rovno Alad_nX*Alad_nY

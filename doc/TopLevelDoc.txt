@@ -1,0 +1,4 @@
+* Top Level Scientific documentation: 
+  this sets out the problem being solved by the package and the scientific rationale for the solution method adopted. 
+  This documentation should be independent of (i.e. not refer to) the code itself.
+

@@ -1,0 +1,10 @@
+* Implementation documentation: 
+  this documents a particular implementation of the solution method described in the scientific documentation. 
+  All routines (subroutines, functions, modules etc...) in the package should be listed by name together with a brief description of what they do. 
+  A calling tree for routines within the package must be included.
+
+GRID NESTING
+ Assumptions
+ -----------
+   Any CAMx grid must be  with ALADIN grid
+
