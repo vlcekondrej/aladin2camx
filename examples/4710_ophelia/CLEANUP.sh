@@ -7,11 +7,12 @@ PROMPT="-i"  # ask at each delete
 
 # if -f given
 if [ "$1" == "-f" ]; then
-    PROMPT=""
+    PROMPT="-f"
 fi
 
-rm -v $PROMPT ./aladin2camx_*.log*
-rm -v $PROMPT ./.aladin2camx.counter
+rm -v  $PROMPT ./aladin2camx_*.log*
+rm -v  $PROMPT ./.aladin2camx.counter
+rm -v  $PROMPT ./aladin2camx*.end
 
 
 
