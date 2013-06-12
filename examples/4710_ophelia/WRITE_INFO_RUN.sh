@@ -52,8 +52,8 @@ begDt=`date -u -d "${SD}" +%Y%m%d`
 begTm=`printf "%02d" $SH`
 endDt=`date -u -d "${ED}" +%Y%m%d`
 endTm=`printf "%02d" $EH`
-endDtExcl=`date -u -d "${EDexcl}" +%Y%m%d`
-endTmExcl=$EHexcl  #`printf "%02d" $EHexcl`
+#endDtExcl=`date -u -d "${EDexcl}" +%Y%m%d`
+#endTmExcl=$EHexcl  #`printf "%02d" $EHexcl`
 
 #------------------------------------------
 # Write the namelist
@@ -70,8 +70,8 @@ cat >> "${RUN_NML}" <<EOF
 &clock_control
 begYYYYMMDD   = ${begDt}
 begHHMI       = ${begTm}00 ! MI (minutes) hard coded in RUN.sh 
-endYYYYMMDD   = ${endDtExcl} !
-endHHMI       = ${endTmExcl}00 ! MI (minutes) hard coded in RUN.sh 
+endYYYYMMDD   = ${endDt} !
+endHHMI       = ${endTm}00 ! MI (minutes) hard coded in RUN.sh 
 met_frequency = 60 ! this is hard coded in RUN.sh
 TimeZone      = 0 ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce simulace
 /
@@ -83,7 +83,7 @@ EOF
 g=1
 echo "&output_files" >> ${RUN_NML}
 #beginEnd format: 'YYMMDD-HH_YYMMDD-HH'
-beginEnd="${begDt:2:6}-${begTm}_${endDtExcl:2:6}-${endTmExcl}"
+beginEnd="${begDt:2:6}-${begTm}_${endDt:2:6}-${endTm}"
 while [ $g -le $NG ] ; do
 cat >> "${RUN_NML}" <<EOF
 zp_file(${g})     = '${CAMXDIR}/camx.zp.d0${g}.${beginEnd}'
@@ -104,7 +104,7 @@ echo "/" >> ${RUN_NML}
 # part 3
 echo "&input_files" >> ${RUN_NML}
 t=0
-while [ $t -le $[$NH+1] ] ; do
+while [ $t -le $[$NH] ] ; do
 dt=`date --utc --date "$SD +$[$SH + $t -1]hour" +%Y%m%d_%H`
 grb="${gribdir}/ALAD4camx_${dt}.grb"
 cat >> "${RUN_NML}" <<EOF
