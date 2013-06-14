@@ -173,7 +173,7 @@ SUBROUTINE run_info()
  WRITE(logFileUnit,*)
  WRITE(logFileUnit,"(/'CAMx levels definition (last level is suplemental to define ',I2,'th level upper interface)')")CAMx_nLev
  DO i = 1, CAMx_nLev+1
-     WRITE(logFileUnit,"('    CAMx level(',I2,') = ',I2,' - ',I2)")i,CAMx_levDef( i,1),CAMx_levDef( i,2)
+     WRITE(logFileUnit,"('    CAMx level(',I2,') = ',I3,' - ',I3)")i,CAMx_levDef( i,1),CAMx_levDef( i,2)
  END DO
 
  WRITE(logFileUnit,"(/'SMOOTHING        = ',L1)"    )SMOOTHER_SWITCH
