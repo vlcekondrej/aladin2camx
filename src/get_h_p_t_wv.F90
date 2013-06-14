@@ -252,7 +252,6 @@ SUBROUTINE get_h_p_t_wv(d)
 !     CALL verthor2d(Alad_PBL     ,xbeg,xend,ybeg,yend,step,PBL)
 !     CALL verthor2d(Alad_sfcROUGH,xbeg,xend,ybeg,yend,step,sfcROUGH)
 !     CALL verthor2d(Alad_SolRad  ,xbeg,xend,ybeg,yend,step,SolRad)
-
      ! write BEIS meteo fields
      IF ( BEIS_flag ) THEN
          iret = nf90_put_var(netCDFid(g), PRSFC_varID(g)  , Psfc(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/))
@@ -282,6 +281,7 @@ SUBROUTINE get_h_p_t_wv(d)
      CALL verthor3d(Alad_Qr   ,xbeg,xend,ybeg,yend,step, ranwtr)
      CALL verthor3d(Alad_Qs   ,xbeg,xend,ybeg,yend,step, snowtr)
 
+    ! write(*,*) "P before:", maxval(Alad_P), "   after verthor3d:",maxval(P)
     ! Interpolate wind components from cell center points to ARAKAWA C grid.
      DO i=1,nX-1
          U_AraC(i,:,:) = (U_cent(i,:,:)+U_cent(i+1,:,:)) * 0.5
