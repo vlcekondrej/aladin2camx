@@ -4,7 +4,10 @@
 
 
 aladinGribName_00fc () {
-    # for hours -1 and 0, we use the previous forecast's fields.
+    # Use this if you want files from the 00UTC forecast run.
+    # note,
+    # for hours -1 and 0, we have no choice but to 
+    # use the previous forecast's fields.
     date=$1 # YYYY-MM-DD format
     hour=$2 # integer value from 00UTC, can be 48 if you want that hour's forecast.
     case $hour in
@@ -26,7 +29,7 @@ aladinGribName_00fc () {
 }
 
 aladin2camxGribName () {
-    #ALAD4camx_${f0_YYYYMMDD}_${f0_HH}.grb"
+    # Makes the file name as recognised by aladin2camx
     date=$1 # YYYY-MM-DD format
     hour=$2 # integer value from 00UTC
     dt=`date -u -d "$date +${hour}hours" +%Y%m%d_%H`
@@ -35,9 +38,10 @@ aladin2camxGribName () {
 
 
 aladinGribName_cont () {
-    #continuous use of updated 6hrly forecasts
-    #$1 # YYYY-MM-DD format
-    #$2 # integer value from 00UTC     
+    # Use this if you want only the most recent forecasts
+    # Continuous use of updated 6hrly forecasts
+    # $1 # YYYY-MM-DD format
+    # $2 # integer value from 00UTC     
     date=`date -u -d "$1 +${2}hours" +%Y-%m-%d`
     hour=`date -u -d "$1 +${2}hours" +%-H`
     step=$[${hour}%6] 
@@ -55,4 +59,4 @@ aladinGribName_cont () {
     echo $fname
 }
 
-
+#camx file names not yet implemented.
