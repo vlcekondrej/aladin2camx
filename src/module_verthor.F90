@@ -67,6 +67,11 @@ CONTAINS
    ! CAMx_nLev+1 ... pomocna vrstva umoznujici definovat horni rozhrani vrstvy CAMx_nLev
    DO k=1,CAMx_nLev+1
        N = CAMx_levDef(k,2)-CAMx_levDef(k,1)+1 ! number of ALADIN levels included in k-th CAMx level
+       IF(N.lt.1) THEN
+           WRITE(logFileUnit,'(A,I3,A,I3)') 'Number of ALADIN levels included in CAMx level ',k,' is: ', N 
+           WRITE(logFileUnit,'(A,I4,A,I4)') 'Aladin levels were ', CAMx_levDef(k,1) , ' to ', CAMx_levDef(k,2)
+           CALL TestStop(1,'Error (verthor3d): number of ALADIN levels included in k-th CAMx level < 1.', logFileUnit)
+       END IF
        INT_FIELD_HELP(:,:,k) = SUM(FIELD(:,:,CAMx_levDef(k,1):CAMx_levDef(k,2)),3)/N
    END DO
    
