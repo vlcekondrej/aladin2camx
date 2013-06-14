@@ -179,7 +179,7 @@ MODULE module_global_variables
    ! == CAMx vertical grid structure ==
    INTEGER :: Alad_maxLev ! number of ALADIN levels (counted from bottom) to be used for calculating CAMx levels
    INTEGER :: CAMx_nLev   ! number of CAMx levels to which ALAD_maxLev are reduced
-   INTEGER :: CAMx_LevDef(70,2) ! i-th CAMx level includes CAMx_levDef(i,1), ..., CAMx_levDef(i,2) ALADIN levels
+   INTEGER :: CAMx_LevDef(70,2)=-99 ! i-th CAMx level includes CAMx_levDef(i,1), ..., CAMx_levDef(i,2) ALADIN levels
 
    NAMELIST /camx_grid_info/  &
      ngridnumber, &
