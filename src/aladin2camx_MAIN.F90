@@ -59,13 +59,11 @@ PROGRAM aladin2camx_MAIN
  ! allocate arrays for aladin fields
  CALL Alloc_alad()
  ! loop over all aladin files and extract/calculate/write out fields
- DO d=0,nAladFiles
-     ! get ALADIN fields
+ CALL get_aladin_fields(aladin_met(0)%name_f) ! for SolRad field only.
+ DO d=1,nAladFiles
+     ! get ALADIN fields, generate CAMx meteo inputs
      CALL get_aladin_fields(aladin_met(d)%name_f) 
-     IF ( d .gt. 0 ) THEN 
-         ! generate CAMx meteo inputs
-         CALL get_h_p_t_wv(d)
-     ENDIF
+     CALL get_h_p_t_wv(d)
  END DO
 
  ! write average layer heights in km for computation of camx photolysis rates (tuv.in.sh)
