@@ -1,0 +1,172 @@
+! This namelist was generated using: ./WRITE_INFO_CAMX.sh
+
+&camx_grid_info
+
+ngridnumber =   2
+
+! relative to grid in NWP GRIBS
+! 1,1 is lower left (SW) grid point
+
+CAMx_grid_xbeg(1)  =   1
+CAMx_grid_ybeg(1)  =   1
+CAMx_grid_xend(1)  = 513
+CAMx_grid_yend(1)  = 405
+CAMx_grid_step(1)  =   3
+
+CAMx_grid_xbeg(2)  = 203
+CAMx_grid_ybeg(2)  = 194
+CAMx_grid_xend(2)  = 324
+CAMx_grid_yend(2)  = 273
+CAMx_grid_step(2)  =   1
+
+
+!------------------------------------
+! == CAMx vertical grid structure == |
+! .. the same for all grids          |
+!------------------------------------
+! In order to be able to define layer interfaces, we need one more CAMx level => CAMx_nLev+1
+! note: in gfortran 4.6 we can use array slicing (e.g. "CAMx_levDef(2,:) =  2, 2" ... )
+!       in gfortran 4.3 we can't, so specify it for each element separately 
+!                                 (e.g. "CAMx_levDef(2,1) =  2" 
+!                                       "CAMx_levDef(2,2) =  2" ...)
+
+Alad_maxLev     = 68 ! number of ALADIN levels (counted from bottom) to be used for calculating CAMx levels
+CAMx_nLev       = 67 ! number of CAMx levels 
+
+CAMx_levDef(1,1) =  1
+CAMx_levDef(1,2) =  1
+CAMx_levDef(2,1) =  2
+CAMx_levDef(2,2) =  2
+CAMx_levDef(3,1) =  3
+CAMx_levDef(3,2) =  3
+CAMx_levDef(4,1) =  4
+CAMx_levDef(4,2) =  4
+CAMx_levDef(5,1) =  5
+CAMx_levDef(5,2) =  5
+CAMx_levDef(6,1) =  6
+CAMx_levDef(6,2) =  6
+CAMx_levDef(7,1) =  7
+CAMx_levDef(7,2) =  7
+CAMx_levDef(8,1) =  8
+CAMx_levDef(8,2) =  8
+CAMx_levDef(9,1) =  9
+CAMx_levDef(9,2) =  9
+CAMx_levDef(10,1) =  10
+CAMx_levDef(10,2) =  10
+CAMx_levDef(11,1) =  11
+CAMx_levDef(11,2) =  11
+CAMx_levDef(12,1) =  12
+CAMx_levDef(12,2) =  12
+CAMx_levDef(13,1) =  13
+CAMx_levDef(13,2) =  13
+CAMx_levDef(14,1) =  14
+CAMx_levDef(14,2) =  14
+CAMx_levDef(15,1) =  15
+CAMx_levDef(15,2) =  15
+CAMx_levDef(16,1) =  16
+CAMx_levDef(16,2) =  16
+CAMx_levDef(17,1) =  17
+CAMx_levDef(17,2) =  17
+CAMx_levDef(18,1) =  18
+CAMx_levDef(18,2) =  18
+CAMx_levDef(19,1) =  19
+CAMx_levDef(19,2) =  19
+CAMx_levDef(20,1) =  20
+CAMx_levDef(20,2) =  20
+CAMx_levDef(21,1) =  21
+CAMx_levDef(21,2) =  21
+CAMx_levDef(22,1) =  22
+CAMx_levDef(22,2) =  22
+CAMx_levDef(23,1) =  23
+CAMx_levDef(23,2) =  23
+CAMx_levDef(24,1) =  24
+CAMx_levDef(24,2) =  24
+CAMx_levDef(25,1) =  25
+CAMx_levDef(25,2) =  25
+CAMx_levDef(26,1) =  26
+CAMx_levDef(26,2) =  26
+CAMx_levDef(27,1) =  27
+CAMx_levDef(27,2) =  27
+CAMx_levDef(28,1) =  28
+CAMx_levDef(28,2) =  28
+CAMx_levDef(29,1) =  29
+CAMx_levDef(29,2) =  29
+CAMx_levDef(30,1) =  30
+CAMx_levDef(30,2) =  30
+CAMx_levDef(31,1) =  31
+CAMx_levDef(31,2) =  31
+CAMx_levDef(32,1) =  32
+CAMx_levDef(32,2) =  32
+CAMx_levDef(33,1) =  33
+CAMx_levDef(33,2) =  33
+CAMx_levDef(34,1) =  34
+CAMx_levDef(34,2) =  34
+CAMx_levDef(35,1) =  35
+CAMx_levDef(35,2) =  35
+CAMx_levDef(36,1) =  36
+CAMx_levDef(36,2) =  36
+CAMx_levDef(37,1) =  37
+CAMx_levDef(37,2) =  37
+CAMx_levDef(38,1) =  38
+CAMx_levDef(38,2) =  38
+CAMx_levDef(39,1) =  39
+CAMx_levDef(39,2) =  39
+CAMx_levDef(40,1) =  40
+CAMx_levDef(40,2) =  40
+CAMx_levDef(41,1) =  41
+CAMx_levDef(41,2) =  41
+CAMx_levDef(42,1) =  42
+CAMx_levDef(42,2) =  42
+CAMx_levDef(43,1) =  43
+CAMx_levDef(43,2) =  43
+CAMx_levDef(44,1) =  44
+CAMx_levDef(44,2) =  44
+CAMx_levDef(45,1) =  45
+CAMx_levDef(45,2) =  45
+CAMx_levDef(46,1) =  46
+CAMx_levDef(46,2) =  46
+CAMx_levDef(47,1) =  47
+CAMx_levDef(47,2) =  47
+CAMx_levDef(48,1) =  48
+CAMx_levDef(48,2) =  48
+CAMx_levDef(49,1) =  49
+CAMx_levDef(49,2) =  49
+CAMx_levDef(50,1) =  50
+CAMx_levDef(50,2) =  50
+CAMx_levDef(51,1) =  51
+CAMx_levDef(51,2) =  51
+CAMx_levDef(52,1) =  52
+CAMx_levDef(52,2) =  52
+CAMx_levDef(53,1) =  53
+CAMx_levDef(53,2) =  53
+CAMx_levDef(54,1) =  54
+CAMx_levDef(54,2) =  54
+CAMx_levDef(55,1) =  55
+CAMx_levDef(55,2) =  55
+CAMx_levDef(56,1) =  56
+CAMx_levDef(56,2) =  56
+CAMx_levDef(57,1) =  57
+CAMx_levDef(57,2) =  57
+CAMx_levDef(58,1) =  58
+CAMx_levDef(58,2) =  58
+CAMx_levDef(59,1) =  59
+CAMx_levDef(59,2) =  59
+CAMx_levDef(60,1) =  60
+CAMx_levDef(60,2) =  60
+CAMx_levDef(61,1) =  61
+CAMx_levDef(61,2) =  61
+CAMx_levDef(62,1) =  62
+CAMx_levDef(62,2) =  62
+CAMx_levDef(63,1) =  63
+CAMx_levDef(63,2) =  63
+CAMx_levDef(64,1) =  64
+CAMx_levDef(64,2) =  64
+CAMx_levDef(65,1) =  65
+CAMx_levDef(65,2) =  65
+CAMx_levDef(66,1) =  66
+CAMx_levDef(66,2) =  66
+CAMx_levDef(67,1) =  67
+CAMx_levDef(67,2) =  67
+CAMx_levDef(68,1) =  68
+CAMx_levDef(68,2) =  68
+/
