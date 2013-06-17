@@ -60,3 +60,18 @@ aladinGribName_cont () {
 }
 
 #camx file names not yet implemented.
+
+
+#for testing
+wasSourced () {
+  local -i rc=0
+  [[ 'source' == ${FUNCNAME[1]} ]] && rc=1
+  return $rc
+}
+
+echo $((wasSourced))
+
+if [[ "$(wasSourced)" == "0" ]] ; then
+  echo not sourced
+ 
+fi
