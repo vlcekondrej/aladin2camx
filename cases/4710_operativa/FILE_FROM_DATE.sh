@@ -64,14 +64,23 @@ aladinGribName_cont () {
 
 #for testing
 wasSourced () {
-  local -i rc=0
-  [[ 'source' == ${FUNCNAME[1]} ]] && rc=1
-  return $rc
+  local -i rc=1
+  if [ "${FUNCNAME[1]}"  == "source" ] ; then 
+    rc=0
+  fi
+  echo $rc 
 }
 
-echo $((wasSourced))
-
-if [[ "$(wasSourced)" == "0" ]] ; then
-  echo not sourced
- 
+if [ "$(wasSourced)" == "0" ] ; then
+  echo was  sourced.
+else
+  #run tests
+  echo was executed.
+  echo running tests: 
+  dt="2013-06-06"
+  echo -e 'DT    \t\tH \t\taladinGribName_cont($DT $H)  \taladinGribName_00fc($DT $H)  \taladin2camxGribName($DT $H)'
+  for h in $(seq 0 24) ; do
+    echo -e "${dt}\t${h} \t\t$(aladinGribName_cont $dt $h) \t$(aladinGribName_00fc $dt $h) \t$(aladin2camxGribName $dt $h)"
+  done
 fi
+
