@@ -72,10 +72,10 @@ wasSourced () {
 }
 
 if [ "$(wasSourced)" == "0" ] ; then
-  echo was  sourced.
+  : #echo was  sourced. 
 else
   #run tests
-  echo was executed.
+  echo $0 was executed.
   echo running tests: 
   dt="2013-06-06"
   echo -e 'DT    \t\tH \t\taladinGribName_cont($DT $H)  \taladinGribName_00fc($DT $H)  \taladin2camxGribName($DT $H)'

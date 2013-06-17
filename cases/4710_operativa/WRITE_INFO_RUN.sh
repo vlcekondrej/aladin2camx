@@ -16,7 +16,7 @@ directory
  SH          the starting hour (0 - 23 are valid),
 
  NH          the number of hours 
-             to process (min is 1, default is 25),
+             to process (min is 1),
 
  NG          the number of grid domains
              that will be prepared (min is 1),
@@ -43,7 +43,7 @@ EHexcl=`date -u -d "$ED +$[$SH +$NH ]hours" +%H`
 NG=$4 #number of grid domains
 GRIBDIR=$5
 CAMXDIR=$6
-RUN_NML=$7
+RUN_NML=${7:-./INFO_RUN.nml}
 
 
 #------------------------------------------
@@ -55,6 +55,9 @@ endTm=`printf "%02d" $EH`
 #endDtExcl=`date -u -d "${EDexcl}" +%Y%m%d`
 #endTmExcl=$EHexcl  #`printf "%02d" $EHexcl`
 
+# Source extra functions
+. FILE_FROM_DATE.sh
+
 #------------------------------------------
 # Write the namelist
 rm -f ${RUN_NML}
@@ -65,7 +68,8 @@ echo "! This namelist was generated using:" > "${RUN_NML}"
 echo "!   $*" >> "${RUN_NML}"
 echo "" >> "${RUN_NML}"
 
-# part 1
+#--------------------------------------------------------
+# part 1/3
 cat >> "${RUN_NML}" <<EOF
 &clock_control
 begYYYYMMDD   = ${begDt}
@@ -78,8 +82,8 @@ TimeZone      = 0 ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce si
 
 EOF
 
-
-# part 2
+#--------------------------------------------------------
+# part 2/3
 g=1
 echo "&output_files" >> ${RUN_NML}
 #beginEnd format: 'YYMMDD-HH_YYMMDD-HH'
@@ -101,16 +105,16 @@ done
 echo "/" >> ${RUN_NML}
 
 
-# part 3
+#--------------------------------------------------------
+# part 3/3
 echo "&input_files" >> ${RUN_NML}
 t=0
-while [ $t -le $[$NH] ] ; do
-dt=`date --utc --date "$SD +$[$SH + $t -1]hour" +%Y%m%d_%H`
-grb="${gribdir}/ALAD4camx_${dt}.grb"
-cat >> "${RUN_NML}" <<EOF
-aladin_met_names($t) = '${GRIBDIR}/ALAD4camx_${dt}.grb'
-EOF
-t=$[$t+1]
+endhr=$(($SH + $NH - 1))
+beghr=$(($SH -1)) # begin hour is one less 
+for h in $(seq $beghr $endhr); do
+  a2c=$(aladin2camxGribName $SD $h)
+  echo "aladin_met_names($t) = '${GRIBDIR}/${a2c}'" >> ${RUN_NML}
+  t=$(($t+1))
 done
 echo "/" >> ${RUN_NML}
 
