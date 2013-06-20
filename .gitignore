@@ -1,8 +1,13 @@
 # git ignore file
+/*
+!.gitignore
+!cases/
+!doc/
+!src/
 
 #the exe
-*.exe
+#*.exe
 
 #counter
 
-*aladin2camx.counter
+#*aladin2camx.counter
