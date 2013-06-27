@@ -82,7 +82,7 @@ SUBROUTINE run_info()
  WRITE(unit_counter,'(I5.5)')PID
  CLOSE(unit_counter) 
 
- WRITE(logfile,"('aladin2camx','_',I4.4,2('.',I2.2),'_',I2.2,':',I2.2,'-',I4.4,2('.',I2.2),'_',I2.2,':',I2.2,'.log',I5.5)") &
+ WRITE(logfile,"('aladin2camx','_',I4.4,2I2.2,'-',2I2.2,I2.2,'_',I4.4,2I2.2,'-',2I2.2,'.log',I5.5)") &
    beg_dt_LT%y,beg_dt_LT%m,beg_dt_LT%d,beg_dt_LT%h,beg_dt_LT%mi,end_dt_LT%y,end_dt_LT%m,end_dt_LT%d,end_dt_LT%h,end_dt_LT%mi,PID
  logFileUnit = getFreeUnitNo()
  OPEN(unit=logFileUnit,file=logFile)
