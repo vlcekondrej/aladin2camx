@@ -26,7 +26,8 @@ cat > "${CAMx_GRID_NML}" <<EOF
 ngridnumber =   2
 
 ! relative to grid in NWP GRIBS
-! 1,1 is lower left (SW) grid point
+!   1,1 is lower left (SW) grid point
+!   nested grids include buffer cells
 
 CAMx_grid_xbeg(1)  =   1
 CAMx_grid_ybeg(1)  =   1
@@ -34,10 +35,10 @@ CAMx_grid_xend(1)  = 513
 CAMx_grid_yend(1)  = 405
 CAMx_grid_step(1)  =   3
 
-CAMx_grid_xbeg(2)  = 203
-CAMx_grid_ybeg(2)  = 194
-CAMx_grid_xend(2)  = 324
-CAMx_grid_yend(2)  = 273
+CAMx_grid_xbeg(2)  = 204
+CAMx_grid_ybeg(2)  = 195
+CAMx_grid_xend(2)  = 325
+CAMx_grid_yend(2)  = 274
 CAMx_grid_step(2)  =   1
 
 
