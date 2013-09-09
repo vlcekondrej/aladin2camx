@@ -10,7 +10,11 @@ SUBROUTINE run_info()
  INTEGER :: da,ti, ainc
  INTEGER :: unit_counter
  
- CHARACTER(LEN=50) :: text_temp ! temporary text variable
+ CHARACTER(LEN=200) :: text_temp ! temporary text variable
+
+ INTEGER            :: camxinUnit
+ CHARACTER(LEN=200) :: camxinFile
+ CHARACTER(LEN=7)   :: Map_Projection
 
  CALL null_DateTime(beg_dt_LT)
  CALL null_DateTime(end_dt_LT)
@@ -142,6 +146,69 @@ SUBROUTINE run_info()
      CAMx_SWCor11_x(g)= Alad_Centr11_X + (CAMx_grid_xbeg(g)-1.5D0)*Alad_dx
      CAMx_SWCor11_y(g)= Alad_Centr11_Y + (CAMx_grid_ybeg(g)-1.5D0)*Alad_dy
  END DO
+
+ !---------------------------------------------------------------------
+ ! write information on CAMx grids in the form needed by CAMx namelist |
+ ! --------------------------------------------------------------------
+ SELECT CASE (Alad_PROJ)
+   CASE (1)
+      Map_Projection="LATLON"
+      write(*,*)" ... neni osetreno zadavani parametru pro projekci ",Map_Projection
+      STOP
+   CASE (2)
+      Map_Projection="LAMBERT"
+   CASE (5)
+      Map_Projection="UTM"
+      write(*,*)" ... neni osetreno zadavani parametru pro projekci ",Map_Projection
+      STOP
+   CASE (6)
+      Map_Projection="POLAR"
+      write(*,*)" ... neni osetreno zadavani parametru pro projekci ",Map_Projection
+      STOP
+   CASE DEFAULT
+     write(*,*)"CAMx neni schopen pracovat s projekci Alad_PROJ=",Alad_PROJ
+     STOP
+ END SELECT
+      
+ WRITE(camxinFile,"('camxin','_',I4.4,2I2.2,'-',2I2.2,'_',I4.4,2I2.2,'-',2I2.2,'.log',I5.5)") &
+   beg_dt_LT%y,beg_dt_LT%m,beg_dt_LT%d,beg_dt_LT%h,beg_dt_LT%mi,end_dt_LT%y,end_dt_LT%m,end_dt_LT%d,end_dt_LT%h,end_dt_LT%mi,PID
+ camxinUnit = getFreeUnitNo()
+ OPEN(unit=camxinUnit,file=camxinFile)
+   ! --- Map projection parameters ---
+   WRITE(camxinUnit,"(a          )")' !--- Map projection parameters ---'
+   WRITE(camxinUnit,"(a,a    ,a  )")' Map_Projection           = "',Map_Projection,'",'
+   WRITE(camxinUnit,"(a,I2   ,',')")' UTM_Zone                 = ',0
+   WRITE(camxinUnit,"(a,F2.0 ,',')")' POLAR_Longitude_Pole     = ',0.
+   WRITE(camxinUnit,"(a,F2.0 ,',')")' POLAR_Latitude_Pole      = ',0. ! deg (west<0,south<0)
+   WRITE(camxinUnit,"(a,F12.8,',')")' LAMBERT_Central_Meridian = ',Alad_PROJ_GAMMA  ! deg (west<0,south<0)
+   WRITE(camxinUnit,"(a,F12.8,',')")' LAMBERT_Center_Longitude = ',Alad_X_CENT      ! deg (west<0,south<0)
+   WRITE(camxinUnit,"(a,F12.8,',')")' LAMBERT_Center_Latitude  = ',Alad_Y_CENT      ! deg (west<0,south<0)
+   WRITE(camxinUnit,"(a,F12.8,',')")' LAMBERT_True_Latitude1   = ',Alad_PROJ_ALPHA  ! deg (west<0,south<0)
+   WRITE(camxinUnit,"(a,F12.8,',')")' LAMBERT_True_Latitude2   = ',Alad_PROJ_BETA   ! deg (west<0,south<0), can be same as LAMBERT_True_Latitude1
+  
+   ! --- Grid parameters ---
+   WRITE(camxinUnit,"(/,a        )")' !--- Parameters for the master (first) grid ---'
+   WRITE(camxinUnit,"(a,I2,','   )")' Number_of_Grids      = ',ngridnumber
+   WRITE(camxinUnit,"(a,F16.9,',')")' Master_Origin_XCoord = ',CAMx_SWCor11_x(1)/1000D0  ! km or deg, SW corner of cell(1,1)
+   WRITE(camxinUnit,"(a,F16.9,',')")' Master_Origin_YCoord = ',CAMx_SWCor11_y(1)/1000D0  ! km or deg, SW corner of cell (1,1)
+   WRITE(camxinUnit,"(a,F12.9,',')")' Master_Cell_XSize    = ',CAMx_dx(1)/1000D0  ! km or deg
+   WRITE(camxinUnit,"(a,F12.9,',')")' Master_Cell_YSize    = ',CAMx_dy(1)/1000D0  ! km or deg
+   WRITE(camxinUnit,"(a,I4   ,',')")' Master_Grid_Columns  = ',CAMx_nx(1)
+   WRITE(camxinUnit,"(a,I4   ,',')")' Master_Grid_Rows     = ',CAMx_ny(1)
+   WRITE(camxinUnit,"(a,I3   ,',')")' Number_of_Layers(1)  = ',CAMx_nLev
+
+   DO g = 2, ngridnumber
+     WRITE(camxinUnit,"(/,a,I1,a        )")' !--- Parameters for the grid ',ngridnumber,' ---'
+     WRITE(camxinUnit,"(a,I1,a,I2,','   )")' Nest_Meshing_Factor(',g,') = ',CAMx_grid_step(1)/CAMx_grid_step(g) ! Relative to master grid
+     WRITE(camxinUnit,"(a,I1,a,I3,','   )")' Nest_Beg_I_Index(',g,')    = ',(CAMx_grid_xbeg(g)+1-CAMx_grid_xbeg(1))/CAMx_grid_step(1)+1 ! Relative to master grid ! CAMx_grid_xbeg include buffers
+     WRITE(camxinUnit,"(a,I1,a,I3,','   )")' Nest_End_I_Index(',g,')    = ',(CAMx_grid_xend(g)  -CAMx_grid_xbeg(1))/CAMx_grid_step(1)+1 ! Relative to master grid ! CAMx_grid_xend    -- || --
+     WRITE(camxinUnit,"(a,I1,a,I3,','   )")' Nest_Beg_J_Index(',g,')    = ',(CAMx_grid_ybeg(g)+1-CAMx_grid_ybeg(1))/CAMx_grid_step(1)+1 ! Relative to master grid ! CAMx_grid_ybeg    -- || --
+     WRITE(camxinUnit,"(a,I1,a,I3,','   )")' Nest_End_J_Index(',g,')    = ',(CAMx_grid_yend(g)  -CAMx_grid_ybeg(1))/CAMx_grid_step(1)+1 ! Relative to master grid ! CAMx_grid_yend    -- || --
+     WRITE(camxinUnit,"(a,I1,a,I2,','   )")' Number_of_Layers(',g,')    = ',CAMx_nLev
+   END DO
+ CLOSE(unit=camxinUnit)
+ text_temp='ln -sf '//trim(camxinFile)//' camx.in.proj.and.grid.info' 
+ CALL system(text_temp)
 
  !-----------------------------
  ! write information to logFile|
