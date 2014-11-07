@@ -8,9 +8,17 @@ PROGRAM aladin2camx_MAIN
  INTEGER :: g ! grid index; g=1 for driving grid, >1 for nested
  INTEGER :: aladin_unit, istat, d, unit_nml, k
 
+ CHARACTER(len=32) :: arg
+          
+ IF ( iargc() > 0 ) THEN
+     CALL getarg(1, arg) ! read 1st argument passed through command line
+write(*,*)"arg='",trim(arg),"'"
+ END IF
+
  ! run_info will read information on run
  CALL run_info()
-
+ IF ( trim(arg) == "--info" ) GO TO 9999
+ 
  IF (BEIS_flag) CALL alloc_netCDFids(ngridnumber)
 
  ! open CAMx input files for every nested grid and meteorological parameter
@@ -108,6 +116,7 @@ PROGRAM aladin2camx_MAIN
  WRITE(logFileUnit,*) '*******************************'
  WRITE(logFileUnit,*)
 
+ 9999 CONTINUE
  CLOSE(logFileUnit)
 
  ! create file which existence ificates end of run
