@@ -50,11 +50,13 @@ aladinGribName_cont () {
       prevhr=`date -u -d "$date +$[${hour}-1]hours" +%-H`
       aladrun=`printf "%02d" $[(${prevhr})/6*6]`
       aladstep=`printf "%02d" $[$prevhr - $aladrun +1]`
-      fname=`printf "ALAD4camx_%8d%02d_%02d.grb" ${prevdt} $aladrun $aladstep`
+      YMDNT=`date -u -d "$prevdt +${aladrun}hours" +%Y/%m/%d/%H`
+      fname=$YMDNT/`printf "ALAD4camx_%8d%02d_%02d.grb" ${prevdt} $aladrun $aladstep`
     else
       dt=`date -u -d "$date +${hour}hours" +%Y%m%d`
       run=`printf "%02d" $[($hour)/6*6]`
-      fname=`printf "ALAD4camx_%8d%02d_%02d.grb" $dt $run $step`
+      YMDNT=`date -u -d "$dt +${run}hours" +%Y/%m/%d/%H`
+      fname=$YMDNT/`printf "ALAD4camx_%8d%02d_%02d.grb" $dt $run $step`
     fi
     echo $fname
 }

@@ -1,0 +1,60 @@
+! This namelist was generated using:
+!   2012-12-31 0 25 2 /mnt/storage1/aq/data/aladin/operativa/2012/12 ./CAMx_INP INFO_RUN.nml
+
+&clock_control
+begYYYYMMDD   = 20121231
+begHHMI       = 0000 ! MI (minutes) hard coded in WRITE_INFO_RUN.sh 
+endYYYYMMDD   = 20130101   !
+endHHMI       = 0000 ! MI (minutes) hard coded in WRITE_INFO_RUN.sh 
+met_frequency = 60 ! this is hard coded in WRITE_INFO_RUN.sh
+TimeZone      = 0  ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce simulace
+/
+
+&output_files
+zp_file(1)     = './CAMx_INP/camx.zp.d01.121231-00_130101-00'
+tp_file(1)     = './CAMx_INP/camx.tp.d01.121231-00_130101-00'
+uv_file(1)     = './CAMx_INP/camx.uv.d01.121231-00_130101-00'
+qa_file(1)     = './CAMx_INP/camx.qa.d01.121231-00_130101-00'
+cr_file(1)     = './CAMx_INP/camx.cr.d01.121231-00_130101-00'
+kv_file(1)     = './CAMx_INP/camx.kv.d01.121231-00_130101-00'
+avgHGT_file(1) = './CAMx_INP/camx.avgHGT.d01.121231-00_130101-00'
+beis_file(1)   = './CAMx_INP/BEISmet.d01.121231-00_130101-00'
+
+zp_file(2)     = './CAMx_INP/camx.zp.d02.121231-00_130101-00'
+tp_file(2)     = './CAMx_INP/camx.tp.d02.121231-00_130101-00'
+uv_file(2)     = './CAMx_INP/camx.uv.d02.121231-00_130101-00'
+qa_file(2)     = './CAMx_INP/camx.qa.d02.121231-00_130101-00'
+cr_file(2)     = './CAMx_INP/camx.cr.d02.121231-00_130101-00'
+kv_file(2)     = './CAMx_INP/camx.kv.d02.121231-00_130101-00'
+avgHGT_file(2) = './CAMx_INP/camx.avgHGT.d02.121231-00_130101-00'
+beis_file(2)   = './CAMx_INP/BEISmet.d02.121231-00_130101-00'
+
+/
+&input_files
+aladin_met_names(0) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123018_05.grb'
+aladin_met_names(1) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123018_06.grb'
+aladin_met_names(2) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123100_01.grb'
+aladin_met_names(3) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123100_02.grb'
+aladin_met_names(4) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123100_03.grb'
+aladin_met_names(5) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123100_04.grb'
+aladin_met_names(6) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123100_05.grb'
+aladin_met_names(7) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123100_06.grb'
+aladin_met_names(8) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123106_01.grb'
+aladin_met_names(9) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123106_02.grb'
+aladin_met_names(10) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123106_03.grb'
+aladin_met_names(11) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123106_04.grb'
+aladin_met_names(12) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123106_05.grb'
+aladin_met_names(13) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123106_06.grb'
+aladin_met_names(14) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123112_01.grb'
+aladin_met_names(15) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123112_02.grb'
+aladin_met_names(16) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123112_03.grb'
+aladin_met_names(17) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123112_04.grb'
+aladin_met_names(18) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123112_05.grb'
+aladin_met_names(19) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123112_06.grb'
+aladin_met_names(20) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123118_01.grb'
+aladin_met_names(21) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123118_02.grb'
+aladin_met_names(22) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123118_03.grb'
+aladin_met_names(23) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123118_04.grb'
+aladin_met_names(24) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123118_05.grb'
+aladin_met_names(25) = '/mnt/storage1/aq/data/aladin/operativa/2012/12/ALAD4camx_2012123118_06.grb'
+/

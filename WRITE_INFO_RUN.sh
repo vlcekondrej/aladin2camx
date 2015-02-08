@@ -38,8 +38,8 @@ SH=$2 # start hour
 NH=$3 # number of hours
 ED=`date --utc --date "$SD +$[${SH} +${NH} -1]hours" +%Y-%m-%d`
 EH=`date -u -d "$ED +$[$SH +$NH -1]hours" +%H`
-EDexcl=`date --utc --date "$SD +$[${SH} +${NH} ]hours" +%Y-%m-%d`
-EHexcl=`date -u -d "$ED +$[$SH +$NH ]hours" +%H`
+#EDexcl=`date --utc --date "$SD +$[${SH} +${NH} ]hours" +%Y-%m-%d`
+#EHexcl=`date -u -d "$ED +$[$SH +$NH ]hours" +%H`
 NG=$4 #number of grid domains
 GRIBDIR=$5
 CAMXDIR=$6
@@ -73,11 +73,11 @@ echo "" >> "${RUN_NML}"
 cat >> "${RUN_NML}" <<EOF
 &clock_control
 begYYYYMMDD   = ${begDt}
-begHHMI       = ${begTm}00 ! MI (minutes) hard coded in RUN.sh 
-endYYYYMMDD   = ${endDt} !
-endHHMI       = ${endTm}00 ! MI (minutes) hard coded in RUN.sh 
-met_frequency = 60 ! this is hard coded in RUN.sh
-TimeZone      = 0 ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce simulace
+begHHMI       = ${begTm}00 ! MI (minutes) hard coded in WRITE_INFO_RUN.sh 
+endYYYYMMDD   = ${endDt}   !
+endHHMI       = ${endTm}00 ! MI (minutes) hard coded in WRITE_INFO_RUN.sh 
+met_frequency = 60 ! this is hard coded in WRITE_INFO_RUN.sh
+TimeZone      = 0  ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce simulace
 /
 
 EOF
@@ -112,7 +112,9 @@ t=0
 endhr=$(($SH + $NH - 1))
 beghr=$(($SH -1)) # begin hour is one less 
 for h in $(seq $beghr $endhr); do
-  a2c=$(aladin2camxGribName $SD $h)
+  # a2c=$(aladin2camxGribName $SD $h)
+  # a2c=$(aladinGribName_00fc $SD $h)
+  a2c=$(aladinGribName_cont $SD $h)
   echo "aladin_met_names($t) = '${GRIBDIR}/${a2c}'" >> ${RUN_NML}
   t=$(($t+1))
 done

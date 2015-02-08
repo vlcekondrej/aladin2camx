@@ -7,6 +7,13 @@
 #!doc/
 #!src/
 
+# directory, where CAMx inputs are usualy written
+CAMx_INP/
+# log files
+*.log[0-9][0-9][0-9][0-9][0-9]
+# 
+aladin2camx.[0-9][0-9][0-9][0-9][0-9].end
+
 #the exe
 *.exe
 
