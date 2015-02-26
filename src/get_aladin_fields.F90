@@ -62,6 +62,7 @@ SUBROUTINE get_aladin_fields(gribfile)
          Alad_SolRad = Alad_AccSolRad ! Alad_SolRad now contains accumulated radiation from the previous step
          CALL read_aladin_data(igrib,Alad_AccSolRad,1,        'accumulated solar radiation',MesgNo)
          Alad_SolRad = (Alad_AccSolRad - Alad_SolRad)/(met_frequency*60.) ! division by length of time interval in seconds - conversion of J/m2 to W/m2
+         WHERE(Alad_SolRad<0.) Alad_SolRad=0.
          AladField_AccSolRad%read(1)=1
 
      ! == 3D ==
