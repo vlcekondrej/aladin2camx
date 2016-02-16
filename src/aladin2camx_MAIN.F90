@@ -7,13 +7,34 @@ PROGRAM aladin2camx_MAIN
  IMPLICIT NONE
  INTEGER :: g ! grid index; g=1 for driving grid, >1 for nested
  INTEGER :: aladin_unit, istat, d, unit_nml, k
+ INTEGER :: shift=0
 
  CHARACTER(len=32) :: arg
+ CHARACTER(len=100) :: progName
           
- IF ( iargc() > 0 ) THEN
-     CALL getarg(1, arg) ! read 1st argument passed through command line
-write(*,*)"arg='",trim(arg),"'"
+ ! read files with input namelists
+ 
+ CALL GET_COMMAND_ARGUMENT(1, arg)
+ IF ( trim(arg) == "--info" ) THEN 
+     ! known option
+     shift=1
  END IF
+
+ IF (COMMAND_ARGUMENT_COUNT()-shift .LT. 4 ) THEN
+     WRITE(*,*)"Error: missing input arguments. Program usage:"
+     WRITE(*,*)"     ./aladin2camx_MAIN.exe [option] <INFO_RUN_file> <INFO_ALADIN_GRIBS_file> <INFO_CAMx_GRID_file> <aladin2camx_control_file>"
+     WRITE(*,*)
+     WRITE(*,*)"     option:"
+     WRITE(*,*)"      --info: just write out input parameters and quit"
+     STOP
+ END IF
+ CALL GET_COMMAND_ARGUMENT(0      , progName)
+ CALL GET_COMMAND_ARGUMENT(1+shift, INFO_RUN_file)
+ CALL GET_COMMAND_ARGUMENT(2+shift, INFO_ALADIN_GRIBS_file)
+ CALL GET_COMMAND_ARGUMENT(3+shift, INFO_CAMx_GRID_file)
+ CALL GET_COMMAND_ARGUMENT(4+shift, aladin2camx_control_file)
+ write(*,*)"./",trim(progName)," ",trim(INFO_RUN_file)," ",trim(INFO_ALADIN_GRIBS_file),&
+            " ",trim(INFO_CAMx_GRID_file)," ",trim(aladin2camx_control_file)
 
  ! run_info will read information on run
  CALL run_info()

@@ -37,8 +37,11 @@ MODULE module_global_variables
  !                                                   !
  ! RUN OPTIONS CONTROL                               ! 
  !                                                   !
- !   read by info_run() from aladin2camx_control.nml !
+ !  read by info_run() from aladin2camx_control_file !
  !---------------------------------------------------!
+   ! file with the aladin2camx_control namelist
+   CHARACTER(200) :: aladin2camx_control_file
+
 
    ! == biogenic emission related flag ==
    LOGICAL :: BEIS_flag ! if .TRUE. NetDCF files for BEIS will be created
@@ -80,9 +83,11 @@ MODULE module_global_variables
  !                                                 !
  ! PARAMETERS OF ALADIN GRIBS                      !
  !                                                 !
- !   read by info_run() from INFO_ALADIN_GRIBS.nml !
+ !  read by info_run() from INFO_ALADIN_GRIBS_file !
  !-------------------------------------------------!
-   
+   ! file with the aladin_gribs_info namelist
+   CHARACTER(200) :: INFO_ALADIN_GRIBS_file
+
    ! == ALADIN PROJECTION ==
    INTEGER       :: Alad_PROJ        ! MODELS3 grid definitions
    REAL          :: Alad_EarthRadius ! Earth radius
@@ -124,8 +129,10 @@ MODULE module_global_variables
  !                                         !
  ! CLOCK CONTROL AND I/O FILE NAMES        !
  !                                         !
- !   read by info_run() from INFO_RUN.nml  !
+ !   read by info_run() from INFO_RUN_file !
  !-----------------------------------------!
+   ! file with the clock_control, output_files, and input_files namelists
+   CHARACTER(200) :: INFO_RUN_file
    ! first and last time layer in CAMx input files
    INTEGER :: begYYYYMMDD, begHHMI, endYYYYMMDD, endHHMI
    ! input frequency of meteorological files in minutes
@@ -165,8 +172,10 @@ MODULE module_global_variables
  REAL(KIND=dp), DIMENSION(ngridnumber_max) :: CAMx_SWCor11_x, CAMx_SWCor11_y
 
  !----------------------------------------------!
- !   read by info_run() from INFO_CAMx_GRID.nml !
+ !  read by info_run() from INFO_CAMx_GRID_file !
  !----------------------------------------------!
+   ! file with the camx_grid_info namelist
+   CHARACTER(200) :: INFO_CAMx_GRID_file
    ! number of grids - master plus all nested grids
    INTEGER :: ngridnumber  
    ! CAMx grid parameters relative to (NWP) ALADIN grid.

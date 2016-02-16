@@ -24,22 +24,22 @@ SUBROUTINE run_info()
  ! read in path and date/time |
  ! ---------------------------
  iunit=getFreeUnitNo()
- OPEN(UNIT=iunit,FILE='INFO_RUN.nml',STATUS='OLD',DELIM='APOSTROPHE')
+ OPEN(UNIT=iunit,FILE=INFO_RUN_file,STATUS='OLD',DELIM='APOSTROPHE')
   READ(iunit,NML=clock_control); REWIND(iunit)
   READ(iunit,NML=input_files)  ; REWIND(iunit)
   READ(iunit,NML=output_files) 
  CLOSE(iunit)
 
- OPEN(UNIT=iunit,FILE='INFO_ALADIN_GRIBS.nml',STATUS='OLD',DELIM='APOSTROPHE')
+ OPEN(UNIT=iunit,FILE=INFO_ALADIN_GRIBS_file,STATUS='OLD',DELIM='APOSTROPHE')
   READ(iunit,NML=aladin_gribs_info) 
  CLOSE(iunit)
  Alad_nVal = Alad_nX*Alad_nY
 
- OPEN(UNIT=iunit,FILE='INFO_CAMx_GRID.nml',STATUS='OLD',DELIM='APOSTROPHE')
+ OPEN(UNIT=iunit,FILE=INFO_CAMx_GRID_file,STATUS='OLD',DELIM='APOSTROPHE')
   READ(iunit,NML=camx_grid_info) 
  CLOSE(iunit)
 
- OPEN(UNIT=iunit,FILE='aladin2camx_control.nml',STATUS='OLD',DELIM='APOSTROPHE')
+ OPEN(UNIT=iunit,FILE=aladin2camx_control_file,STATUS='OLD',DELIM='APOSTROPHE')
   READ(iunit,NML=aladin2camx_control) 
  CLOSE(iunit)
 
