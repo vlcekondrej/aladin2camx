@@ -1,21 +1,22 @@
 # git ignore file
 
 # ignore all but content of cases, doc, src
-#/*
-#!.gitignore
-#!cases/
-#!doc/
-#!src/
+/*
+!.gitignore
+!/cases
+!/doc
+!/scripts
+!/src
 
 # directory, where CAMx inputs are usualy written
-CAMx_INP/
+#CAMx_INP/
 # log files
-*.log[0-9][0-9][0-9][0-9][0-9]
+#*.log[0-9][0-9][0-9][0-9][0-9]
 # 
-aladin2camx.[0-9][0-9][0-9][0-9][0-9].end
+#aladin2camx.[0-9][0-9][0-9][0-9][0-9].end
 
 #the exe
-*.exe
+#*.exe
 
 #counter
-*aladin2camx.counter
+#*aladin2camx.counter
