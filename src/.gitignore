@@ -15,7 +15,5 @@ include/*.ifc
 #the interface file
 INTER_FACES.F90
 
-#this file
-#.gitignore
-
 #
+config.make

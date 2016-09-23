@@ -1,7 +1,6 @@
 SUBROUTINE run_info()
  USE module_global_variables
  USE module_datetime
- USE INTER_FACES, ONLY: julday
  IMPLICIT NONE
 
  INTEGER :: iunit
@@ -83,6 +82,7 @@ SUBROUTINE run_info()
      IF (istat.ne.0) EXIT
  END DO
  PID=PID+1
+ backspace(unit_counter) ! fix of probably gfortran bug
  WRITE(unit_counter,'(I5.5)')PID
  CLOSE(unit_counter) 
 

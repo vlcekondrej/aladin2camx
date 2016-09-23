@@ -1,0 +1,17 @@
+Prerequisities:
+---------------
+gfortran 
+
+GRIB_API
+   download from https://software.ecmwf.int/wiki/display/GRIB/Home
+
+netcdf
+   yum install netcdf-fortran
+   yum install netcdf-fortran-devel
+   ... netcdf-fortran did not contain netcdf.mod
+
+Configure config.make
+---------------------
+Copy ./src/config.make.sample to ./src/config.make and change path for GRIB_API_MOD, GRIB_API_LIB, NCDF_MOD andnfigure 
+
+Run make in the ./src directory.

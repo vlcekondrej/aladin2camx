@@ -9,43 +9,37 @@ TR              = tr
 FC              = gfortran
 FCFLAGS         =  -O2 -g -fbounds-check -fconvert=big-endian -ffixed-line-length-none -ffree-line-length-none
 
-FPP             = cpp
-FPPFLAGS        = -P -traditional -C -I. -I$(INCL_DIR)
 
-LDOPTIONS       = -L$(GRIB_API_LIB) -L$(JASPER_LIB) -L$(NCDF_LIB)
+HOSTNAME        = $(shell uname -n)
+ifeq ($(HOSTNAME),ophelia)
+ GRIB_API_MOD    = /usr/local/include 
+ GRIB_API_LIB    = /usr/local/lib/ -lgrib_api_f90 -lgrib_api
 
-GRIB_API_MOD    = /usr/local/include 
-GRIB_API_LIB    = /usr/local/lib/ -lgrib_api_f90 -lgrib_api
-JASPER_LIB      = /usr/local/lib -ljasper
+ NCDF_MOD        = /home/met/install/netcdf/netcdf-4.1.1_modAtt/include 
+ NCDF_LIB        = /home/met/install/netcdf/netcdf-4.1.1_modAtt/lib/libnetcdf.a 
+ LDOPTIONS       = -L$(GRIB_API_LIB) $(NCDF_LIB) 
+else ifeq ($(HOSTNAME),pr-opzp-master1)
+ GRIB_API_MOD    = /opt/grib_api/grib_api-1.17.0_static/include 
+ GRIB_API_LIB    = /opt/grib_api/grib_api-1.17.0_static/lib/ -lgrib_api_f90 -lgrib_api 
 
-NCDF_MOD        = /home/vlcek/install/netcdf-4.1.1_modAtt/include
-NCDF_LIB        = /home/vlcek/install/netcdf-4.1.1_modAtt/lib -lnetcdf
+ NCDF_MOD        = /usr/lib64/gfortran/modules/ 
+ NCDF_LIB        = /usr/lib64 -lnetcdff
+ LDOPTIONS       = -L$(GRIB_API_LIB) -L$(NCDF_LIB)
+endif
 
-.SUFFIXES: .exe .o .mod .F90 .f90 .ifc
+.SUFFIXES: .exe .o .mod .F90 .ifc
 
-# pouzije FPP preprocesor a vytvori soubory *.f90
-%.f90 : %.F90
-	$(RM) $@
-	$(FPP) $(FPPFLAGS) $*.F90 > $@
 
 
 # pouzije FPP preprocesor a vytvori soubory *.f90; ## zkompiluje *.f90 do *.o ## odstrani *.f90
 %.o   : %.F90
 	$(RM) $@
-	$(FPP) $(FPPFLAGS) $*.F90 > $*.f90
-	$(FC) -c $(FCFLAGS) -I$(GRIB_API_MOD) -I$(NCDF_MOD) $*.f90
-	${RM} $*.f90
+	$(FC) -c $(FCFLAGS) -I$(GRIB_API_MOD) -I$(NCDF_MOD) $*.F90
 
 %.mod : %.F90
 	$(RM) $@
-	$(FPP) $(FPPFLAGS) $*.F90 > $*.f90
-	$(FC) -c $(FCFLAGS) -I$(GRIB_API_MOD) $*.f90
-	${RM} $*.f90
+	$(FC) -c $(FCFLAGS) -I$(GRIB_API_MOD) $*.F90
 
-# v adresari $(INCL_DIR) vytvori interface jednotlivych programu *.F90
-%.ifc : %.F90
-	$(RM) $(INCL_DIR)/$@
-	$(FPP) $(FPPFLAGS) $*.F90 | $(GREP) -v Inter_Faces | $(F90AIB) > $(INCL_DIR)/$@
 
 %.exe : %.o
 	$(RM) $@
