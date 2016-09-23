@@ -5,6 +5,7 @@
 !.gitignore
 !/cases
 !/doc
+!/misc
 !/scripts
 !/src
 
