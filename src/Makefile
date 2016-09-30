@@ -22,7 +22,7 @@ MODULES_F90 = module_standard_types.F90 \
               module_smoothing_handler.F90 \
               module_meteo_functions.F90 \
               module_verthor.F90 \
-              module_beismet.F90 \
+              module_ioapi.F90 \
               module_cloud_opt_depth.F90 \
               module_vertical_diffusivity.F90 #*#\
               module_utils.F90 \

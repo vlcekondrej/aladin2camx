@@ -106,14 +106,14 @@ SUBROUTINE run_info()
  END DO
  IF (nAladFiles==1) STOP'Need at least two time steps! Check start and end date/time of simulation!'
 
- allocate(aladin_met(0:nAladFiles))
+ allocate(aladin_met(-NPrecedAlaMetFiles:nAladFiles))
 
  act_dt_LT=beg_dt_LT
  act_dt_UT=beg_dt_LT
  ! need one time step back because of subtracting of accumated fields
- CALL DateTime_plus_min(act_dt_UT, -1*met_frequency -60*TimeZone )
- CALL DateTime_plus_min(act_dt_LT, -1*met_frequency )
- DO i = 0, nAladFiles
+ CALL DateTime_plus_min(act_dt_UT, -(NPrecedAlaMetFiles+1)*met_frequency -60*TimeZone )
+ CALL DateTime_plus_min(act_dt_LT, -(NPrecedAlaMetFiles+1)*met_frequency )
+ DO i = -NPrecedAlaMetFiles, nAladFiles
      da = act_dt_UT%y*10000 + act_dt_UT%m*100 + act_dt_UT%d  ! da (YYYYMMDD in Universal time)
      ti = act_dt_UT%h*10000 + act_dt_UT%mi*100 + act_dt_UT%s ! ti (HHMISS in Universal time)
      aladin_met(i)%UT_YYYYMMDD = da 

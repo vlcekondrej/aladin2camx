@@ -53,17 +53,23 @@
 
 ! -- surface variables --
 !------------------------
-! TEMPERATURE
+! surface TEMPERATURE
 AladField_Tsfc%Param   = 11
 AladField_Tsfc%LevType = 105
 AladField_Tsfc%minLev  = 0
 AladField_Tsfc%maxLev  = 0
 
+! TEMPERATURE at 2 m
+AladField_T2m%Param   = 11
+AladField_T2m%LevType = 105
+AladField_T2m%minLev  = 2
+AladField_T2m%maxLev  = 2
+
 ! SPECIFIC HUMIDITY
-AladField_Qsfc%Param   = 51
-AladField_Qsfc%LevType = 105
-AladField_Qsfc%minLev  = 2
-AladField_Qsfc%maxLev  = 2
+AladField_Q2m%Param   = 51
+AladField_Q2m%LevType = 105
+AladField_Q2m%minLev  = 2
+AladField_Q2m%maxLev  = 2
 
 ! PRESSURE
 AladField_Psfc%Param   = 1
@@ -94,6 +100,25 @@ AladField_AccSolRad%Param   = 111
 AladField_AccSolRad%LevType = 105
 AladField_AccSolRad%minLev  = 0
 AladField_AccSolRad%maxLev  = 0
+
+! ACCUMULATED TOTAL PRECIPITATION [kg/m^2]
+AladField_AccTotPrecip%Param   = 61
+AladField_AccTotPrecip%LevType = 105
+AladField_AccTotPrecip%minLev  = 0
+AladField_AccTotPrecip%maxLev  = 0
+
+! u-WIND at 10 m
+AladField_uWind10m%Param   = 33
+AladField_uWind10m%LevType = 105
+AladField_uWind10m%minLev  = 10
+AladField_uWind10m%maxLev  = 10
+
+! v-WIND at 10 m
+AladField_vWind10m%Param   = 34
+AladField_vWind10m%LevType = 105
+AladField_vWind10m%minLev  = 10
+AladField_vWind10m%maxLev  = 10
+
 
 
 !-------------------------------------------------------------
@@ -140,6 +165,7 @@ AladField_Ql%LevType = 109
 ! atmospheric SOLID WATER
 AladField_Qi%Param   = 143
 AladField_Qi%LevType = 109
+
 ! atmospheric RAIN
 AladField_Qr%Param   = 146
 AladField_Qr%LevType = 109

@@ -1,7 +1,7 @@
 PROGRAM aladin2camx_MAIN
  USE module_global_variables
  USE module_physical_constants
- USE module_BEISmet
+ USE module_ioapi
  USE netcdf
 
  IMPLICIT NONE
@@ -12,8 +12,10 @@ PROGRAM aladin2camx_MAIN
  CHARACTER(len=32) :: arg
  CHARACTER(len=100) :: progName
           
- ! read files with input namelists
  
+ ! ----------------------------------------------------------------------------
+ ! read command line arguments and files with information on run
+ ! ----------------------------------------------------------------------------
  CALL GET_COMMAND_ARGUMENT(1, arg)
  IF ( trim(arg) == "--info" ) THEN 
      ! known option
@@ -33,75 +35,93 @@ PROGRAM aladin2camx_MAIN
  CALL GET_COMMAND_ARGUMENT(2+shift, INFO_ALADIN_GRIBS_file)
  CALL GET_COMMAND_ARGUMENT(3+shift, INFO_CAMx_GRID_file)
  CALL GET_COMMAND_ARGUMENT(4+shift, aladin2camx_control_file)
- write(*,*)"./",trim(progName)," ",trim(INFO_RUN_file)," ",trim(INFO_ALADIN_GRIBS_file),&
+ write(*,*)"RUNNING: ",trim(progName)," ",trim(INFO_RUN_file)," ",trim(INFO_ALADIN_GRIBS_file),&
             " ",trim(INFO_CAMx_GRID_file)," ",trim(aladin2camx_control_file)
 
  ! run_info will read information on run
  CALL run_info()
  IF ( trim(arg) == "--info" ) GO TO 9999
  
- IF (BEIS_flag) CALL alloc_netCDFids(ngridnumber)
-
+ ! ----------------------------------------------------------------------------
  ! open CAMx input files for every nested grid and meteorological parameter
+ ! ----------------------------------------------------------------------------
  DO g=1,ngridnumber
 
      zp_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=zp_unit(g),FILE=zp_file(g),   FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=zp_unit(g), FILE=zp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx HEIGHT/PRESSURE FILE',logFileUnit)
 
      tp_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=tp_unit(g),FILE=tp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=tp_unit(g), FILE=tp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx TEMPERATURE',logFileUnit)
 
      uv_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=uv_unit(g),FILE=uv_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=uv_unit(g), FILE=uv_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WIND',logFileUnit)
 
      qa_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=qa_unit(g), FILE=qa_file(g),    FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=qa_unit(g), FILE=qa_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WATER VAPOR FILE',logFileUnit)
 
      cr_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=cr_unit(g), FILE=cr_file(g),    FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=cr_unit(g), FILE=cr_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx CLOUD/RAIN FILE',logFileUnit)
 
      kv_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=kv_unit(g),FILE=kv_file(g),   FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     OPEN(UNIT=kv_unit(g), FILE=kv_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx RKV FILE',logFileUnit)
 
      IF (BEIS_flag) THEN
          CALL BEISmet_createHeader(g=g,ncfname=beis_file(g))
-         CALL BEISmet_putTime(netCDFid(g),TFLAG_varID(g))
+         CALL putTime(BEIS_netCDFid(g),BEIS_TFLAG_varID(g),BEIS_nvar)
+     END IF
+
+     IF (MEGAN_flag) THEN
+         CALL MEGANmet_createHeader(g=g,ncfname=megan_file(g))
+         CALL putTime(MEGAN_netCDFid(g),MEGAN_TFLAG_varID(g),MEGAN_nvar)
      END IF
 
      ! soubor s prumernymi vyskami hladin CAMxu
      avgHGT_unit(g)=getFreeUnitNo()
      OPEN(UNIT=avgHGT_unit(g),FILE=avgHGT_file(g))
 
-!tmpFile tmp_unit=getFreeUnitNo()
-!tmpFile OPEN(UNIT=tmp_unit,FILE=TRIM(CAMx_INP_DIR)//'camx_tmp.'//GridNoString//'.'//dateString, &
-!tmpFile  & FORM='UNFORMATTED',access='direct',recl=4*Alad_nx*Alad_ny,ACTION='WRITE',STATUS='NEW',IOSTAT=istat)
-!tmpFileCALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx tmp  FILE',logFileUnit)
-!irec=1
  END DO
+
+ ! ----------------------------------------------------------------------------
+ ! read and process ALADIN fields
+ ! ----------------------------------------------------------------------------
 
  ! allocate arrays for aladin fields
  CALL Alloc_alad()
+
+ IF (MEGAN_flag) THEN
+     DO d=-23,-1
+         CALL get_aladin_fields(aladin_met(d)%name_f, d) ! total rain only
+     END DO
+ END IF
+
  ! loop over all aladin files and extract/calculate/write out fields
- CALL get_aladin_fields(aladin_met(0)%name_f) ! for SolRad field only.
+ CALL get_aladin_fields(aladin_met(0)%name_f, d) ! for SolRad and rain fields only
+
  DO d=1,nAladFiles
      ! get ALADIN fields, generate CAMx meteo inputs
-     CALL get_aladin_fields(aladin_met(d)%name_f) 
+     CALL get_aladin_fields(aladin_met(d)%name_f, d) 
      CALL get_h_p_t_wv(d)
  END DO
 
+ ! ----------------------------------------------------------------------------
  ! write average layer heights in km for computation of camx photolysis rates (tuv.in.sh)
  ! average is taken over domain and time steps
+ ! ----------------------------------------------------------------------------
  CAMx_avgLevHgt=CAMx_avgLevHgt/nAladFiles*.001
  do g=1,ngridnumber
    write(avgHGT_unit(g),'(a)')'average_lev_heights[kmAGL]'
    write(avgHGT_unit(g),'(100F10.3)')(CAMx_avgLevHgt(k,g),k=1,CAMx_nLev)
  end do
+
+ ! ----------------------------------------------------------------------------
+ ! Deallocate fields and close files
+ ! ----------------------------------------------------------------------------
 
  ! deallocate ALADIN fields
  CALL DEALLOC_ALAD()
@@ -117,13 +137,20 @@ PROGRAM aladin2camx_MAIN
  END DO
 !tmpFile close(tmp_unit)
 
- ! deallocate NetCDF IDs and close NetCDF files
+ ! close BEIS NetCDF files
  IF (BEIS_flag) THEN
      DO g=1,ngridnumber
-         iret = nf90_close(netCDFid(g))
-         CALL TestStop(iret-nf90_NoErr,trim(nf90_strerror(iret)),logFileUnit)
+         istat = nf90_close(BEIS_netCDFid(g))
+         CALL TestStop(istat-nf90_NoErr,trim(nf90_strerror(istat)),logFileUnit)
      END DO
-     CALL dealloc_netCDFids()
+ END IF
+
+ ! close MEGAN NetCDF files
+ IF (MEGAN_flag) THEN
+     DO g=1,ngridnumber
+         istat = nf90_close(MEGAN_netCDFid(g))
+         CALL TestStop(istat-nf90_NoErr,trim(nf90_strerror(istat)),logFileUnit)
+     END DO
  END IF
 
  ! congratulations

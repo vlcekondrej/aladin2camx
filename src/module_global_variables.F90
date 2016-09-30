@@ -43,7 +43,7 @@ MODULE module_global_variables
 
 
    ! == biogenic emission related flag ==
-   LOGICAL :: BEIS_flag ! if .TRUE. NetDCF files for BEIS will be created
+   LOGICAL :: BEIS_flag, MEGAN_flag ! if .TRUE. NetDCF files for BEIS and/or MEGAN will be created
 
    ! nearest gridpoint to the reference point for each grid (relative position in each grid)
    INTEGER, DIMENSION(ngridnumber_max) :: vp_x, vp_y
@@ -65,16 +65,20 @@ MODULE module_global_variables
    ! == flag for checking Aladin input data
    LOGICAL :: checkFlag
    ! == critical values of Aladin data
-   REAL :: Tsfc_cmin, Qsfc_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
+   REAL :: Tsfc_cmin, Q2m_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
            T_cmin, geo_cmin, p_cmin, wind_cmax, TKE_cmin, Q_cmin, Rh_cmin, Qs_cmin, Ql_cmin, Qr_cmin, Qi_cmin
+
+   ! missing value code in output fields
+   REAL :: missingVal
   
    NAMELIST /aladin2camx_control/  &
-       BEIS_flag, &
+       missingVal, &
+       BEIS_flag, MEGAN_flag, &
        vp_x, vp_y, &
        SMOOTHER_SWITCH, SMOOTHER_METHOD, &
        kv_method, kvmin, &
        cod_method, odMetL, odMetM, odMetH, &
-       checkFlag, Tsfc_cmin, Qsfc_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
+       checkFlag, Tsfc_cmin, Q2m_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
        T_cmin, geo_cmin, p_cmin, wind_cmax, TKE_cmin, Q_cmin, Rh_cmin, Qs_cmin, Ql_cmin, Qr_cmin, Qi_cmin
 
 
@@ -103,13 +107,15 @@ MODULE module_global_variables
    INTEGER :: Alad_mlLevID, Alad_sfcLevID 
 
    ! ==  ALADIN FIELDS to be read (their specification in ALADIN GRIB files) ==
-   TYPE(tAladFieldID) :: AladField_Tsfc, AladField_T, &
+   TYPE(tAladFieldID) :: AladField_Tsfc, AladField_T2m, AladField_T, &
                          AladField_GEOsfc, AladField_GEO, &
                          AladField_Psfc, AladField_P, &
                          AladField_uWind, AladField_vWind, &
+                         AladField_uWind10m, AladField_vWind10m, &
                          AladField_TKE, AladField_Rh, &
-                         AladField_Q, AladField_Qsfc, &
+                         AladField_Q, AladField_Q2m, &
                          AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, &
+                         AladField_AccTotPrecip, &
                          AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad
 
    NAMELIST /aladin_gribs_info/  &
@@ -117,9 +123,10 @@ MODULE module_global_variables
        Alad_nX, Alad_nY, Alad_nLev, Alad_dx, Alad_dy, Alad_Centr11_X, Alad_Centr11_Y, &
        Alad_iScanNeg, Alad_jScanPos, Alad_jConsec, Alad_aRowScan, &
        AladLevNumberedFromBottom, Alad_missingVal, Alad_mlLevID, Alad_sfcLevID, &
-       AladField_Tsfc, AladField_T, AladField_GEOsfc, AladField_GEO, AladField_Psfc, &
-       AladField_P, AladField_uWind, AladField_vWind, AladField_TKE, AladField_Rh, AladField_Q, AladField_Qsfc, &
-       AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad
+       AladField_Tsfc, AladField_T, AladField_T2m, AladField_GEOsfc, AladField_GEO, AladField_Psfc, &
+       AladField_P, AladField_uWind, AladField_vWind, AladField_TKE, AladField_Rh, AladField_Q, AladField_Q2m, &
+       AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad, &
+       AladField_uWind10m, AladField_vWind10m,  AladField_AccTotPrecip
 
  INTEGER :: Alad_nVal ! dopocte se jako Alad_nX*Alad_nY 
 
@@ -142,11 +149,18 @@ MODULE module_global_variables
 
    CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: zp_file, tp_file, uv_file, qa_file
    CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: cr_file,  kv_file
-   CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: avgHGT_file, beis_file
-   NAMELIST /output_files/ zp_file, tp_file, uv_file, qa_file, cr_file, kv_file, avgHGT_file, beis_file
+   CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: avgHGT_file, beis_file, megan_file
+   NAMELIST /output_files/ zp_file, tp_file, uv_file, qa_file, cr_file, kv_file, avgHGT_file, &
+                           beis_file, megan_file
 
-   CHARACTER(LEN=200), DIMENSION(0:200) :: aladin_met_names ! pomocne pole pro nasteni jmen Alad souboru z namelistu
-   NAMELIST /input_files/ aladin_met_names
+   INTEGER, PARAMETER :: NPrecedAlaMetFiles = 23
+   CHARACTER(LEN=200), DIMENSION(-NPrecedAlaMetFiles:200) :: aladin_met_names ! pomocne pole pro nasteni jmen Alad souboru z namelistu
+   ! aladin met files:
+   ! 1 corresponds to starting hour
+   ! 0 is needed to calculate solar radiation from aladin accumulated sol. rad.
+   ! -23, ..., -1 are needed to calculate 1-h precipitation from aladin
+   ! accumulated tot. precip. field (then used for calculation of the 24-h acc. precip)
+  NAMELIST /input_files/ aladin_met_names
 
  ! number of ALADIN grib files - derived from beginning/end simulation time and met_frequency
  ! if required nAladFiles is greater than dimension of aladin_met, it is necessary to increase the dimension and rebuild the source
@@ -213,8 +227,10 @@ MODULE module_global_variables
  !  - i roste na vychod; j roste na sever; k roste s vyskou
  REAL(KIND=sp), ALLOCATABLE, DIMENSION(:,:,:), TARGET :: Alad_Tsfc, Alad_T, Alad_GEOsfc, Alad_GEO, &
               & Alad_Psfc, Alad_P, Alad_uWind, Alad_vWind, Alad_TKE, &
-              & Alad_Rh, Alad_Qsfc, Alad_Q, Alad_Ql, Alad_Qi, Alad_Qr, Alad_Qs, &
-              & Alad_PBL, Alad_sfcROUGH, Alad_AccSolRad, Alad_SolRad
+              & Alad_Rh, Alad_Q2m, Alad_Q, Alad_Ql, Alad_Qi, Alad_Qr, Alad_Qs, &
+              & Alad_PBL, Alad_sfcROUGH, Alad_AccSolRad, Alad_SolRad, &
+              & Alad_T2m, Alad_totPrecip_1h, Alad_AccTotPrecip, Alad_totPrecip_acc24, &
+              & Alad_uWind10m, Alad_vWind10m
 
  ! CAMx_avgLevHgt(lev,grid) ... average height [mAGL] of CAMx level for each grid
  REAL(KIND=sp), ALLOCATABLE, DIMENSION(:,:) :: CAMx_avgLevHgt
@@ -234,8 +250,10 @@ MODULE module_global_variables
    ! == 2D ===
    ALLOCATE(Alad_Tsfc(Alad_nx,Alad_ny,1), STAT=istat)
      CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_Tsfc')
-   ALLOCATE(Alad_Qsfc(Alad_nX,Alad_nY,1), STAT=istat)
-     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_Qsfc')
+   ALLOCATE(Alad_T2m(Alad_nx,Alad_ny,1), STAT=istat)
+     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_T2m')
+   ALLOCATE(Alad_Q2m(Alad_nX,Alad_nY,1), STAT=istat)
+     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_Q2m')
    ALLOCATE(Alad_Psfc(Alad_nX,Alad_nY,1), STAT=istat)
      CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_Psfc')
    ALLOCATE(Alad_GEOsfc(Alad_nX,Alad_nY,1), STAT=istat)
@@ -250,6 +268,19 @@ MODULE module_global_variables
    ALLOCATE(Alad_SolRad(Alad_nX,Alad_nY,1), STAT=istat)
      CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_SolRad')
      Alad_SolRad=0.
+   ALLOCATE(Alad_uWind10m(Alad_nx,Alad_ny,1), STAT=istat)
+     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_uWind10m')
+   ALLOCATE(Alad_vWind10m(Alad_nx,Alad_ny,1), STAT=istat)
+     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_vWind10m')
+   ! in case of Alad_totPrecip_1h 3rd dimension represents time variable:
+   ! Alad_totPrecip_1h(:,:,1)   holds 1-h precipitation for the most recent hour
+   ! Alad_totPrecip_1h(:,:,-22) holds 1-h precipitation before 23 hours
+   ALLOCATE(Alad_totPrecip_1h(Alad_nx,Alad_ny,-22:1), STAT=istat)
+     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_totPrecip_1h')
+   ALLOCATE(Alad_AccTotPrecip(Alad_nx,Alad_ny,1), STAT=istat)
+     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_AccTotPrecip')
+   ALLOCATE(Alad_totPrecip_acc24(Alad_nx,Alad_ny,1), STAT=istat)
+     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_totPrecip_acc24')
 
    ! == 3D ===
    ALLOCATE(Alad_T(Alad_nX,Alad_nY,Alad_maxLev), STAT=istat)
@@ -288,10 +319,12 @@ MODULE module_global_variables
    INTEGER :: istat
 
    ! == 2D ===
-   IF (ALLOCATED(Alad_Qsfc)) DEALLOCATE(Alad_Qsfc,  STAT=istat)
-       CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_Qsfc')
+   IF (ALLOCATED(Alad_Q2m)) DEALLOCATE(Alad_Q2m,  STAT=istat)
+       CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_Q2m')
    IF (ALLOCATED(Alad_Tsfc))  DEALLOCATE(Alad_Tsfc,  STAT=istat)
      CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_Tsfc')
+   IF (ALLOCATED(Alad_T2m))  DEALLOCATE(Alad_T2m,  STAT=istat)
+     CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_T2m')
    IF (ALLOCATED(Alad_Psfc)) DEALLOCATE(Alad_Psfc,  STAT=istat)
        CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_Psfc')
    IF (ALLOCATED(Alad_GEOsfc)) DEALLOCATE(Alad_GEOsfc,  STAT=istat)
@@ -304,6 +337,16 @@ MODULE module_global_variables
        CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_AccSolRad')
    IF (ALLOCATED(Alad_SolRad)) DEALLOCATE(Alad_SolRad,  STAT=istat)
        CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_SolRad')
+   IF (ALLOCATED(Alad_uWind10m))  DEALLOCATE(Alad_uWind10m,  STAT=istat)
+     CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_uWind10m')
+   IF (ALLOCATED(Alad_vWind10m))  DEALLOCATE(Alad_vWind10m,  STAT=istat)
+     CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_vWind10m')
+   IF (ALLOCATED(Alad_totPrecip_1h))  DEALLOCATE(Alad_totPrecip_1h,  STAT=istat)
+     CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_totPrecip_1h')
+   IF (ALLOCATED(Alad_AccTotPrecip))  DEALLOCATE(Alad_AccTotPrecip,  STAT=istat)
+     CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_AccTotPrecip')
+   IF (ALLOCATED(Alad_totPrecip_acc24))  DEALLOCATE(Alad_totPrecip_acc24,  STAT=istat)
+     CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_totPrecip_acc24')
 
    ! == 3D ===
    IF (ALLOCATED(Alad_T)) DEALLOCATE(Alad_T,       STAT=istat)

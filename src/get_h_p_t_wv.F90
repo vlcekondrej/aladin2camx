@@ -9,7 +9,7 @@ SUBROUTINE get_h_p_t_wv(d)
  USE module_physical_constants
  USE module_meteo_functions
  USE module_verthor
- USE module_BEISmet
+ USE module_ioapi
  USE module_vertical_diffusivity
  USE module_cloud_opt_depth
  IMPLICIT NONE
@@ -20,24 +20,36 @@ SUBROUTINE get_h_p_t_wv(d)
 
  INTEGER :: i,j,k,g,istat, ii, vpx, vpy
 
- REAL(KIND=sp) :: Alad_hgt  (Alad_nx,Alad_ny,Alad_maxLev)   ! AGL height in grid centres
- ! nebo namisto definovani Alad_UArakC prepsat pole Alad_uWind ??????????????
+ REAL(KIND=sp) :: Alad_hgt  (Alad_nx,Alad_ny,Alad_maxLev)      ! AGL height in grid centres
  REAL(KIND=sp) :: Alad_UArakC  (Alad_nx,Alad_ny,Alad_maxLev)   ! Aladin U wind transformed to Arakawa C grid 
  REAL(KIND=sp) :: Alad_VArakC  (Alad_nx,Alad_ny,Alad_maxLev)   ! Aladin V wind transformed to Arakawa C grid 
+ REAL(KIND=sp) :: Alad_wspd10m (Alad_nx,Alad_ny,1)             ! Aladin wind speed at 10 m AGL 
 
 
  REAL(KIND=sp), POINTER :: pto3D(:,:,:)=>NULL(), pto2D(:,:)=>NULL()
 
 
- REAL(KIND=sp), ALLOCATABLE :: HGT(:,:,:), &      ! layer-average height        [m AGL]
-                           &   Rh(:,:,:), &       ! Relative humidity           [Pa/Pa]
-                           &   Q(:,:,:), &        ! specifc humidity            [kg/kg]
-                           &   rho(:,:,:), &      ! air density                 [kg/m**3]
-                           &   Psfc(:,:,:), &     ! surface pressure            [Pa]
-                           &   PBL(:,:,:), &      ! planet. bound. layer height [m]
-                           &   sfcROUGH(:,:,:), & ! surf. roughness length      [m]
-                           &   TKE(:,:,:), &      ! turbulent kinetic energy    [?]
+ REAL(KIND=sp), ALLOCATABLE :: HGT(:,:,:), &      ! layer-average height           [m AGL]
+                           &   Rh(:,:,:), &       ! Relative humidity              [Pa/Pa]
+                           &   Q(:,:,:), &        ! specific humidity mv/(mv+md)   [kg/kg]
+                           &   Q2m(:,:,:), &      ! specific humidity mv/(mv+md)   [kg/kg]
+                           &   rho(:,:,:), &      ! air density                    [kg/m**3]
+                           &   Psfc(:,:,:), &     ! surface pressure               [Pa]
+                           &   PBL(:,:,:), &      ! planet. bound. layer height    [m]
+                           &   sfcROUGH(:,:,:), & ! surf. roughness length         [m]
+                           &   TKE(:,:,:), &      ! turbulent kinetic energy       [?]
                            &   SolRad(:,:,:)      ! average solar radiation during LAST NWP model integration STEP  [W/m2]
+
+ ! == output fields for MEGAN ==
+ REAL(KIND=sp), ALLOCATABLE :: SOIM1(:,:,:), &    ! volumetric soil moisture in top cm    [m**3/m**3]
+                           &   SOIT1(:,:,:), &    ! soil temperature in top cm            [K]
+                           &   SLTYP(:,:,:), &    ! soil texture type by USDA category    [-]
+                           &   T2m(:,:,:), &      ! temperature at 2 m                    [K]
+                           &   wMixRat2m(:,:,:), &! water vapor mixing ratio (mv/md)      [kg/kg] 
+                           &   wspd10m(:,:,:), &  ! Cell centered Windspeed               [m/s]
+                           &   RAIN_ACC24(:,:,:),&! 24-hour accumulated rain              [cm]
+                           &   PREC_ADJ(:,:,:), & ! Precipitation adjustment factor       [-]
+                           &   PAR(:,:,:)         ! Photosynthetically Active Radiation   [WATTS/M**2]
  
  ! == output fields for CAMx ==                                                                            SI units   CAMx units (if different)
  REAL, ALLOCATABLE :: HGT_I(:,:,:), &                 ! layer upper interface height                       [m AGL]    
@@ -52,6 +64,8 @@ SUBROUTINE get_h_p_t_wv(d)
                   &   ranwtr(:,:,:), &                !        rain water                                  [kg/m3]    [g/m3]
                   &   snowtr(:,:,:), &                !        snow water                                  [kg/m3]    [g/m3]  
                   &   COD(:,:,:)                      ! from top integrated cloud optical depth            [?]
+
+ REAL, ALLOCATABLE :: missing2D(:,:,:)                ! array of missing values    
 
  ! header for cloud rain file
  CHARACTER(LEN=20) :: cldhdr='CAMX_V4.3 CLOUD_RAIN'
@@ -161,6 +175,10 @@ SUBROUTINE get_h_p_t_wv(d)
    pto3D=>Alad_Qs
    IF (SMOOTHER_SWITCH) CALL smoother(pto3D,smoother_method)
    WHERE(Alad_Qs<0.) Alad_Qs=0.
+ ! == 1-h total precipitation ==
+   pto3D=>Alad_totPrecip_1h
+   IF(SMOOTHER_SWITCH) CALL smoother(pto3D,smoother_method)
+   WHERE(Alad_totPrecip_1h<0.) Alad_totPrecip_1h=0.
 
  ! * 2D fields
 
@@ -184,7 +202,18 @@ SUBROUTINE get_h_p_t_wv(d)
  ! == SolRad ==
    pto2D=>Alad_SolRad(:,:,1)
    IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
-   WHERE(Alad_SolRad<0.) Alad_SolRad=0.
+ ! == T at 2 m ==
+   pto2D=>Alad_T2m(:,:,1)
+   IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
+ ! == Q at 2 m ==
+   pto2D=>Alad_Q2m(:,:,1)
+   IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
+ ! == u-wind at 10 m ==
+   pto2D=>Alad_uWind10m(:,:,1)
+   IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
+ ! == v-wind at 10 m ==
+   pto2D=>Alad_vWind10m(:,:,1)
+   IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
 
 
 
@@ -196,6 +225,11 @@ SUBROUTINE get_h_p_t_wv(d)
        Alad_hgt(:,:,k) = (Alad_GEO(:,:,k)-Alad_GEOsfc(:,:,1)) / grav
    END DO
 
+ ! calculate wind speed at 10 m
+   Alad_wspd10m = (Alad_uwind10m**2 + Alad_vwind10m**2)**0.5
+
+ ! calculate accumulated precipitation over the last 24 hours and convert kg/m2 to cm/m2
+   Alad_totPrecip_acc24(:,:,1) = sum(Alad_totPrecip_1h,3) * .1
 
  ! * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  !                                                                                   *
@@ -218,56 +252,51 @@ SUBROUTINE get_h_p_t_wv(d)
      STEP = CAMx_grid_step(g)
 
      
-     ALLOCATE(P        (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array P allocation error') 
-     ALLOCATE(Psfc     (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Psfc allocation error') 
-     ALLOCATE(HGT_I    (NX,NY,CAMx_nLev  ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array HGT_I allocation error') 
-     ALLOCATE(HGT      (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array HGT allocation error') 
-     ALLOCATE(U_AraC   (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array U_AraC allocation error') 
-     ALLOCATE(V_AraC   (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array V_AraC allocation error') 
-     ALLOCATE(U_cent   (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array U_cent allocation error') 
-     ALLOCATE(V_cent   (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array V_cent allocation error') 
-     ALLOCATE(TKE      (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array TKE allocation error') 
-     ALLOCATE(T        (NX,NY,CAMx_nlev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array T allocation error')  
-     ALLOCATE(Tsfc     (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Tsfc allocation error')  
-     ALLOCATE(Q        (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Q allocation error')
-     ALLOCATE(Rh       (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Rh allocation error')
-     ALLOCATE(WV       (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array WV allocation error')
-     ALLOCATE(rkv      (NX,NY,CAMx_nLev  ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array RKV allocation error') 
-     ALLOCATE(ranwtr   (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array RANWTR allocation error') 
-     ALLOCATE(snowtr   (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SNOWTR allocation error') 
-     ALLOCATE(cldwtr   (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array CLDWTR allocation error') 
-     ALLOCATE(icewtr   (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array ICEWTR allocation error') 
-     ALLOCATE(COD      (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array COD allocation error') 
-     ALLOCATE(rho      (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array RHO allocation error') 
-     ALLOCATE(PBL      (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array PBL allocation error')  
-     ALLOCATE(sfcROUGH (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array sfcROUGH allocation error')
-     ALLOCATE(SolRad   (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SolRad allocation error')
+     ALLOCATE(P         (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array P allocation error') 
+     ALLOCATE(Psfc      (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Psfc allocation error') 
+     ALLOCATE(HGT_I     (NX,NY,CAMx_nLev  ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array HGT_I allocation error') 
+     ALLOCATE(HGT       (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array HGT allocation error') 
+     ALLOCATE(U_AraC    (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array U_AraC allocation error') 
+     ALLOCATE(V_AraC    (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array V_AraC allocation error') 
+     ALLOCATE(U_cent    (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array U_cent allocation error') 
+     ALLOCATE(V_cent    (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array V_cent allocation error') 
+     ALLOCATE(wspd10m   (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array wspd10m allocation error') 
+     ALLOCATE(TKE       (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array TKE allocation error') 
+     ALLOCATE(T         (NX,NY,CAMx_nlev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array T allocation error')  
+     ALLOCATE(Tsfc      (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Tsfc allocation error')  
+     ALLOCATE(T2m       (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array T2m allocation error')  
+     ALLOCATE(wMixRat2m (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array wMixRat2m allocation error')
+     ALLOCATE(Q2m       (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Q2m allocation error')
+     ALLOCATE(Q         (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Q allocation error')
+     ALLOCATE(Rh        (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Rh allocation error')
+     ALLOCATE(WV        (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array WV allocation error')
+     ALLOCATE(rkv       (NX,NY,CAMx_nLev  ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array RKV allocation error') 
+     ALLOCATE(ranwtr    (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array RANWTR allocation error') 
+     ALLOCATE(snowtr    (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SNOWTR allocation error') 
+     ALLOCATE(cldwtr    (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array CLDWTR allocation error') 
+     ALLOCATE(icewtr    (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array ICEWTR allocation error') 
+     ALLOCATE(COD       (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array COD allocation error') 
+     ALLOCATE(rho       (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array RHO allocation error') 
+     ALLOCATE(PBL       (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array PBL allocation error')  
+     ALLOCATE(sfcROUGH  (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array sfcROUGH allocation error')
+     ALLOCATE(SolRad    (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SolRad allocation error')
+     ALLOCATE(RAIN_ACC24(NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array rain_acc24 allocation error')
+     ALLOCATE(missing2D (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array missing2D allocation error')
 
-     CALL verthor2d(FIELD=Alad_Tsfc    ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Tsfc)
-     CALL verthor2d(FIELD=Alad_Psfc    ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Psfc)
-     CALL verthor2d(FIELD=Alad_PBL     ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=PBL)
-     CALL verthor2d(FIELD=Alad_sfcROUGH,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=sfcROUGH)
-     CALL verthor2d(FIELD=Alad_SolRad  ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=SolRad)
-!     CALL verthor2d(Alad_Psfc    ,xbeg,xend,ybeg,yend,step,Psfc)
-!     CALL verthor2d(Alad_PBL     ,xbeg,xend,ybeg,yend,step,PBL)
-!     CALL verthor2d(Alad_sfcROUGH,xbeg,xend,ybeg,yend,step,sfcROUGH)
-!     CALL verthor2d(Alad_SolRad  ,xbeg,xend,ybeg,yend,step,SolRad)
-     ! write BEIS meteo fields
-     IF ( BEIS_flag ) THEN
-         iret = nf90_put_var(netCDFid(g), PRSFC_varID(g)  , Psfc(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/))
-           CALL TestStop(iret-nf90_NoErr,' pressure: '//trim(nf90_strerror(iret)),logFileUnit)
+     missing2D = missingVal
 
-         iret = nf90_put_var(netCDFid(g), TEMPSFC_varID(g), Tsfc(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/))
-           CALL TestStop(iret-nf90_NoErr,' Sfc.Temp: '//trim(nf90_strerror(iret)),logFileUnit)
+     ! interpolate 2D fields
+     CALL verthor2d(FIELD=Alad_Tsfc     ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Tsfc)
+     CALL verthor2d(FIELD=Alad_T2m      ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=T2m)
+     CALL verthor2d(FIELD=Alad_Q2m      ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Q2m)
+     CALL verthor2d(FIELD=Alad_Psfc     ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Psfc)
+     CALL verthor2d(FIELD=Alad_PBL      ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=PBL)
+     CALL verthor2d(FIELD=Alad_sfcROUGH ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=sfcROUGH)
+     CALL verthor2d(FIELD=Alad_SolRad   ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=SolRad)
+     CALL verthor2d(FIELD=Alad_wspd10m  ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=wspd10m)
+     CALL verthor2d(FIELD=Alad_totPrecip_acc24,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=RAIN_ACC24)
 
-         iret = nf90_put_var(netCDFid(g), SWRSFC_varID(g) , SolRad(1:nx,1:ny,1), start=(/1,1,1,d/), count=(/nx,ny,1,1/))
-           CALL TestStop(iret-nf90_NoErr,' Sol.rad.: '//trim(nf90_strerror(iret)),logFileUnit)
-!write(*,*)' Psfc  : min[',minloc(Psfc),']=',minval(Psfc), '   max[',maxloc(Psfc),']=',maxval(Psfc)         
-!write(*,*)' Tsfc  : min[',minloc(Tsfc),']=',minval(Tsfc), '   max[',maxloc(Tsfc),']=',maxval(Tsfc)         
-!write(*,*)' SolRad: min[',minloc(SolRad),']=',minval(SolRad), '   max[',maxloc(SolRad),']=',maxval(SolRad)         
-     END IF
-
-     ! interpolate 3Dd fields (horizontally + vertically)
+     ! interpolate 3D fields (horizontally + vertically)
      CALL verthor3d(Alad_P    ,xbeg,xend,ybeg,yend,step, P)
      CALL verthor3d(Alad_hgt  ,xbeg,xend,ybeg,yend,step, HGT)
      CALL verthor3d(Alad_Uwind,xbeg,xend,ybeg,yend,step, U_cent) !!!!! predpokladam, ze ALADIN ma vitr v uzlovych bodech !!!!!
@@ -562,6 +591,71 @@ SUBROUTINE get_h_p_t_wv(d)
 
      WRITE(uv_unit(g)) ((0.,i=1,nx),j=1,ny) ! dummy array for wind file
 
+
+     ! * * * * * * * * * * * * * * * * *
+     ! write to MEGAN / BEIS files     *
+     ! * * * * * * * * * * * * * * * * *
+
+     wMixRat2m = Q2m / (1. - Q2m)
+
+     ! write BEIS meteo fields
+     IF ( BEIS_flag ) THEN
+         istat = nf90_put_var(BEIS_netCDFid(g), BEIS_PRSFC_varID(g)  , &
+                              Psfc(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/))
+           CALL TestStop(istat-nf90_NoErr,'Writting BEIS PRSFC error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(BEIS_netCDFid(g), BEIS_TEMPSFC_varID(g), &
+                              Tsfc(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/))
+           CALL TestStop(istat-nf90_NoErr,'Writting BEIS TEMPSFC error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(BEIS_netCDFid(g), BEIS_SWRSFC_varID(g) , &
+                              SolRad(1:nx,1:ny,1), start=(/1,1,1,d/), count=(/nx,ny,1,1/))
+           CALL TestStop(istat-nf90_NoErr,'Writting BEIS SWRSFC error: '//trim(nf90_strerror(istat)),logFileUnit)
+     END IF
+
+     ! write MEGAN meteo fields
+     IF ( MEGAN_flag ) THEN
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_SOIM1_varID(g)  , &
+                              missing2D(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! SOIM1 - not implemented yet
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN SOIM1 error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_SOIT1_varID(g)  , &
+                              missing2D(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! SOIT1 - not implemented yet
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN SOIT1 error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_SLTYP_varID(g)  , &
+                              missing2D(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! SLTYP - not implemented yet
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN SLTYP error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_TEMP2_varID(g)  , &
+                              T2m(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! TEMP2
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN TEMP2 error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_PRES_varID(g)  , &
+                              Psfc(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! PRESS
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN PRESS error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_QV_varID(g)  , &
+                              wMixRat2m(1:nx,1:ny,1), start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! QV
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN QV error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_WINDSPD_varID(g)  , &
+                              wspd10m(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! WINDSPD
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN WINSPD error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_RAIN_ACC24_varID(g)  , &
+                              RAIN_ACC24(1:nx,1:ny,1), start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! RAIN_ACC24
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN RAIN_ACC25 error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_PREC_ADJ_varID(g)  , &
+                              missing2D(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! PREC_ADJ xx
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN PREC_ADJ error: '//trim(nf90_strerror(istat)),logFileUnit)
+
+         istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_PAR_varID(g)  , &
+                              solRad(1:nx,1:ny,1)*.5, start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! PAR
+           CALL TestStop(istat-nf90_NoErr,'Writting MEGAN PAR error: '//trim(nf90_strerror(istat)),logFileUnit)
+     END IF
+
 !tmpFile DO k=1,CAMx_nLev
 !tmpFile   write(tmp_unit,rec=irec)((rho(i,j,k),i=1,nx),j=1,ny)
 !tmpFile   irec=irec+1
@@ -607,30 +701,36 @@ SUBROUTINE get_h_p_t_wv(d)
 !tmpFile   irec=irec+1
 !tmpFile end do
 
-     IF (ALLOCATED(P        )) DEALLOCATE(P        )
-     IF (ALLOCATED(Psfc     )) DEALLOCATE(Psfc     )
-     IF (ALLOCATED(HGT_I    )) DEALLOCATE(HGT_I    )
-     IF (ALLOCATED(HGT      )) DEALLOCATE(HGT      )
-     IF (ALLOCATED(U_AraC   )) DEALLOCATE(U_AraC   )
-     IF (ALLOCATED(V_AraC   )) DEALLOCATE(V_AraC   )
-     IF (ALLOCATED(U_cent   )) DEALLOCATE(U_cent   )
-     IF (ALLOCATED(V_cent   )) DEALLOCATE(V_cent   )
-     IF (ALLOCATED(TKE      )) DEALLOCATE(TKE      )
-     IF (ALLOCATED(T        )) DEALLOCATE(T        )
-     IF (ALLOCATED(Tsfc     )) DEALLOCATE(Tsfc     )
-     IF (ALLOCATED(Q        )) DEALLOCATE(Q        )
-     IF (ALLOCATED(Rh       )) DEALLOCATE(Rh       )
-     IF (ALLOCATED(WV       )) DEALLOCATE(WV       )
-     IF (ALLOCATED(rkv      )) DEALLOCATE(rkv      )
-     IF (ALLOCATED(ranwtr   )) DEALLOCATE(ranwtr   )
-     IF (ALLOCATED(snowtr   )) DEALLOCATE(snowtr   )
-     IF (ALLOCATED(cldwtr   )) DEALLOCATE(cldwtr   )
-     IF (ALLOCATED(icewtr   )) DEALLOCATE(icewtr   )
-     IF (ALLOCATED(COD      )) DEALLOCATE(COD      )
-     IF (ALLOCATED(rho      )) DEALLOCATE(rho      )
-     IF (ALLOCATED(PBL      )) DEALLOCATE(PBL      )
-     IF (ALLOCATED(sfcROUGH )) DEALLOCATE(sfcROUGH )
-     IF (ALLOCATED(SolRad   )) DEALLOCATE(SolRad   )
+     IF (ALLOCATED(P         )) DEALLOCATE(P         )
+     IF (ALLOCATED(Psfc      )) DEALLOCATE(Psfc      )
+     IF (ALLOCATED(HGT_I     )) DEALLOCATE(HGT_I     )
+     IF (ALLOCATED(HGT       )) DEALLOCATE(HGT       )
+     IF (ALLOCATED(U_AraC    )) DEALLOCATE(U_AraC    )
+     IF (ALLOCATED(V_AraC    )) DEALLOCATE(V_AraC    )
+     IF (ALLOCATED(U_cent    )) DEALLOCATE(U_cent    )
+     IF (ALLOCATED(V_cent    )) DEALLOCATE(V_cent    )
+     IF (ALLOCATED(TKE       )) DEALLOCATE(TKE       )
+     IF (ALLOCATED(T         )) DEALLOCATE(T         )
+     IF (ALLOCATED(T2m       )) DEALLOCATE(T2m       )
+     IF (ALLOCATED(Tsfc      )) DEALLOCATE(Tsfc      )
+     IF (ALLOCATED(Q         )) DEALLOCATE(Q         )
+     IF (ALLOCATED(Rh        )) DEALLOCATE(Rh        )
+     IF (ALLOCATED(WV        )) DEALLOCATE(WV        )
+     IF (ALLOCATED(rkv       )) DEALLOCATE(rkv       )
+     IF (ALLOCATED(ranwtr    )) DEALLOCATE(ranwtr    )
+     IF (ALLOCATED(snowtr    )) DEALLOCATE(snowtr    )
+     IF (ALLOCATED(cldwtr    )) DEALLOCATE(cldwtr    )
+     IF (ALLOCATED(icewtr    )) DEALLOCATE(icewtr    )
+     IF (ALLOCATED(COD       )) DEALLOCATE(COD       )
+     IF (ALLOCATED(rho       )) DEALLOCATE(rho       )
+     IF (ALLOCATED(PBL       )) DEALLOCATE(PBL       )
+     IF (ALLOCATED(sfcROUGH  )) DEALLOCATE(sfcROUGH  )
+     IF (ALLOCATED(SolRad    )) DEALLOCATE(SolRad    )
+     IF (ALLOCATED(RAIN_ACC24)) DEALLOCATE(RAIN_ACC24)
+     IF (ALLOCATED(Q2m       )) DEALLOCATE(Q2m       )
+     IF (ALLOCATED(wspd10m   )) DEALLOCATE(wspd10m   )
+     IF (ALLOCATED(wMixRat2m )) DEALLOCATE(wMixRat2m )
+     IF (ALLOCATED(missing2D )) DEALLOCATE(missing2D )
 
  END DO grid
      

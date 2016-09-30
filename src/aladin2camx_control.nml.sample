@@ -1,8 +1,12 @@
 &aladin2camx_control
 
+! missing value code in output fields
+missingVal = -9999.
+
 ! == meteo files for BEIS ==
-! if .TRUE. NetDCF files for BEIS will be created
-BEIS_flag = .TRUE.
+! if .TRUE. NetDCF files for BEIS and/or MEGAN will be created
+BEIS_flag  = .TRUE.
+MEGAN_flag = .TRUE.
 
 ! == control file
 ! point for which vertical profile will be printed (relative position in each grid)
@@ -45,7 +49,7 @@ cod_method = 'wrfcamx'
 !---------------------------------
 checkFlag=.FALSE.
 Tsfc_cmin = 100.
-Qsfc_cmin = 0.
+Q2m_cmin = 0.
 Psfc_cmin = 10000.
 GEOsfc_cmin = -200.
 PBL_cmin  = 0.
