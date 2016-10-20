@@ -110,6 +110,12 @@ SUBROUTINE get_aladin_fields(gribfile,h)
          ELSE IF (AladField == AladField_vWind10m) THEN
              CALL read_aladin_data(igrib,Alad_vWind10m,1,         'v-wind at 10 m',MesgNo)
              AladField_vWind10m%read(1)=1
+         ELSE IF (AladField == AladField_sfcSoilMoist) THEN
+             CALL read_aladin_data(igrib,Alad_sfcSoilMoist,1,     'surface soil moisture',MesgNo)
+             AladField_sfcSoilMoist%read(1)=1
+         ELSE IF (AladField == AladField_sfcSoilT) THEN
+             CALL read_aladin_data(igrib,Alad_sfcSoilT,1,         'surface soil temperature',MesgNo)
+             AladField_sfcSoilT%read(1)=1
          END IF
 
      END IF
@@ -172,6 +178,8 @@ SUBROUTINE get_aladin_fields(gribfile,h)
      IF (AladField_sfcROUGH%read(1)  .EQ. 0) CALL TestStop(1,'STOP - surface roughness was not read',logFileUnit)
      IF (AladField_uWind10m%read(1)  .EQ. 0) CALL TestStop(1,'STOP - u-wind at 10 m was not read',logFileUnit)
      IF (AladField_vWind10m%read(1)  .EQ. 0) CALL TestStop(1,'STOP - v-wind at 10 m was not read',logFileUnit)
+     IF (AladField_sfcSoilMoist%read(1).EQ.0)CALL TestStop(1,'STOP - surface soil moisture was not read',logFileUnit)
+     IF (AladField_sfcSoilT%read(1)  .EQ. 0) CALL TestStop(1,'STOP - surface soil temperature was not read',logFileUnit)
  END IF
  IF (AladField_AccTotPrecip%read(1) .EQ. 0) CALL TestStop(1,'STOP - total precipitation was not read',logFileUnit)
  IF (AladField_AccSolRad%read(1) .EQ. 0) CALL TestStop(1,'STOP - Accumulated solar radiation was not read',logFileUnit)

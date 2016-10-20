@@ -116,7 +116,8 @@ MODULE module_global_variables
                          AladField_Q, AladField_Q2m, &
                          AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, &
                          AladField_AccTotPrecip, &
-                         AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad
+                         AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad, &
+                         AladField_sfcSoilMoist, AladField_sfcSoilT
 
    NAMELIST /aladin_gribs_info/  &
        Alad_PROJ, Alad_EarthRadius, Alad_PROJ_ALPHA, Alad_PROJ_BETA, Alad_PROJ_GAMMA, Alad_X_CENT, Alad_Y_CENT, &
@@ -126,7 +127,8 @@ MODULE module_global_variables
        AladField_Tsfc, AladField_T, AladField_T2m, AladField_GEOsfc, AladField_GEO, AladField_Psfc, &
        AladField_P, AladField_uWind, AladField_vWind, AladField_TKE, AladField_Rh, AladField_Q, AladField_Q2m, &
        AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad, &
-       AladField_uWind10m, AladField_vWind10m,  AladField_AccTotPrecip
+       AladField_uWind10m, AladField_vWind10m,  AladField_AccTotPrecip, &
+       AladField_sfcSoilMoist, AladField_sfcSoilT 
 
  INTEGER :: Alad_nVal ! dopocte se jako Alad_nX*Alad_nY 
 
@@ -230,7 +232,7 @@ MODULE module_global_variables
               & Alad_Rh, Alad_Q2m, Alad_Q, Alad_Ql, Alad_Qi, Alad_Qr, Alad_Qs, &
               & Alad_PBL, Alad_sfcROUGH, Alad_AccSolRad, Alad_SolRad, &
               & Alad_T2m, Alad_totPrecip_1h, Alad_AccTotPrecip, Alad_totPrecip_acc24, &
-              & Alad_uWind10m, Alad_vWind10m
+              & Alad_uWind10m, Alad_vWind10m, Alad_sfcSoilMoist, Alad_sfcSoilT
 
  ! CAMx_avgLevHgt(lev,grid) ... average height [mAGL] of CAMx level for each grid
  REAL(KIND=sp), ALLOCATABLE, DIMENSION(:,:) :: CAMx_avgLevHgt
@@ -281,6 +283,10 @@ MODULE module_global_variables
      CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_AccTotPrecip')
    ALLOCATE(Alad_totPrecip_acc24(Alad_nx,Alad_ny,1), STAT=istat)
      CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_totPrecip_acc24')
+   ALLOCATE(Alad_sfcSoilMoist(Alad_nx,Alad_ny,1), STAT=istat)
+     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_scfSoilMoist')
+   ALLOCATE(Alad_sfcSoilT(Alad_nx,Alad_ny,1), STAT=istat)
+     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_sfcSoilT')
 
    ! == 3D ===
    ALLOCATE(Alad_T(Alad_nX,Alad_nY,Alad_maxLev), STAT=istat)
@@ -347,6 +353,10 @@ MODULE module_global_variables
      CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_AccTotPrecip')
    IF (ALLOCATED(Alad_totPrecip_acc24))  DEALLOCATE(Alad_totPrecip_acc24,  STAT=istat)
      CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_totPrecip_acc24')
+   IF (ALLOCATED(Alad_sfcSoilMoist))  DEALLOCATE(Alad_sfcSoilMoist,  STAT=istat)
+     CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_sfcSoilMoist')
+   IF (ALLOCATED(Alad_sfcSoilT))  DEALLOCATE(Alad_sfcSoilT,  STAT=istat)
+     CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_sfcSoilT')
 
    ! == 3D ===
    IF (ALLOCATED(Alad_T)) DEALLOCATE(Alad_T,       STAT=istat)

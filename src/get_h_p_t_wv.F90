@@ -24,6 +24,7 @@ SUBROUTINE get_h_p_t_wv(d)
  REAL(KIND=sp) :: Alad_UArakC  (Alad_nx,Alad_ny,Alad_maxLev)   ! Aladin U wind transformed to Arakawa C grid 
  REAL(KIND=sp) :: Alad_VArakC  (Alad_nx,Alad_ny,Alad_maxLev)   ! Aladin V wind transformed to Arakawa C grid 
  REAL(KIND=sp) :: Alad_wspd10m (Alad_nx,Alad_ny,1)             ! Aladin wind speed at 10 m AGL 
+ REAL(KIND=sp) :: Alad_SSMvol  (Alad_nx,Alad_ny,1)             ! Aladin surface soil moisture (volumetric) [m3/m3] 
 
 
  REAL(KIND=sp), POINTER :: pto3D(:,:,:)=>NULL(), pto2D(:,:)=>NULL()
@@ -41,8 +42,8 @@ SUBROUTINE get_h_p_t_wv(d)
                            &   SolRad(:,:,:)      ! average solar radiation during LAST NWP model integration STEP  [W/m2]
 
  ! == output fields for MEGAN ==
- REAL(KIND=sp), ALLOCATABLE :: SOIM1(:,:,:), &    ! volumetric soil moisture in top cm    [m**3/m**3]
-                           &   SOIT1(:,:,:), &    ! soil temperature in top cm            [K]
+ REAL(KIND=sp), ALLOCATABLE :: SOIM1(:,:,:), &    ! volumetric soil moisture in top 1 cm  [m**3/m**3]
+                           &   SOIT1(:,:,:), &    ! soil temperature in top 1 cm          [K]
                            &   SLTYP(:,:,:), &    ! soil texture type by USDA category    [-]
                            &   T2m(:,:,:), &      ! temperature at 2 m                    [K]
                            &   wMixRat2m(:,:,:), &! water vapor mixing ratio (mv/md)      [kg/kg] 
@@ -214,8 +215,19 @@ SUBROUTINE get_h_p_t_wv(d)
  ! == v-wind at 10 m ==
    pto2D=>Alad_vWind10m(:,:,1)
    IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
+ ! == surface soil moisture ==
+   pto2D=>Alad_sfcSoilMoist(:,:,1)
+   IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
+   WHERE(Alad_sfcSoilMoist<0.) Alad_totPrecip_1h=0.
+ ! == surface soil temperature ==
+   pto2D=>Alad_sfcSoilT(:,:,1)
+   IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
 
 
+
+ ! convert soil moisture to volumetric [m3/m3]
+ ! !!! assumption that soil layer is 1 cm deep !!!
+   Alad_SSMvol = Alad_sfcSoilMoist / rho_h2o * 100.
 
  ! convert surface roughness to [m]
    Alad_sfcROUGH = Alad_sfcROUGH / grav
@@ -281,20 +293,24 @@ SUBROUTINE get_h_p_t_wv(d)
      ALLOCATE(sfcROUGH  (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array sfcROUGH allocation error')
      ALLOCATE(SolRad    (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SolRad allocation error')
      ALLOCATE(RAIN_ACC24(NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array rain_acc24 allocation error')
+     ALLOCATE(SOIM1     (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SOIM1 allocation error')
+     ALLOCATE(SOIT1     (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SOIT1 allocation error')
      ALLOCATE(missing2D (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array missing2D allocation error')
 
      missing2D = missingVal
 
      ! interpolate 2D fields
-     CALL verthor2d(FIELD=Alad_Tsfc     ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Tsfc)
-     CALL verthor2d(FIELD=Alad_T2m      ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=T2m)
-     CALL verthor2d(FIELD=Alad_Q2m      ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Q2m)
-     CALL verthor2d(FIELD=Alad_Psfc     ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Psfc)
-     CALL verthor2d(FIELD=Alad_PBL      ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=PBL)
-     CALL verthor2d(FIELD=Alad_sfcROUGH ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=sfcROUGH)
-     CALL verthor2d(FIELD=Alad_SolRad   ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=SolRad)
-     CALL verthor2d(FIELD=Alad_wspd10m  ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=wspd10m)
+     CALL verthor2d(FIELD=Alad_Tsfc           ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Tsfc)
+     CALL verthor2d(FIELD=Alad_T2m            ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=T2m)
+     CALL verthor2d(FIELD=Alad_Q2m            ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Q2m)
+     CALL verthor2d(FIELD=Alad_Psfc           ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Psfc)
+     CALL verthor2d(FIELD=Alad_PBL            ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=PBL)
+     CALL verthor2d(FIELD=Alad_sfcROUGH       ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=sfcROUGH)
+     CALL verthor2d(FIELD=Alad_SolRad         ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=SolRad)
+     CALL verthor2d(FIELD=Alad_wspd10m        ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=wspd10m)
      CALL verthor2d(FIELD=Alad_totPrecip_acc24,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=RAIN_ACC24)
+     CALL verthor2d(FIELD=Alad_SSMvol         ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=SOIM1)
+     CALL verthor2d(FIELD=Alad_sfcSoilT       ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=SOIT1)
 
      ! interpolate 3D fields (horizontally + vertically)
      CALL verthor3d(Alad_P    ,xbeg,xend,ybeg,yend,step, P)
@@ -616,11 +632,11 @@ SUBROUTINE get_h_p_t_wv(d)
      ! write MEGAN meteo fields
      IF ( MEGAN_flag ) THEN
          istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_SOIM1_varID(g)  , &
-                              missing2D(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! SOIM1 - not implemented yet
+                              SOIM1(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! SOIM1
            CALL TestStop(istat-nf90_NoErr,'Writting MEGAN SOIM1 error: '//trim(nf90_strerror(istat)),logFileUnit)
 
          istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_SOIT1_varID(g)  , &
-                              missing2D(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! SOIT1 - not implemented yet
+                              SOIT1(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! SOIT1
            CALL TestStop(istat-nf90_NoErr,'Writting MEGAN SOIT1 error: '//trim(nf90_strerror(istat)),logFileUnit)
 
          istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_SLTYP_varID(g)  , &
@@ -730,6 +746,8 @@ SUBROUTINE get_h_p_t_wv(d)
      IF (ALLOCATED(Q2m       )) DEALLOCATE(Q2m       )
      IF (ALLOCATED(wspd10m   )) DEALLOCATE(wspd10m   )
      IF (ALLOCATED(wMixRat2m )) DEALLOCATE(wMixRat2m )
+     IF (ALLOCATED(SOIM1     )) DEALLOCATE(SOIM1     )
+     IF (ALLOCATED(SOIT1     )) DEALLOCATE(SOIT1     )
      IF (ALLOCATED(missing2D )) DEALLOCATE(missing2D )
 
  END DO grid

@@ -263,13 +263,13 @@ SUBROUTINE MEGANmet_createHeader(g, ncfname)
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_SOIM1_varID(g), 'long_name','SOIM1           ')
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_SOIM1_varID(g), 'units'    ,'M**3/M**3')
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_SOIM1_varID(g), 'var_desc' ,&
-  '                                              volumetric soil moisture in top cm')
+  '                                            volumetric soil moisture in top 1 cm')
 
  ! soil temperature 
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_SOIT1_varID(g), 'long_name','SOIT1           ')
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_SOIT1_varID(g), 'units'    ,'K')
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_SOIT1_varID(g), 'var_desc' ,&
-  '                                                      soil temperature in top cm')
+  '                                                    soil temperature in top 1 cm')
 
  ! soil texture
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_SLTYP_varID(g), 'long_name','SLTYP           ')

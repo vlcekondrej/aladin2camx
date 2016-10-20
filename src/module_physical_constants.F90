@@ -6,11 +6,12 @@ MODULE MODULE_PHYSICAL_CONSTANTS
 
  ! primary constants
  REAL(KIND=sp), PARAMETER :: MR_DryAir = 0.0289644_sp     ! molar mass of dry air             [kg/mol]  ALADIN consistent
- REAL(KIND=sp), PARAMETER :: MR_H2O    = 0.0180153_sp     ! molar mass of waternt             [kg/mol]  ALADIN consistent
+ REAL(KIND=sp), PARAMETER :: MR_H2O    = 0.0180153_sp     ! molar mass of water               [kg/mol]  ALADIN consistent
  REAL(KIND=sp), PARAMETER :: T_0DegC   = 273.15_sp        ! zero degree of Celsius in Kelvin  [K]      
  REAL(KIND=sp), PARAMETER :: Boltzmann = 1.380658e-23     ! Boltzmann's constant              [J/K]     ALADIN consistent
  REAL(KIND=sp), PARAMETER :: Avogadro  = 6.0221367e23     ! Avogadro's number                 [1/mol]   ALADIN consistent
  REAL(KIND=sp), PARAMETER :: grav      = 9.80665_sp       ! gravitational acceleration        [m/s**2]  ALADIN consistent
+ REAL(KIND=sp), PARAMETER :: rho_h2o   = 1000._sp         ! water density                     [kg/m3]
 
  ! derived constants 
  REAL(KIND=sp), PARAMETER :: R_uni     = Boltzmann*Avogadro     ! universal gas constant                              [J/(mol*K)]  ALADIN consistent
