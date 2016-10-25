@@ -36,10 +36,8 @@ fi
 SD=$1 #start date
 SH=$2 # start hour
 NH=$3 # number of hours
-ED=`date --utc --date "$SD +$[${SH} +${NH} -1]hours" +%Y-%m-%d`
+ED=`date -u -d "$SD +$[$SH +$NH -1]hours" +%Y-%m-%d`
 EH=`date -u -d "$ED +$[$SH +$NH -1]hours" +%H`
-#EDexcl=`date --utc --date "$SD +$[${SH} +${NH} ]hours" +%Y-%m-%d`
-#EHexcl=`date -u -d "$ED +$[$SH +$NH ]hours" +%H`
 NG=$4 #number of grid domains
 GRIBDIR=$5
 CAMXDIR=$6
@@ -48,12 +46,10 @@ RUN_NML=${7:-./INFO_RUN.nml}
 
 #------------------------------------------
 # Setup 
-begDt=`date -u -d "${SD}" +%Y%m%d`
-begTm=`printf "%02d" $SH`
-endDt=`date -u -d "${ED}" +%Y%m%d`
-endTm=`printf "%02d" $EH`
-#endDtExcl=`date -u -d "${EDexcl}" +%Y%m%d`
-#endTmExcl=$EHexcl  #`printf "%02d" $EHexcl`
+begD=`date -u -d "${SD}" +%Y%m%d`
+begT=`printf "%02d" $SH`
+endD=`date -u -d "${ED}" +%Y%m%d`
+endT=`printf "%02d" $EH`
 
 # Source extra functions
 . FILE_FROM_DATE.sh
@@ -65,18 +61,18 @@ rm -f ${RUN_NML}
 # message 
 
 echo "! This namelist was generated using:" > "${RUN_NML}"
-echo "!   $*" >> "${RUN_NML}"
+echo "!   $0   $*" >> "${RUN_NML}"
 echo "" >> "${RUN_NML}"
 
 #--------------------------------------------------------
 # part 1/3
 cat >> "${RUN_NML}" <<EOF
 &clock_control
-begYYYYMMDD   = ${begDt}
-begHHMI       = ${begTm}00 ! MI (minutes) hard coded in WRITE_INFO_RUN.sh 
-endYYYYMMDD   = ${endDt}   !
-endHHMI       = ${endTm}00 ! MI (minutes) hard coded in WRITE_INFO_RUN.sh 
-met_frequency = 60 ! this is hard coded in WRITE_INFO_RUN.sh
+begYYYYMMDD   = ${begD}
+begHHMI       = ${begT}00 ! MI (minutes) hard coded in $0 
+endYYYYMMDD   = ${endD}   !
+endHHMI       = ${endT}00 ! MI (minutes) hard coded in $0 
+met_frequency = 60 ! this is hard coded in $0
 TimeZone      = 0  ! casove pasmo, ve kterem jsou uvadeny casy pocatku a konce simulace
 /
 
@@ -87,7 +83,7 @@ EOF
 g=1
 echo "&output_files" >> ${RUN_NML}
 #beginEnd format: 'YYMMDD-HH_YYMMDD-HH'
-beginEnd="${begDt:2:6}-${begTm}_${endDt:2:6}-${endTm}"
+beginEnd="${begD:2:6}-${begT}_${endD:2:6}-${endT}"
 while [ $g -le $NG ] ; do
 cat >> "${RUN_NML}" <<EOF
 zp_file(${g})     = '${CAMXDIR}/camx.zp.d0${g}.${beginEnd}'
@@ -97,26 +93,35 @@ qa_file(${g})     = '${CAMXDIR}/camx.qa.d0${g}.${beginEnd}'
 cr_file(${g})     = '${CAMXDIR}/camx.cr.d0${g}.${beginEnd}'
 kv_file(${g})     = '${CAMXDIR}/camx.kv.d0${g}.${beginEnd}'
 avgHGT_file(${g}) = '${CAMXDIR}/camx.avgHGT.d0${g}.${beginEnd}'
-beis_file(${g})   = '${CAMXDIR}/BEISmet.d0${g}.${beginEnd}'
+beis_file(${g})   = '${CAMXDIR}/BEISmet.d0${g}.${beginEnd}' ! used only if BEIS_flag=.TRUE.
+megan_file(${g})  = '${CAMXDIR}/MEGANmet.d0${g}.${beginEnd}' ! used only if MEGAN_flag=.TRUE.
 
 EOF
 g=$[$g+1]
 done
-echo "/" >> ${RUN_NML}
+echo -e "/\n" >> ${RUN_NML}
 
 
 #--------------------------------------------------------
 # part 3/3
-echo "&input_files" >> ${RUN_NML}
-t=0
-endhr=$(($SH + $NH - 1))
-beghr=$(($SH -1)) # begin hour is one less 
-for h in $(seq $beghr $endhr); do
+cat >> ${RUN_NML} << EOF
+&input_files
+! aladin_met_names(t) for t = -23,..., -1 are used only if 24-h accumulated
+! fields are needed (currently just if MEGAN_flag is .TRUE.)
+
+EOF
+t=-23
+DT_alad=`date --date="$SD +$[$SH - 24]hours" +%Y-%m-%d\ %H` # begin hour is 24 less to get 24-h accumulated precipitation
+DT_alad_s=`date --date="$DT_alad"  +%s`
+endDT_alad_s=`date --date="$SD +$[$SH + $NH - 1]hours"  +%s` 
+while [ $DT_alad_s -le $endDT_alad_s ]; do
   # a2c=$(aladin2camxGribName $SD $h)
   # a2c=$(aladinGribName_00fc $SD $h)
-  a2c=$(aladinGribName_cont $SD $h)
-  echo "aladin_met_names($t) = '${GRIBDIR}/${a2c}'" >> ${RUN_NML}
+  a2c=$(aladinGribName_cont ${DT_alad:0:10} ${DT_alad:11:12})
+  echo "aladin_met_names(`printf "%03d" $t`) = '${GRIBDIR}/${a2c}'" >> ${RUN_NML}
   t=$(($t+1))
+  DT_alad=`date --date="$DT_alad + 1hour"  +%Y-%m-%d\ %H`
+  DT_alad_s=`date --date="$DT_alad"  +%s`
 done
 echo "/" >> ${RUN_NML}
 
