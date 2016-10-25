@@ -218,7 +218,7 @@ SUBROUTINE get_h_p_t_wv(d)
  ! == surface soil moisture ==
    pto2D=>Alad_sfcSoilMoist(:,:,1)
    IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
-   WHERE(Alad_sfcSoilMoist<0.) Alad_totPrecip_1h=0.
+   WHERE(Alad_sfcSoilMoist<0.) Alad_sfcSoilMoist=0.
  ! == surface soil temperature ==
    pto2D=>Alad_sfcSoilT(:,:,1)
    IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
