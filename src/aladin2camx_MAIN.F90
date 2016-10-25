@@ -43,7 +43,7 @@ PROGRAM aladin2camx_MAIN
  IF ( trim(arg) == "--info" ) GO TO 9999
  
  ! ----------------------------------------------------------------------------
- ! open CAMx input files for every nested grid and meteorological parameter
+ ! open CAMx, BEIS and MEGAN input files for every grid
  ! ----------------------------------------------------------------------------
  DO g=1,ngridnumber
 
