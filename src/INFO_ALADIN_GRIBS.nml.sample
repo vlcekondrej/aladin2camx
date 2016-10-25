@@ -53,12 +53,6 @@
 
 ! -- surface variables --
 !------------------------
-! surface TEMPERATURE
-AladField_Tsfc%Param   = 11
-AladField_Tsfc%LevType = 105
-AladField_Tsfc%minLev  = 0
-AladField_Tsfc%maxLev  = 0
-
 ! TEMPERATURE at 2 m
 AladField_T2m%Param   = 11
 AladField_T2m%LevType = 105

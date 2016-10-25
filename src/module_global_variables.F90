@@ -8,7 +8,7 @@ MODULE module_global_variables
 
  TYPE tAladFieldID
      INTEGER :: Param, LevType, Lev, minLev, maxLev
-     INTEGER :: read(100) ! volim cislo s erzervou presahujici pocet hladin v ALADINu 
+     LOGICAL :: read(100)=.FALSE. ! volim cislo s rezervou presahujici pocet hladin v ALADINu 
  END TYPE tAladFieldID
  !operator pro funkci zjistujici, jestli aktualni nactene pole odpovida pozadovanemu
  INTERFACE OPERATOR (==)
@@ -107,7 +107,7 @@ MODULE module_global_variables
    INTEGER :: Alad_mlLevID, Alad_sfcLevID 
 
    ! ==  ALADIN FIELDS to be read (their specification in ALADIN GRIB files) ==
-   TYPE(tAladFieldID) :: AladField_Tsfc, AladField_T2m, AladField_T, &
+   TYPE(tAladFieldID) :: AladField_T2m, AladField_T, &
                          AladField_GEOsfc, AladField_GEO, &
                          AladField_Psfc, AladField_P, &
                          AladField_uWind, AladField_vWind, &
@@ -124,7 +124,7 @@ MODULE module_global_variables
        Alad_nX, Alad_nY, Alad_nLev, Alad_dx, Alad_dy, Alad_Centr11_X, Alad_Centr11_Y, &
        Alad_iScanNeg, Alad_jScanPos, Alad_jConsec, Alad_aRowScan, &
        AladLevNumberedFromBottom, Alad_missingVal, Alad_mlLevID, Alad_sfcLevID, &
-       AladField_Tsfc, AladField_T, AladField_T2m, AladField_GEOsfc, AladField_GEO, AladField_Psfc, &
+       AladField_T, AladField_T2m, AladField_GEOsfc, AladField_GEO, AladField_Psfc, &
        AladField_P, AladField_uWind, AladField_vWind, AladField_TKE, AladField_Rh, AladField_Q, AladField_Q2m, &
        AladField_Ql, AladField_Qi, AladField_Qr, AladField_Qs, AladField_PBL, AladField_sfcROUGH, AladField_AccSolRad, &
        AladField_uWind10m, AladField_vWind10m,  AladField_AccTotPrecip, &
@@ -242,6 +242,36 @@ MODULE module_global_variables
 
  CONTAINS
  ! = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+ SUBROUTINE init_AladField()
+   IMPLICIT NONE
+
+   AladField_T%read=.FALSE.
+   AladField_T2m%read=.FALSE.
+   AladField_GEOsfc%read=.FALSE.
+   AladField_GEO%read=.FALSE.
+   AladField_Psfc%read=.FALSE.
+   AladField_P%read=.FALSE.
+   AladField_uWind%read=.FALSE.
+   AladField_vWind%read=.FALSE.
+   AladField_TKE%read=.FALSE.
+   AladField_Rh%read=.FALSE.
+   AladField_Q%read=.FALSE.
+   AladField_Q2m%read=.FALSE.
+   AladField_Ql%read=.FALSE.
+   AladField_Qi%read=.FALSE.
+   AladField_Qr%read=.FALSE.
+   AladField_Qs%read=.FALSE.
+   AladField_PBL%read=.FALSE.
+   AladField_sfcROUGH%read=.FALSE.
+   AladField_AccSolRad%read=.FALSE.
+   AladField_uWind10m%read=.FALSE.
+   AladField_vWind10m%read=.FALSE.
+   AladField_AccTotPrecip%read=.FALSE.
+   AladField_sfcSoilMoist%read=.FALSE.
+   AladField_sfcSoilT%read=.FALSE.
+ END SUBROUTINE init_AladField
+
 
  SUBROUTINE alloc_Alad()
    IMPLICIT NONE

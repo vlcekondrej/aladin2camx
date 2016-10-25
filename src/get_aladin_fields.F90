@@ -27,6 +27,9 @@ SUBROUTINE get_aladin_fields(gribfile,h)
 !   CALL TestStop(istat-GRIB_SUCCESS,'STOP __get_aladin_fields: could not open ALADIN grib file.',logFileUnit)
 
 
+ ! mark Aladin fieldf as unread 
+ CALL init_AladField() 
+
  ! read first message from grib file
  MesgNo = 1
  CALL grib_new_from_file(ifile,igrib,istat)
@@ -47,75 +50,72 @@ SUBROUTINE get_aladin_fields(gribfile,h)
          ! == 3D ==
          IF (AladField == AladField_T) THEN
              CALL read_aladin_data(igrib,Alad_T,AladField%Lev,    'tepmerature',MesgNo)
-             AladField_T%read(AladField%lev)=1
+             AladField_T%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_geo) THEN
              CALL read_aladin_data(igrib,Alad_geo,AladField%Lev,  'geopotential',MesgNo)
-             AladField_GEO%read(AladField%lev)=1
+             AladField_GEO%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_p) THEN
              CALL read_aladin_data(igrib,Alad_p,AladField%Lev,    'pressure',MesgNo)
-             AladField_p%read(AladField%lev)=1
+             AladField_p%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_uWind) THEN
              CALL read_aladin_data(igrib,Alad_uWind,AladField%Lev,'uWind',MesgNo)
-             AladField_uWind%read(AladField%lev)=1
+             AladField_uWind%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_vWind) THEN
              CALL read_aladin_data(igrib,Alad_vWind,AladField%Lev,'vWind',MesgNo)
-             AladField_vWind%read(AladField%lev)=1
+             AladField_vWind%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_TKE) THEN
              CALL read_aladin_data(igrib,Alad_TKE,AladField%Lev,  'TKE',MesgNo)
-             AladField_TKE%read(AladField%lev)=1
+             AladField_TKE%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_Rh) THEN
              CALL read_aladin_data(igrib,Alad_Rh,AladField%Lev,   'relative humidity',MesgNo)
-             AladField_Rh%read(AladField%lev)=1
+             AladField_Rh%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_Q) THEN
              CALL read_aladin_data(igrib,Alad_Q,AladField%Lev,    'specific humidity',MesgNo)
-             AladField_Q%read(AladField%lev)=1
+             AladField_Q%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_Ql) THEN
              CALL read_aladin_data(igrib,Alad_Ql,AladField%Lev,   'atmospheric liquid water',MesgNo)
-             AladField_Ql%read(AladField%lev)=1
+             AladField_Ql%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_Qi) THEN
              CALL read_aladin_data(igrib,Alad_Qi,AladField%Lev,   'atmospheric solid water',MesgNo)
-             AladField_Qi%read(AladField%lev)=1
+             AladField_Qi%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_Qr) THEN
              CALL read_aladin_data(igrib,Alad_Qr,AladField%Lev,   'atmospheric rain',MesgNo)
-             AladField_Qr%read(AladField%lev)=1
+             AladField_Qr%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_Qs) THEN
              CALL read_aladin_data(igrib,Alad_Qs,AladField%Lev,   'atmospheric snow',MesgNo)
-             AladField_Qs%read(AladField%lev)=1
+             AladField_Qs%read(AladField%lev)=.TRUE.
     
          ! == 2D ==
-         ELSE IF (AladField == AladField_Tsfc) THEN
-             CALL read_aladin_data(igrib,Alad_Tsfc,1,             'surface temperature',MesgNo)
-             AladField_Tsfc%read(1)=1
          ELSE IF (AladField == AladField_T2m) THEN
              CALL read_aladin_data(igrib,Alad_T2m,1,              'temperature at 2 m',MesgNo)
-             AladField_T2m%read(1)=1
+             AladField_T2m%read(1)=.TRUE.
          ELSE IF (AladField == AladField_Q2m) THEN
              CALL read_aladin_data(igrib,Alad_Q2m,1,              'specific humidity at 2 m',MesgNo)
-             AladField_Q2m%read(1)=1
+             AladField_Q2m%read(1)=.TRUE.
          ELSE IF (AladField == AladField_GEOsfc) THEN
              CALL read_aladin_data(igrib,Alad_GEOsfc,1,           'surface geopotential',MesgNo)
-             AladField_GEOsfc%read(1)=1
+             AladField_GEOsfc%read(1)=.TRUE.
          ELSE IF (AladField == AladField_Psfc) THEN
              CALL read_aladin_data(igrib,Alad_Psfc,1,             'surface pressure',MesgNo)
-             AladField_Psfc%read(1)=1
+             AladField_Psfc%read(1)=.TRUE.
          ELSE IF (AladField == AladField_PBL) THEN
              CALL read_aladin_data(igrib,Alad_PBL,1,              'planetary boundary layer height',MesgNo)
-             AladField_PBL%read(1)=1
+             AladField_PBL%read(1)=.TRUE.
          ELSE IF (AladField == AladField_sfcROUGH) THEN
              CALL read_aladin_data(igrib,Alad_sfcROUGH,1,         'surface roughness',MesgNo)
-             AladField_sfcROUGH%read(1)=1
+             AladField_sfcROUGH%read(1)=.TRUE.
          ELSE IF (AladField == AladField_uWind10m) THEN
              CALL read_aladin_data(igrib,Alad_uWind10m,1,         'u-wind at 10 m',MesgNo)
-             AladField_uWind10m%read(1)=1
+             AladField_uWind10m%read(1)=.TRUE.
          ELSE IF (AladField == AladField_vWind10m) THEN
              CALL read_aladin_data(igrib,Alad_vWind10m,1,         'v-wind at 10 m',MesgNo)
-             AladField_vWind10m%read(1)=1
+             AladField_vWind10m%read(1)=.TRUE.
          ELSE IF (AladField == AladField_sfcSoilMoist) THEN
              CALL read_aladin_data(igrib,Alad_sfcSoilMoist,1,     'surface soil moisture',MesgNo)
-             AladField_sfcSoilMoist%read(1)=1
+             AladField_sfcSoilMoist%read(1)=.TRUE.
          ELSE IF (AladField == AladField_sfcSoilT) THEN
              CALL read_aladin_data(igrib,Alad_sfcSoilT,1,         'surface soil temperature',MesgNo)
-             AladField_sfcSoilT%read(1)=1
+             AladField_sfcSoilT%read(1)=.TRUE.
          END IF
 
      END IF
@@ -132,7 +132,7 @@ SUBROUTINE get_aladin_fields(gribfile,h)
          CALL read_aladin_data(igrib,Alad_AccTotPrecip,1,     'total precipitation',MesgNo)
          Alad_totPrecip_1h(:,:,1) = Alad_AccTotPrecip(:,:,1) - Alad_totPrecip_1h(:,:,1)
          WHERE(Alad_totPrecip_1h<0.) Alad_totPrecip_1h=0.
-         AladField_AccTotPrecip%read(1)=1
+         AladField_AccTotPrecip%read(1)=.TRUE.
 
      ELSE IF (AladField == AladField_AccSolRad) THEN
          IF ( startStep == 0 ) CALL TestStop(1, &
@@ -143,7 +143,7 @@ SUBROUTINE get_aladin_fields(gribfile,h)
          ! division by length of time interval in seconds - conversion of J/m2 to W/m2
          Alad_SolRad = (Alad_AccSolRad - Alad_SolRad)/(met_frequency*60.) 
          WHERE(Alad_SolRad<0.) Alad_SolRad=0.
-         AladField_AccSolRad%read(1)=1
+         AladField_AccSolRad%read(1)=.TRUE.
      END IF
 
      ! read new message
@@ -155,34 +155,33 @@ SUBROUTINE get_aladin_fields(gribfile,h)
 
  IF (h>0) THEN
      ! Check, if all 3D fields have been read.
-     IF (ANY(AladField_T%read(1:Alad_maxLev)    .EQ. 0)) CALL TestStop(1,'STOP - tepmerature was not read',logFileUnit)
-     IF (ANY(AladField_geo%read(1:Alad_maxLev)  .EQ. 0)) CALL TestStop(1,'STOP - geopotential was not read',logFileUnit)
-     IF (ANY(AladField_p%read(1:Alad_maxLev)    .EQ. 0)) CALL TestStop(1,'STOP - pressure was not read',logFileUnit)
-     IF (ANY(AladField_uWind%read(1:Alad_maxLev).EQ. 0)) CALL TestStop(1,'STOP - uWind was not read',logFileUnit)
-     IF (ANY(AladField_vWind%read(1:Alad_maxLev).EQ. 0)) CALL TestStop(1,'STOP - vWind was not read',logFileUnit)
-     IF (ANY(AladField_TKE%read(1:Alad_maxLev)  .EQ. 0)) CALL TestStop(1,'STOP - TKE was not read',logFileUnit)
-     IF (ANY(AladField_Rh%read(1:Alad_maxLev)   .EQ. 0)) CALL TestStop(1,'STOP - relative humidity was not read',logFileUnit)
-     IF (ANY(AladField_Q%read(1:Alad_maxLev)    .EQ. 0)) CALL TestStop(1,'STOP - specific humidity was not read',logFileUnit)
-     IF (ANY(AladField_Ql%read(1:Alad_maxLev)   .EQ. 0)) CALL TestStop(1,'STOP - atmospheric liquid water was not read',logFileUnit)
-     IF (ANY(AladField_Qi%read(1:Alad_maxLev)   .EQ. 0)) CALL TestStop(1,'STOP - atmospheric solid water was not read',logFileUnit)
-     IF (ANY(AladField_Qr%read(1:Alad_maxLev)   .EQ. 0)) CALL TestStop(1,'STOP - atmospheric rain was not read',logFileUnit)
-     IF (ANY(AladField_Qs%read(1:Alad_maxLev)   .EQ. 0)) CALL TestStop(1,'STOP - atmospheric snow was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_T%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - tepmerature was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_geo%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - geopotential was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_p%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - pressure was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_uWind%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - uWind was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_vWind%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - vWind was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_TKE%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - TKE was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_Rh%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - relative humidity was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_Q%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - specific humidity was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_Ql%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - atmospheric liquid water was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_Qi%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - atmospheric solid water was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_Qr%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - atmospheric rain was not read',logFileUnit)
+     IF (ANY(.NOT.AladField_Qs%read(1:Alad_maxLev))) CALL TestStop(1,'STOP - atmospheric snow was not read',logFileUnit)
     
      ! Check, if all 2D fields have been read.
-     IF (AladField_Tsfc%read(1)      .EQ. 0) CALL TestStop(1,'STOP - surface temperature was not read',logFileUnit)
-     IF (AladField_T2m%read(1)       .EQ. 0) CALL TestStop(1,'STOP - temperature at 2 m was not read',logFileUnit)
-     IF (AladField_Q2m%read(1)       .EQ. 0) CALL TestStop(1,'STOP - specific humidity at 2 m was not read',logFileUnit)
-     IF (AladField_GEOsfc%read(1)    .EQ. 0) CALL TestStop(1,'STOP - surface geopotential was not read',logFileUnit)
-     IF (AladField_Psfc%read(1)      .EQ. 0) CALL TestStop(1,'STOP - surface pressure was not read',logFileUnit)
-     IF (AladField_PBL%read(1)       .EQ. 0) CALL TestStop(1,'STOP - planetary boundary layer height was not read',logFileUnit)
-     IF (AladField_sfcROUGH%read(1)  .EQ. 0) CALL TestStop(1,'STOP - surface roughness was not read',logFileUnit)
-     IF (AladField_uWind10m%read(1)  .EQ. 0) CALL TestStop(1,'STOP - u-wind at 10 m was not read',logFileUnit)
-     IF (AladField_vWind10m%read(1)  .EQ. 0) CALL TestStop(1,'STOP - v-wind at 10 m was not read',logFileUnit)
-     IF (AladField_sfcSoilMoist%read(1).EQ.0)CALL TestStop(1,'STOP - surface soil moisture was not read',logFileUnit)
-     IF (AladField_sfcSoilT%read(1)  .EQ. 0) CALL TestStop(1,'STOP - surface soil temperature was not read',logFileUnit)
+     IF (.NOT.AladField_T2m%read(1)) CALL TestStop(1,'STOP - temperature at 2 m was not read',logFileUnit)
+     IF (.NOT.AladField_Q2m%read(1)) CALL TestStop(1,'STOP - specific humidity at 2 m was not read',logFileUnit)
+     IF (.NOT.AladField_GEOsfc%read(1)) CALL TestStop(1,'STOP - surface geopotential was not read',logFileUnit)
+     IF (.NOT.AladField_Psfc%read(1)) CALL TestStop(1,'STOP - surface pressure was not read',logFileUnit)
+     IF (.NOT.AladField_PBL%read(1)) CALL TestStop(1,'STOP - planetary boundary layer height was not read',logFileUnit)
+     IF (.NOT.AladField_sfcROUGH%read(1)) CALL TestStop(1,'STOP - surface roughness was not read',logFileUnit)
+     IF (.NOT.AladField_uWind10m%read(1)) CALL TestStop(1,'STOP - u-wind at 10 m was not read',logFileUnit)
+     IF (.NOT.AladField_vWind10m%read(1)) CALL TestStop(1,'STOP - v-wind at 10 m was not read',logFileUnit)
+     IF (.NOT.AladField_sfcSoilMoist%read(1))CALL TestStop(1,'STOP - surface soil moisture was not read',logFileUnit)
+     IF (.NOT.AladField_sfcSoilT%read(1)) CALL TestStop(1,'STOP - surface soil temperature was not read',logFileUnit)
  END IF
- IF (AladField_AccTotPrecip%read(1) .EQ. 0) CALL TestStop(1,'STOP - total precipitation was not read',logFileUnit)
- IF (AladField_AccSolRad%read(1) .EQ. 0) CALL TestStop(1,'STOP - Accumulated solar radiation was not read',logFileUnit)
+ IF (.NOT.AladField_AccTotPrecip%read(1)) CALL TestStop(1,'STOP - total precipitation was not read',logFileUnit)
+ IF (.NOT.AladField_AccSolRad%read(1)) CALL TestStop(1,'STOP - Accumulated solar radiation was not read',logFileUnit)
 
  ! Basic checking of data correctness
  IF (checkFlag) THEN
