@@ -113,6 +113,7 @@ AladField_vWind10m%LevType = 105
 AladField_vWind10m%minLev  = 10
 AladField_vWind10m%maxLev  = 10
 
+! needed only if MEGAN_flag=.TRUE.
 ! soil moisture content in top 1 cm [kg/m2]
 ! !!! assumption of 1cm depth is used in get_h_p_t_wv.F90 to convert to volumetric moisture !!!
 AladField_sfcSoilMoist%Param   = 86
@@ -120,6 +121,7 @@ AladField_sfcSoilMoist%LevType = 105
 AladField_sfcSoilMoist%minLev  = 0
 AladField_sfcSoilMoist%maxLev  = 0
 
+! needed only if MEGAN_flag=.TRUE.
 ! soil temperature in top 1 cm [K]
 AladField_sfcSoilT%Param   = 11
 AladField_sfcSoilT%LevType = 105

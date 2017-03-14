@@ -177,8 +177,10 @@ SUBROUTINE get_aladin_fields(gribfile,h)
      IF (.NOT.AladField_sfcROUGH%read(1)) CALL TestStop(1,'STOP - surface roughness was not read',logFileUnit)
      IF (.NOT.AladField_uWind10m%read(1)) CALL TestStop(1,'STOP - u-wind at 10 m was not read',logFileUnit)
      IF (.NOT.AladField_vWind10m%read(1)) CALL TestStop(1,'STOP - v-wind at 10 m was not read',logFileUnit)
-     IF (.NOT.AladField_sfcSoilMoist%read(1))CALL TestStop(1,'STOP - surface soil moisture was not read',logFileUnit)
-     IF (.NOT.AladField_sfcSoilT%read(1)) CALL TestStop(1,'STOP - surface soil temperature was not read',logFileUnit)
+     IF (MEGAN_flag .AND. .NOT.AladField_sfcSoilMoist%read(1)) &
+        CALL TestStop(1,'STOP - surface soil moisture was not read',logFileUnit)
+     IF (MEGAN_flag .AND. .NOT.AladField_sfcSoilT%read(1)) &
+        CALL TestStop(1,'STOP - surface soil temperature was not read',logFileUnit)
  END IF
  IF (.NOT.AladField_AccTotPrecip%read(1)) CALL TestStop(1,'STOP - total precipitation was not read',logFileUnit)
  IF (.NOT.AladField_AccSolRad%read(1)) CALL TestStop(1,'STOP - Accumulated solar radiation was not read',logFileUnit)

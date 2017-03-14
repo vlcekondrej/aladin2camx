@@ -49,27 +49,33 @@ PROGRAM aladin2camx_MAIN
 
      zp_unit(g)=getFreeUnitNo()
      OPEN(UNIT=zp_unit(g), FILE=zp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx HEIGHT/PRESSURE FILE',logFileUnit)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx HEIGHT/PRESSURE FILE "'//&
+                           trim(zp_file(g))//'"',logFileUnit)
 
      tp_unit(g)=getFreeUnitNo()
      OPEN(UNIT=tp_unit(g), FILE=tp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx TEMPERATURE',logFileUnit)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx TEMPERATURE "'//&
+                           trim(tp_file(g))//'"',logFileUnit)
 
      uv_unit(g)=getFreeUnitNo()
      OPEN(UNIT=uv_unit(g), FILE=uv_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WIND',logFileUnit)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WIND "'//&
+                           trim(uv_file(g))//'"',logFileUnit)
 
      qa_unit(g)=getFreeUnitNo()
      OPEN(UNIT=qa_unit(g), FILE=qa_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WATER VAPOR FILE',logFileUnit)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WATER VAPOR FILE "'//&
+                           trim(qa_file(g))//'"',logFileUnit)
 
      cr_unit(g)=getFreeUnitNo()
      OPEN(UNIT=cr_unit(g), FILE=cr_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx CLOUD/RAIN FILE',logFileUnit)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx CLOUD/RAIN FILE "'//&
+                           trim(cr_file(g))//'"',logFileUnit)
 
      kv_unit(g)=getFreeUnitNo()
      OPEN(UNIT=kv_unit(g), FILE=kv_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx RKV FILE',logFileUnit)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx RKV FILE "'//&
+                           trim(kv_file(g))//'"',logFileUnit)
 
      IF (BEIS_flag) THEN
          CALL BEISmet_createHeader(g=g,ncfname=beis_file(g))
