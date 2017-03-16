@@ -101,7 +101,7 @@ SUBROUTINE BEISmet_createHeader(g, ncfname)
    CALL TestStop(iret-nf90_NoErr,trim(nf90_strerror(iret)),logFileUnit)
  iret=nf90_put_att(BEIS_netCDFid(g),BEIS_TEMPSFC_varID(g),'units',    'Kelvin (K)      ')
    CALL TestStop(iret-nf90_NoErr,trim(nf90_strerror(iret)),logFileUnit)
- iret=nf90_put_att(BEIS_netCDFid(g),BEIS_TEMPSFC_varID(g),'var_desc', 'air temperature at lowest model level                                           ')
+ iret=nf90_put_att(BEIS_netCDFid(g),BEIS_TEMPSFC_varID(g),'var_desc', 'air temperature at 2 m                                                          ')
    CALL TestStop(iret-nf90_NoErr,trim(nf90_strerror(iret)),logFileUnit)
 
  ! Solar radiation

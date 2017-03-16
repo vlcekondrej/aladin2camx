@@ -48,7 +48,7 @@ cod_method = 'wrfcamx'
 ! Program stops when exceeded!    |
 !---------------------------------
 checkFlag=.FALSE.
-Tsfc_cmin = 100.
+T2m_cmin = 100.
 Q2m_cmin = 0.
 Psfc_cmin = 10000.
 GEOsfc_cmin = -200.

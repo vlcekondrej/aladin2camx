@@ -24,7 +24,8 @@ SUBROUTINE get_h_p_t_wv(d)
  REAL(KIND=sp) :: Alad_UArakC  (Alad_nx,Alad_ny,Alad_maxLev)   ! Aladin U wind transformed to Arakawa C grid 
  REAL(KIND=sp) :: Alad_VArakC  (Alad_nx,Alad_ny,Alad_maxLev)   ! Aladin V wind transformed to Arakawa C grid 
  REAL(KIND=sp) :: Alad_wspd10m (Alad_nx,Alad_ny,1)             ! Aladin wind speed at 10 m AGL 
- REAL(KIND=sp) :: Alad_SSMvol  (Alad_nx,Alad_ny,1)             ! Aladin surface soil moisture (volumetric) [m3/m3] 
+ ! POZOR: kontrola, zda se Alad_sfcSoilMoist nacetlo se provadi jen kdyz MEGAN_flag=.TRUE. Jinak muze obsahovat hausnumera
+ REAL(KIND=sp) :: Alad_SSMvol  (Alad_nx,Alad_ny,1)             ! Aladin surface soil moisture (volumetric) [m3/m3]
 
 
  REAL(KIND=sp), POINTER :: pto3D(:,:,:)=>NULL(), pto2D(:,:)=>NULL()
@@ -42,10 +43,9 @@ SUBROUTINE get_h_p_t_wv(d)
                            &   SolRad(:,:,:)      ! average solar radiation during LAST NWP model integration STEP  [W/m2]
 
  ! == output fields for MEGAN ==
- REAL(KIND=sp), ALLOCATABLE :: SOIM1(:,:,:), &    ! volumetric soil moisture in top 1 cm  [m**3/m**3]
-                           &   SOIT1(:,:,:), &    ! soil temperature in top 1 cm          [K]
+ REAL(KIND=sp), ALLOCATABLE :: SOIM1(:,:,:), &    ! volumetric soil moisture in top 1 cm  [m**3/m**3]  ! POZOR: kontrola, zda se Alad_sfcSoilMoist nacetlo se provadi jen kdyz MEGAN_flag=.TRUE.
+                           &   SOIT1(:,:,:), &    ! soil temperature in top 1 cm          [K]          ! POZOR: kontrola, zda se Alad_sfcSoilT nacetlo se provadi jen kdyz MEGAN_flag=.TRUE.
                            &   SLTYP(:,:,:), &    ! soil texture type by USDA category    [-]
-                           &   T2m(:,:,:), &      ! temperature at 2 m                    [K]
                            &   wMixRat2m(:,:,:), &! water vapor mixing ratio (mv/md)      [kg/kg] 
                            &   wspd10m(:,:,:), &  ! Cell centered Windspeed               [m/s]
                            &   RAIN_ACC24(:,:,:),&! 24-hour accumulated rain              [cm]
@@ -57,7 +57,7 @@ SUBROUTINE get_h_p_t_wv(d)
                   &   P(:,:,:), &                     ! layer-average pressure                             [Pa]       [mb] = [hPa]
                   &   U_cent(:,:,:), V_cent(:,:,:), & ! layer-average x and y wind in cell centres         [m/s]      
                   &   U_AraC(:,:,:), V_AraC(:,:,:), & ! layer-average x and y wind speed on Arakawa C grid [m/s]      
-                  &   T(:,:,:), Tsfc(:,:,:), &        ! layer-average and surface temperature              [K]
+                  &   T(:,:,:), T2m(:,:,:), &         ! layer-average and 2m temperature                   [K]
                   &   WV(:,:,:), &                    ! layer-average water vapor concentration            [kg/kg]    [ppm]
                   &   rkv(:,:,:), &                   ! layer upper interface ver. diff.                   [m2/s]
                   &   cldwtr(:,:,:), &                ! atmos. cloud water                                 [kg/m3]    [g/m3]
@@ -186,9 +186,6 @@ SUBROUTINE get_h_p_t_wv(d)
  ! == GEOsfc ==
    pto2D=>Alad_GEOsfc(:,:,1)
    IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
- ! == Tsfc ==
-   pto2D=>Alad_Tsfc(:,:,1)
-   IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
  ! == Psfc ==
    pto2D=>Alad_Psfc(:,:,1)
    IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
@@ -215,16 +212,22 @@ SUBROUTINE get_h_p_t_wv(d)
  ! == v-wind at 10 m ==
    pto2D=>Alad_vWind10m(:,:,1)
    IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
+ ! POZOR: kontrola, zda se Alad_sfcSoilMoist nacetlo se provadi jen 
+ ! kdyz MEGAN_flag=.TRUE. Jinak muze obsahovat hausnumera
  ! == surface soil moisture ==
    pto2D=>Alad_sfcSoilMoist(:,:,1)
    IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
    WHERE(Alad_sfcSoilMoist<0.) Alad_sfcSoilMoist=0.
+ ! POZOR kontrola, zda se Alad_sfcSoilT nacetlo se provadi jen 
+ ! kdyz MEGAN_flag=.TRUE. Jinak muze obsahovat hausnumera
  ! == surface soil temperature ==
    pto2D=>Alad_sfcSoilT(:,:,1)
    IF(SMOOTHER_SWITCH) CALL smoother(pto2D,smoother_method)
 
 
 
+ ! POZOR: kontrola, zda se Alad_sfcSoilMoist nacetlo se provadi jen kdyz
+ ! MEGAN_flag=.TRUE. Jinak muze obsahovat hausnumera
  ! convert soil moisture to volumetric [m3/m3]
  ! !!! assumption that soil layer is 1 cm deep !!!
    Alad_SSMvol = Alad_sfcSoilMoist / rho_h2o * 100.
@@ -275,7 +278,6 @@ SUBROUTINE get_h_p_t_wv(d)
      ALLOCATE(wspd10m   (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array wspd10m allocation error') 
      ALLOCATE(TKE       (NX,NY,CAMx_nLev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array TKE allocation error') 
      ALLOCATE(T         (NX,NY,CAMx_nlev+1), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array T allocation error')  
-     ALLOCATE(Tsfc      (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Tsfc allocation error')  
      ALLOCATE(T2m       (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array T2m allocation error')  
      ALLOCATE(wMixRat2m (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array wMixRat2m allocation error')
      ALLOCATE(Q2m       (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array Q2m allocation error')
@@ -300,7 +302,6 @@ SUBROUTINE get_h_p_t_wv(d)
      missing2D = missingVal
 
      ! interpolate 2D fields
-     CALL verthor2d(FIELD=Alad_Tsfc           ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Tsfc)
      CALL verthor2d(FIELD=Alad_T2m            ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=T2m)
      CALL verthor2d(FIELD=Alad_Q2m            ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Q2m)
      CALL verthor2d(FIELD=Alad_Psfc           ,XS=xbeg,XE=xend,YS=ybeg,YE=yend,STEP=step,INT_FIELD=Psfc)
@@ -384,7 +385,7 @@ SUBROUTINE get_h_p_t_wv(d)
                        & uu=uWind(1:CAMx_nLev), vv=vWind(1:CAMx_nLev), rkv=rkv(i,j,1:CAMx_nLev))
 
          CASE ('cmaq')
-           call micromet( temp=t(i,j,1), temp0=Tsfc(i,j,1), press=P(i,j,1), press0=Psfc(i,j,1), &
+           call micromet( temp=t(i,j,1), temp0=T2m(i,j,1), press=P(i,j,1), press0=Psfc(i,j,1), &
                         & deltaz=HGT(i,j,1), wind=sqrt(Uwind(1)**2+Vwind(1)**2), &
                         & z0=sfcROUGH(i,j,1), pbl=PBL(i,j,1), ustar=ustar, eli=MOLenI, wstar=wstar)
 !tmpFile wind_tmp(i,j)=sqrt(U(i,j,1)**2+V(i,j,1)**2)
@@ -422,7 +423,7 @@ SUBROUTINE get_h_p_t_wv(d)
            call kv_acm2(nz=CAMx_nLev, zz=HGT_I(i,j,1:CAMx_nLev), uwind=uWind(1:CAMx_nLev), vwind=vWind(1:CAMx_nLev), &
                         temp=T(i,j,1:CAMx_nLev), qv=WV(i,j,1:CAMx_nLev), &
                         qc=cldwtr(i,j,1:CAMx_nLev)*1000.*rho(i,j,1:CAMx_nLev), &
-                        press=P(i,j,1:CAMx_nLev), temps=Tsfc(i,j,1), z0=sfcROUGH(i,j,1), &
+                        press=P(i,j,1:CAMx_nLev), temps=T2m(i,j,1), z0=sfcROUGH(i,j,1), &
                         pbl=PBL(i,j,1), kvmin=kvmin, rkv=rkv(i,j,1:CAMx_nLev))
 
          CASE DEFAULT
@@ -505,8 +506,8 @@ SUBROUTINE get_h_p_t_wv(d)
               k,minval(V_AraC(:,:,k)),minloc(V_AraC(:,:,k)),maxval(V_AraC(:,:,k)),maxloc(V_AraC(:,:,k)),V_AraC(vpx,vpy,k)
      END DO
      WRITE(logFileUnit,*)
-         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') 'sfc temperature            [K] ', &
-              0,minval(Tsfc(:,:,1)),minloc(Tsfc(:,:,1)),maxval(Tsfc(:,:,1)),maxloc(Tsfc(:,:,1)),tsfc(vpx,vpy,1)
+         WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",F17.2)') '2m temperature             [K] ', &
+              0,minval(T2m(:,:,1)),minloc(T2m(:,:,1)),maxval(T2m(:,:,1)),maxloc(T2m(:,:,1)),T2m(vpx,vpy,1)
      DO k=1, CAMx_nLev
          WRITE(logFileUnit,'(A,I4,F10.2," [",I3,";"I3,"]",F17.2," [",I3,";"I3,"]",2F17.2)')'temp [K] + PotVirtTemp profile ', &
               k,minval(T(:,:,k)),minloc(T(:,:,k)),maxval(T(:,:,k)),maxloc(T(:,:,k)),T(vpx,vpy,k),thetavprof(k)
@@ -574,7 +575,7 @@ SUBROUTINE get_h_p_t_wv(d)
      ! * * * * * * * * * * * * * * * * *
 
      WRITE(tp_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ, & 
-       &((Tsfc(i,j,1),i=1,nx),j=1,ny)
+       &((T2m(i,j,1),i=1,nx),j=1,ny)
 
      WRITE(uv_unit(g)) aladin_met(d)%LT_HHMI,aladin_met(d)%LT_YYJJJ,.TRUE.
 
@@ -621,7 +622,7 @@ SUBROUTINE get_h_p_t_wv(d)
            CALL TestStop(istat-nf90_NoErr,'Writting BEIS PRSFC error: '//trim(nf90_strerror(istat)),logFileUnit)
 
          istat = nf90_put_var(BEIS_netCDFid(g), BEIS_TEMPSFC_varID(g), &
-                              Tsfc(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/))
+                              T2m(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/))
            CALL TestStop(istat-nf90_NoErr,'Writting BEIS TEMPSFC error: '//trim(nf90_strerror(istat)),logFileUnit)
 
          istat = nf90_put_var(BEIS_netCDFid(g), BEIS_SWRSFC_varID(g) , &
@@ -728,7 +729,6 @@ SUBROUTINE get_h_p_t_wv(d)
      IF (ALLOCATED(TKE       )) DEALLOCATE(TKE       )
      IF (ALLOCATED(T         )) DEALLOCATE(T         )
      IF (ALLOCATED(T2m       )) DEALLOCATE(T2m       )
-     IF (ALLOCATED(Tsfc      )) DEALLOCATE(Tsfc      )
      IF (ALLOCATED(Q         )) DEALLOCATE(Q         )
      IF (ALLOCATED(Rh        )) DEALLOCATE(Rh        )
      IF (ALLOCATED(WV        )) DEALLOCATE(WV        )

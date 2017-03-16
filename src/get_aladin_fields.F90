@@ -49,7 +49,7 @@ SUBROUTINE get_aladin_fields(gribfile,h)
      IF (h>0) THEN
          ! == 3D ==
          IF (AladField == AladField_T) THEN
-             CALL read_aladin_data(igrib,Alad_T,AladField%Lev,    'tepmerature',MesgNo)
+             CALL read_aladin_data(igrib,Alad_T,AladField%Lev,    'temperature',MesgNo)
              AladField_T%read(AladField%lev)=.TRUE.
          ELSE IF (AladField == AladField_geo) THEN
              CALL read_aladin_data(igrib,Alad_geo,AladField%Lev,  'geopotential',MesgNo)
@@ -187,8 +187,7 @@ SUBROUTINE get_aladin_fields(gribfile,h)
 
  ! Basic checking of data correctness
  IF (checkFlag) THEN
-     IF (ANY(Alad_Tsfc    < Tsfc_cmin))     CALL TestStop(1,'STOP - surface temperature < Tsfc_cmin',logFileUnit)
-     IF (ANY(Alad_T2m     < Tsfc_cmin))     CALL TestStop(1,'STOP - temperature at 2 m < Tsfc_cmin',logFileUnit)
+     IF (ANY(Alad_T2m     < T2m_cmin))      CALL TestStop(1,'STOP - temperature at 2 m < T2m_cmin',logFileUnit)
      IF (ANY(Alad_Q2m     < Q2m_cmin))      CALL TestStop(1,'STOP - specific humidity at 2 m < Q2m_cmin',logFileUnit)
      IF (ANY(Alad_GEOsfc  < GEOsfc_cmin))   CALL TestStop(1,'STOP - surface geopotential < GEOsfc_cmin',logFileUnit)
      IF (ANY(Alad_PBL     < PBL_cmin))      CALL TestStop(1,'STOP - planetary boundary layer height < PBL_cmin',logFileUnit)

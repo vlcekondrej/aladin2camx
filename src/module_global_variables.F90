@@ -65,7 +65,7 @@ MODULE module_global_variables
    ! == flag for checking Aladin input data
    LOGICAL :: checkFlag
    ! == critical values of Aladin data
-   REAL :: Tsfc_cmin, Q2m_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
+   REAL :: T2m_cmin, Q2m_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
            T_cmin, geo_cmin, p_cmin, wind_cmax, TKE_cmin, Q_cmin, Rh_cmin, Qs_cmin, Ql_cmin, Qr_cmin, Qi_cmin
 
    ! missing value code in output fields
@@ -78,7 +78,7 @@ MODULE module_global_variables
        SMOOTHER_SWITCH, SMOOTHER_METHOD, &
        kv_method, kvmin, &
        cod_method, odMetL, odMetM, odMetH, &
-       checkFlag, Tsfc_cmin, Q2m_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
+       checkFlag, T2m_cmin, Q2m_cmin, Psfc_cmin, GEOsfc_cmin, PBL_cmin, sfcROUGH_cmin, &
        T_cmin, geo_cmin, p_cmin, wind_cmax, TKE_cmin, Q_cmin, Rh_cmin, Qs_cmin, Ql_cmin, Qr_cmin, Qi_cmin
 
 
@@ -227,7 +227,7 @@ MODULE module_global_variables
  ! promenne, do kterych budou nactena pole z ALADINovskych GRIBu
  !  - jednotlive dimenze: (i,j,k) (x,y,z) == (zem. delka, zem. sirka, vyska)
  !  - i roste na vychod; j roste na sever; k roste s vyskou
- REAL(KIND=sp), ALLOCATABLE, DIMENSION(:,:,:), TARGET :: Alad_Tsfc, Alad_T, Alad_GEOsfc, Alad_GEO, &
+ REAL(KIND=sp), ALLOCATABLE, DIMENSION(:,:,:), TARGET :: Alad_T, Alad_GEOsfc, Alad_GEO, &
               & Alad_Psfc, Alad_P, Alad_uWind, Alad_vWind, Alad_TKE, &
               & Alad_Rh, Alad_Q2m, Alad_Q, Alad_Ql, Alad_Qi, Alad_Qr, Alad_Qs, &
               & Alad_PBL, Alad_sfcROUGH, Alad_AccSolRad, Alad_SolRad, &
@@ -280,8 +280,6 @@ MODULE module_global_variables
    ! Allocating Aladin Field for [Alad_nx, Alad_ny, Alad_maxLev]
 
    ! == 2D ===
-   ALLOCATE(Alad_Tsfc(Alad_nx,Alad_ny,1), STAT=istat)
-     CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_Tsfc')
    ALLOCATE(Alad_T2m(Alad_nx,Alad_ny,1), STAT=istat)
      CALL TestStop(istat,'__alloc_Alad: allocation ERROR for Alad_T2m')
    ALLOCATE(Alad_Q2m(Alad_nX,Alad_nY,1), STAT=istat)
@@ -357,8 +355,6 @@ MODULE module_global_variables
    ! == 2D ===
    IF (ALLOCATED(Alad_Q2m)) DEALLOCATE(Alad_Q2m,  STAT=istat)
        CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_Q2m')
-   IF (ALLOCATED(Alad_Tsfc))  DEALLOCATE(Alad_Tsfc,  STAT=istat)
-     CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_Tsfc')
    IF (ALLOCATED(Alad_T2m))  DEALLOCATE(Alad_T2m,  STAT=istat)
      CALL TestStop(istat,'__dealloc_Alad: deallocation ERROR for Alad_T2m')
    IF (ALLOCATED(Alad_Psfc)) DEALLOCATE(Alad_Psfc,  STAT=istat)
