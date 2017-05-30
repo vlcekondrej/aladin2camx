@@ -295,6 +295,7 @@ SUBROUTINE get_h_p_t_wv(d)
      ALLOCATE(sfcROUGH  (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array sfcROUGH allocation error')
      ALLOCATE(SolRad    (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SolRad allocation error')
      ALLOCATE(RAIN_ACC24(NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array rain_acc24 allocation error')
+     ALLOCATE(PREC_ADJ  (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array prec_adj allocation error')
      ALLOCATE(SOIM1     (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SOIM1 allocation error')
      ALLOCATE(SOIT1     (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array SOIT1 allocation error')
      ALLOCATE(missing2D (NX,NY,1          ), STAT=istat); CALL TestStop(istat,'get_h_p_t_wv: array missing2D allocation error')
@@ -664,8 +665,9 @@ SUBROUTINE get_h_p_t_wv(d)
                               RAIN_ACC24(1:nx,1:ny,1), start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! RAIN_ACC24
            CALL TestStop(istat-nf90_NoErr,'Writting MEGAN RAIN_ACC25 error: '//trim(nf90_strerror(istat)),logFileUnit)
 
+         PREC_ADJ = 1. ! PREC_ADJ set to 1 (no adjustment)
          istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_PREC_ADJ_varID(g)  , &
-                              missing2D(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! PREC_ADJ xx
+                              PREC_ADJ(1:nx,1:ny,1),   start=(/1,1,1,d/), count=(/nx,ny,1,1/)) ! PREC_ADJ - set to 1 (no adjustment)
            CALL TestStop(istat-nf90_NoErr,'Writting MEGAN PREC_ADJ error: '//trim(nf90_strerror(istat)),logFileUnit)
 
          istat = nf90_put_var(MEGAN_netCDFid(g), MEGAN_PAR_varID(g)  , &
@@ -743,6 +745,7 @@ SUBROUTINE get_h_p_t_wv(d)
      IF (ALLOCATED(sfcROUGH  )) DEALLOCATE(sfcROUGH  )
      IF (ALLOCATED(SolRad    )) DEALLOCATE(SolRad    )
      IF (ALLOCATED(RAIN_ACC24)) DEALLOCATE(RAIN_ACC24)
+     IF (ALLOCATED(PREC_ADJ  )) DEALLOCATE(PREC_ADJ  )
      IF (ALLOCATED(Q2m       )) DEALLOCATE(Q2m       )
      IF (ALLOCATED(wspd10m   )) DEALLOCATE(wspd10m   )
      IF (ALLOCATED(wMixRat2m )) DEALLOCATE(wMixRat2m )

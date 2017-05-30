@@ -308,10 +308,12 @@ SUBROUTINE MEGANmet_createHeader(g, ncfname)
   '                              total precipitation accumulated over last 24 hours')
 
  ! Precipitation adjustment factor
+ ! According to chapter 4.1 in Yienger, J. J. & Levy, H. Empirical model of global soil-biogenic NOx emissions. 
+ !   Journal of Geophysical Research: Atmospheres, 1995, 100, 11447-11464
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_PREC_ADJ_varID(g), 'long_name','PREC_ADJ        ')
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_PREC_ADJ_varID(g), 'units'    ,'No dimension')
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_PREC_ADJ_varID(g), 'var_desc' ,&
-  '                                                 Precipitation adjustment factor')
+  '    Precipitation adjustment factor - set fixed to 1 (no pulse of NOx from soil)')
 
  ! Photosynthetically Active Radiation
  iret=nf90_put_att(MEGAN_netCDFid(g), MEGAN_PAR_varID(g), 'long_name','PAR')
