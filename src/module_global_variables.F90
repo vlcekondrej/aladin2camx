@@ -149,10 +149,10 @@ MODULE module_global_variables
    INTEGER :: TimeZone
    NAMELIST /clock_control/ begYYYYMMDD, begHHMI, endYYYYMMDD, endHHMI, met_frequency, TimeZone
 
-   CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: zp_file, tp_file, uv_file, qa_file
-   CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: cr_file,  kv_file
+   CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: camx_lu_file, camx_2d_file, camx_3d_file, &
+                                                     camx_kv_file, camx_cr_file
    CHARACTER(LEN=200), DIMENSION(ngridnumber_max) :: avgHGT_file, beis_file, megan_file
-   NAMELIST /output_files/ zp_file, tp_file, uv_file, qa_file, cr_file, kv_file, avgHGT_file, &
+   NAMELIST /output_files/ camx_lu_file, camx_2d_file, camx_3d_file, camx_kv_file, camx_cr_file, avgHGT_file, &
                            beis_file, megan_file
 
    INTEGER, PARAMETER :: NPrecedAlaMetFiles = 23
@@ -172,8 +172,7 @@ MODULE module_global_variables
  TYPE(tAVAILABLE_FILES), ALLOCATABLE, DIMENSION(:) :: aladin_met
 
  ! unit numbers and file names for CAMx input files and master resp. nested grids; alloccated and set in aladin2camx_MAIN
- INTEGER,            DIMENSION(ngridnumber_max) :: zp_unit, tp_unit, uv_unit, qa_unit
- INTEGER,            DIMENSION(ngridnumber_max) :: cr_unit,  kv_unit
+ INTEGER,            DIMENSION(ngridnumber_max) :: camx_lu_unit, camx_2d_unit, camx_3d_unit, camx_kv_unit, camx_cr_unit
  INTEGER,            DIMENSION(ngridnumber_max) :: avgHGT_unit
 
 

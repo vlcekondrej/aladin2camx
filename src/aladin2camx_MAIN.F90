@@ -47,35 +47,30 @@ PROGRAM aladin2camx_MAIN
  ! ----------------------------------------------------------------------------
  DO g=1,ngridnumber
 
-     zp_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=zp_unit(g), FILE=zp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx HEIGHT/PRESSURE FILE "'//&
-                           trim(zp_file(g))//'"',logFileUnit)
+     camx_lu_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=camx_lu_unit(g), FILE=camx_lu_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx static 2-D surface file "'//&
+                           trim(camx_lu_file(g))//'"',logFileUnit)
 
-     tp_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=tp_unit(g), FILE=tp_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx TEMPERATURE "'//&
-                           trim(tp_file(g))//'"',logFileUnit)
+     camx_2d_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=camx_2d_unit(g), FILE=camx_2d_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx time-variant 2-D file "'//&
+                           trim(camx_2d_file(g))//'"',logFileUnit)
 
-     uv_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=uv_unit(g), FILE=uv_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WIND "'//&
-                           trim(uv_file(g))//'"',logFileUnit)
+     camx_3d_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=camx_3d_unit(g), FILE=camx_2d_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx time-variant 3-D filr "'//&
+                           trim(camx_3d_file(g))//'"',logFileUnit)
 
-     qa_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=qa_unit(g), FILE=qa_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx WATER VAPOR FILE "'//&
-                           trim(qa_file(g))//'"',logFileUnit)
+     camx_kv_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=camx_kv_unit(g), FILE=camx_kv_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx vert. diff. file "'//&
+                           trim(camx_kv_file(g))//'"',logFileUnit)
 
-     cr_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=cr_unit(g), FILE=cr_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
+     camx_cr_unit(g)=getFreeUnitNo()
+     OPEN(UNIT=camx_cr_unit(g), FILE=camx_cr_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
        CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx CLOUD/RAIN FILE "'//&
-                           trim(cr_file(g))//'"',logFileUnit)
-
-     kv_unit(g)=getFreeUnitNo()
-     OPEN(UNIT=kv_unit(g), FILE=kv_file(g), FORM='UNFORMATTED',ACTION='WRITE',IOSTAT=istat)
-       CALL TestStop(istat,'STOP __aladin2camx_MAIN: COULD NOT CREATE CAMx RKV FILE "'//&
-                           trim(kv_file(g))//'"',logFileUnit)
+                           trim(camx_cr_file(g))//'"',logFileUnit)
 
      IF (BEIS_flag) THEN
          CALL BEISmet_createHeader(g=g,ncfname=beis_file(g))
@@ -134,11 +129,11 @@ PROGRAM aladin2camx_MAIN
 
  ! closing all binary files at the end of preprocessor
  DO g=1,ngridnumber
-     CLOSE(zp_unit(g))
-     CLOSE(tp_unit(g))
-     CLOSE(uv_unit(g))
-     CLOSE(qa_unit(g))
-     CLOSE(cr_unit(g))
+     CLOSE(camx_lu_unit(g))
+     CLOSE(camx_2d_unit(g))
+     CLOSE(camx_3d_unit(g))
+     CLOSE(camx_kv_unit(g))
+     CLOSE(camx_cr_unit(g))
      CLOSE(avgHGT_unit(g))
  END DO
 !tmpFile close(tmp_unit)
