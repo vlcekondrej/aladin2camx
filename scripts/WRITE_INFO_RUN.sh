@@ -93,8 +93,8 @@ qa_file(${g})     = '${CAMXDIR}/camx.qa.d0${g}.${beginEnd}'
 cr_file(${g})     = '${CAMXDIR}/camx.cr.d0${g}.${beginEnd}'
 kv_file(${g})     = '${CAMXDIR}/camx.kv.d0${g}.${beginEnd}'
 avgHGT_file(${g}) = '${CAMXDIR}/camx.avgHGT.d0${g}.${beginEnd}'
-beis_file(${g})   = '${CAMXDIR}/BEISmet.d0${g}.${beginEnd}' ! used only if BEIS_flag=.TRUE.
-megan_file(${g})  = '${CAMXDIR}/MEGANmet.d0${g}.${beginEnd}' ! used only if MEGAN_flag=.TRUE.
+beis_file(${g})   = '${CAMXDIR}/BEISmet.d0${g}.${beginEnd}.nc' ! used only if BEIS_flag=.TRUE.
+megan_file(${g})  = '${CAMXDIR}/MEGANmet.d0${g}.${beginEnd}.nc' ! used only if MEGAN_flag=.TRUE.
 
 EOF
 g=$[$g+1]
